@@ -42,5 +42,3 @@ WHITE   = '\033[0;37m'
 PRIMARY_COLOR   = BLUE
 SECONDARY_COLOR = GREY
 
-from api import init_api_keys, API_KEY, API_SECRET
-init_api_keys(real=True)
