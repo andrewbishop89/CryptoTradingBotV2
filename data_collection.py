@@ -62,4 +62,14 @@ def historical_klines(
         if not len(klines):
             print(f"{RED}ERROR{WHITE} No klines were downloaded.")
             raise ValueError
-        return format_binance_klines(klines)
+        return klines_dict_to_df(klines)
+
+#PARAM klines(DataFrame/dict): candles to be sent to csv
+#PARAM symbol(str): symbol of candles
+#PARAM interval(str): interval of candles
+#RETURN none
+def klines_to_csv(klines, symbol: str, interval: str):
+    if (type(klines) != pd.DataFrame):
+        klines = klines_dict_to_df(klines)
+    klines.to_csv("SOLUSDT_1h.csv")
+    
