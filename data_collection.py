@@ -38,8 +38,6 @@ def historical_klines(
                     limit=remainder,
                     start_str=str(start_time)
                 )[:remainder]
-                #print()
-                #print(f"KLINES DOWNLOADED: {len(klines)}")
                 start_time += remainder*60*interval
             else:
                 klines = []
@@ -51,7 +49,6 @@ def historical_klines(
                     limit=1000,
                     start_str=str(start_time)
                 )[:1000]
-                #print(f"KLINES DOWNLOADED: {len(klines)}")
                 start_time += 1000*60*interval
         else:
             klines = client.get_historical_klines(
@@ -60,8 +57,7 @@ def historical_klines(
                 limit=limit,
                 start_str=str(start_time)
             )[:limit]
-            #print(f"KLINES DOWNLOADED: {len(klines)}")
-        return format_binance_klines(klines)
+        return klines_dict_to_df(klines)
     except:
         if not len(klines):
             print(f"{RED}ERROR{WHITE} No klines were downloaded.")
