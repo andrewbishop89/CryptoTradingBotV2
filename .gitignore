@@ -1,0 +1,21 @@
+#gitignore
+
+#text files
+*.txt
+
+#jupyter notebooks
+*.ipynb
+
+#pyc files
+*.pyc
+
+#directories
+data
+__pycache__
+
+#json files
+
+
+#csv files
+
+
