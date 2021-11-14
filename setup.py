@@ -56,10 +56,10 @@ def kline_start_time(interval: str, limit: int, end: float=convert_time(time.tim
     interval = decode_interval(interval)
     return end-60*interval*limit
 
-#PARAM klines(dict): the dictionary of candles to be converted to DataFrame
-#RETURN (DataFrame): the dataframe version of the klines dictionary
-def klines_dict_to_df(klines: dict):
-    return pd.DataFrame(klines).astype(float) 
+#PARAM klines(dict): the list of candles to be converted to DataFrame
+#RETURN (DataFrame): the dataframe version of the klines list
+def klines_dict_to_df(klines):
+    return pd.DataFrame(klines, columns=['o','c','h','l','t','n','v']).set_index('t')
 
 #RETURN (int): formatted current unix timestamp
 def get_timestamp():
