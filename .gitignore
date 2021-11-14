@@ -14,8 +14,8 @@ data
 __pycache__
 
 #json files
-
+*.json
 
 #csv files
-
+*.csv
 
