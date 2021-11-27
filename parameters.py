@@ -7,6 +7,7 @@
 #
 
 # modules imported
+"""
 from functools import lru_cache
 import hmac
 import hashlib
@@ -27,9 +28,19 @@ import pync
 import curses
 import sys
 import shutil
+import time
 from pprint import pprint, pformat
 from datetime import datetime
 
+# my modules
+from api import *
+from backtest import *
+from data_collection import *
+from market import *
+from setup import *
+from trade import *
+from websocket import *
+"""
 
 # global variables
 BLUE    = '\u001b[1;38;5;$39m'
@@ -42,3 +53,19 @@ WHITE   = '\033[0;37m'
 PRIMARY_COLOR   = BLUE
 SECONDARY_COLOR = GREY
 
+#PARAM real(bool): True for real API, False for paper money
+#RETURN none
+#def init_api_keys(real=True):
+global API_KEY, API_SECRET, BASE_URL
+
+with open('keys.txt', 'r') as f:
+    lines = f.readlines()
+    #NOTE these are for the binance API
+    #if real == False:
+    #    API_KEY = lines[0][:-1]
+    #    API_SECRET = lines[1][:-1]
+    #    BASE_URL = "https://testnet.binance.vision"
+    #elif real == True:
+    API_KEY = lines[3][:-1]
+    API_SECRET = lines[4][:-1]
+    BASE_URL = "https://api.binance.com"

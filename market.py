@@ -7,8 +7,11 @@
 #
 
 # modules imported
+import pandas as pd
+
 from parameters import *
 from api import *
+
 
 
 # functions
@@ -23,8 +26,8 @@ def top_gainers(min_percent: float = 0, max_percent: float = 0):
     df = pd.DataFrame.from_dict(price_change)
     df = df[df['symbol'].str.contains(
         'USDT')]
-    df = df[df['symbol'].str.contains('DOWN') == False]
-    df = df[df['symbol'].str.contains('UP') == False]
+    #df = df[df['symbol'].str.contains('DOWN') == False]
+    #df = df[df['symbol'].str.contains('UP') == False]
     df = df.reset_index().set_index('symbol')
     if min_percent:
         df = df[df['priceChangePercent'].astype(float) > min_percent]

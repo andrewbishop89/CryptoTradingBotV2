@@ -6,6 +6,9 @@
 #jupyter notebooks
 *.ipynb
 
+#python files
+testing.py
+
 #pyc files
 *.pyc
 
