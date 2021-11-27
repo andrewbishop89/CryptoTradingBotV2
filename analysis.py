@@ -8,6 +8,10 @@
 #
 
 # modules imported
+import pandas as pd
+import numpy as np
+from ta.trend import sma_indicator
+
 from parameters import *
 
 
@@ -30,6 +34,52 @@ def fibonacci_retracement_levels(
     price_difference = end_price-start_price
     return [(end_price - (price_difference*percentage)) for percentage in \
         level_percentages]
+    
+
+def list_to_series(data):
+    return pd.Series(np.array(data))
+
+#PARAM data(): TODO
+#PARAM window(): TODO
+#RETURN (): TODO 
+def SMA(data, window=10):
+    series = list_to_series(data)
+    sma_values = sma_indicator(series, window=window).values.tolist()
+    return sma_values
+
+#PARAM klines(DataFrame): candles to analyze
+#PARAM window(int): number of values for SMMA
+#RETURN (DataFrame): 
+def SMMA(klines: pd.DataFrame, window: int):
+    closing_prices = [kline['c'] for kline in klines.iloc]
+    if len(klines) < 2*window:
+        print(f"{RED}ERROR{WHITE} Window not large enough for SMMA calculation\
+            (NEED: {2*window}, RECIEVED: {len(klines)}).")
+        raise IndexError
+    first_value = SMA(closing_prices, window=window)[-window]
+    smma_values = [(first_value*(window-1) + closing_prices[-1])/window]
+    for index in range(window-1):
+        smma_values.append(
+            (smma_values[-1]*(window-1) + closing_prices[index-window])/window)
+    return smma_values
+
+#PARAM klines(DataFrame): candles to analyze
+#PARAM short_window
+"""
+def triple_SMMA_check(
+    klines: pd.DataFrame, 
+    short_window: int, 
+    mid_window: int, 
+    long_window: int):
+    
+    short_smma = SMMA(klines.iloc[-2*short_window:], short_window)
+    mid_smma = SMMA(klines.iloc[-2*mid_window:], mid_window)
+    long_smma = SMMA(klines.iloc[-2*long_window:], long_window)
+    return (short_smma[-1] > mid_smma[-1]) and (mid_smma[-1] > long_smma[-1]) and \
+        (trend_direction({}, data=short_smma, window=5) == 'up') and \
+        (trend_direction({}, data=mid_smma, window=5) == 'up') and \
+        (trend_direction({}, data=long_smma, window=5) == 'up')
+"""
 
 # chart patterns
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
