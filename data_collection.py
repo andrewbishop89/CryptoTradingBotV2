@@ -64,6 +64,13 @@ def historical_klines(
             raise ValueError
         return klines_dict_to_df(klines)
 
+#PARAM
+#RETURN
+def download_to_csv(symbol: str, interval: str):
+    klines = download_recent_klines(symbol, interval)
+    klines_to_csv(klines, symbol, interval)
+    return klines
+
 #PARAM klines(DataFrame/dict): candles to be sent to csv
 #PARAM symbol(str): symbol of candles
 #PARAM interval(str): interval of candles
