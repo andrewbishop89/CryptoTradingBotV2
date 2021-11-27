@@ -7,6 +7,9 @@
 #
 
 # modules imported
+from binance.client import Client
+import os
+
 from parameters import *
 from setup import *
 
