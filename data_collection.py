@@ -78,5 +78,47 @@ def download_to_csv(symbol: str, interval: str):
 def klines_to_csv(klines, symbol: str, interval: str):
     if (type(klines) != pd.DataFrame):
         klines = klines_dict_to_df(klines)
-    klines.to_csv("SOLUSDT_1h.csv")
+    init_coin(symbol, interval)
+    klines.to_csv(os.path.join("data", "live_data", f"{interval}",
+        f"{symbol.upper()}_{interval}.csv"))
     
+#PARAM (): TODO
+#RETURN (): TODO
+def download_recent_klines(symbol, interval, limit=500):
+    """Returns list of last 'limit' klines maxing at 1000. Use historical klines for other 1000 limit."""
+    client = Client(API_KEY, API_SECRET)
+    klines = client.get_klines(
+        symbol=symbol,
+        interval=interval,
+        limit=limit,
+    )
+    return format_binance_klines(klines)
+
+# NOTE extra args are for backtesting.
+def get_klines(symbol, limit, interval='1m', offset=-1, backtest_index=False, all_klines=False):
+
+    klines = []
+    count = 0
+    while True:
+        try:
+            klines = pd.read_csv(os.path.join(
+                "data", 
+                "live_data",
+                f"{interval}", 
+                f"{symbol.upper()}_{interval}.csv"))
+            
+            if len(klines):
+                break
+            else:
+                download_to_csv(symbol, interval)
+        except:
+            pass
+        count += 1
+        color = SECONDARY_COLOR if count < 3 else RED
+        #print(f"{color}ERROR{WHITE} Could not get klines for {interval} {symbol}.")
+        time.sleep(2)
+    if offset == -1:
+        return klines.iloc[-int(limit):]
+    elif offset != -1:
+        return klines.iloc[-int(limit)-int(offset):-int(offset)]
+    raise ValueError
