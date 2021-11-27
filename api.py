@@ -8,6 +8,11 @@
 #
 
 # modules imported
+import requests
+import hashlib
+import hmac
+from urllib.parse import urlencode
+
 from parameters import *
 from setup import *
 
