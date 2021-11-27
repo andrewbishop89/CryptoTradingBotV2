@@ -53,7 +53,7 @@ def trade_loop(symbol: str, interval: str):
 
 def main():
     gain_threshold_value = 10 #gain required in 5min period for buy in
-    larger_interval = '5m'
+    interval = '1m'
     
     # MAIN LOOP
     while True:
@@ -62,14 +62,24 @@ def main():
         top_coins = top_gainers(gain_threshold_value)
         print(f"Number of Coins: {len(top_coins)}")
         for coin in top_coins.index:
-            init_coin(coin, larger_interval)
-            klines = download_to_csv(coin, larger_interval)
+            init_coin(coin, interval)
+            klines = download_to_csv(coin, interval)
             
-            kline = klines.iloc[-1]
-            if (kline['c']/kline['o'] > (1+gain_threshold_value/100)):
-                pync.notify(f"{coin}: {round(kline['c']/kline['o']*100-100,2)}%", title="CTB2")
-                print(coin, kline)
+            last_klines = klines.tail(5)
+            for index in range(1,5):
+                try:
+                    if (last_klines.iloc[-index]['c'] < last_klines.iloc[-index]['o']):
+                        continue
+                except IndexError: #incase coin has less than 5 candles
+                    break
+                else:
+                    gain = last_klines.iloc[-1]['c']/last_klines.iloc[-index]['o']
+                    if (gain > (1+gain_threshold_value/100)):
+                        pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
+                            title="CTB2")
+                        trade_loop(coin, interval)
+            
+        time.sleep(60*1.5)
 
-        time.sleep(60*5)
 
 main()
