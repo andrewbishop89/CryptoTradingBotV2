@@ -15,23 +15,6 @@ from setup import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#PARAM real(bool): True for real API, False for paper money
-#RETURN none
-def init_api_keys(real=True):
-    global API_KEY, API_SECRET, BASE_URL
-
-    with open('keys.txt', 'r') as f:
-        lines = f.readlines()
-        #NOTE these are for the binance API
-        if real == False:
-            API_KEY = lines[0][:-1]
-            API_SECRET = lines[1][:-1]
-            BASE_URL = "https://testnet.binance.vision"
-        elif real == True:
-            API_KEY = lines[3][:-1]
-            API_SECRET = lines[4][:-1]
-            BASE_URL = "https://api.binance.com"
-
 #PARAM http_method(str): http method used in api call
 #PARAM url_path(str): api url path specifiying request
 #PARAM payload(dict): dictionary of all request attributes
