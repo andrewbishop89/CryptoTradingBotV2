@@ -9,6 +9,7 @@
 # modules imported
 import os
 import pync
+import threading
 
 from data_collection import *
 from graphing import graph
@@ -20,7 +21,7 @@ from parameters import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-def trade_loop(symbol: str, interval: str):
+def trade_loop(lock: threading.Lock, symbol: str, interval: str):
     
     buy_id, sell_quantity = buy_trade(symbol, 40) #buy in
     
@@ -51,23 +52,39 @@ def trade_loop(symbol: str, interval: str):
         
         time.sleep(45)
         
+    lock.acquire()
+    current_trades.remove(symbol)
+    lock.release()
+        
     return
 
 def main():
+    #Parameters
     gain_threshold_value = 10 #gain required in 5min period for buy in
     interval = '1m'
     
+    lock = threading.Lock() #for thread synchronization
+    global current_trades #list of all coins currently being traded
+    current_trades = []
+    
     # MAIN LOOP
-    while True:
+    while True: #TODO need to change to websocket instead of api calls for data
         
         #Find coins to trade
         top_coins = top_gainers(gain_threshold_value)
-        print(f"Number of Coins: {len(top_coins)}")
+        max_gain = 1
+        
+        lock.acquire()
+        for coin in current_trades: #if coin already being traded, skip it
+            if coin in top_coins:
+                top_coins.remove(coin)
+        lock.release()
+        
         for coin in top_coins.index:
-            init_coin(coin, interval)
-            klines = download_to_csv(coin, interval)
+            init_coin(coin, interval) #if new coin, create file for data
+            klines = download_to_csv(coin, interval) #download recent data
             
-            last_klines = klines.tail(5)
+            last_klines = klines.tail(5) #only analyze last 5 candles
             for index in range(1,5):
                 try:
                     if (last_klines.iloc[-index]['c'] < last_klines.iloc[-index]['o']):
@@ -76,12 +93,18 @@ def main():
                     break
                 else:
                     gain = last_klines.iloc[-1]['c']/last_klines.iloc[-index]['o']
+                    max_gain = max(gain, max_gain)
                     if (gain > (1+gain_threshold_value/100)):
                         pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
                             title="CTB2")
-                        trade_loop(coin, interval)
-            
+                        print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying into {coin}.")
+                        lock.acquire()
+                        current_trades.append(coin)
+                        lock.release()
+                        threading.Thread(target = trade_loop, args = [lock, coin, interval]).start()
+        
+        print(f"Number of Coins: {len(top_coins)}\t\t {normalize_time(time.time())}\t\tLast Max Gain: {round(max_gain*100-100,2)}%  ", end='\r')
+                    
         time.sleep(60*1.5)
-
 
 main()
