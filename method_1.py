@@ -41,7 +41,9 @@ def trade_loop(symbol: str, interval: str):
         if (current_price < stop_price): # if below stop loss take losses
             sell_trade(symbol, quantity=sell_quantity)
             sell_price = current_price_f(symbol)
-            print(f"PROFIT: {round((1-sell_price/buy_price)*100, 2)}%")
+            profit = round((sell_price/buy_price-1)*100, 2)
+            profit_color = GREEN if profit > 0 else RED
+            print(f"{profit_color}PROFIT{WHITE}: {profit}%\n\n")
             break
         
         if (max_price > ((1+price_fluctuation/2)*buy_price)):
