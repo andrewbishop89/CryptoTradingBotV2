@@ -68,43 +68,57 @@ def main():
     current_trades = []
     
     # MAIN LOOP
-    while True: #TODO need to change to websocket instead of api calls for data
+    while True:
+        try: #try-except incase api requests raise error or loss of connection
         
-        #Find coins to trade
-        top_coins = top_gainers(gain_threshold_value)
-        max_gain = 1
-        
-        lock.acquire()
-        for coin in current_trades: #if coin already being traded, skip it
-            if coin in top_coins:
-                top_coins.remove(coin)
-        lock.release()
-        
-        for coin in top_coins.index:
-            init_coin(coin, interval) #if new coin, create file for data
-            klines = download_to_csv(coin, interval) #download recent data
+            #Find coins to trade
+            top_coins = top_gainers(gain_threshold_value)
+            max_gain = 1
             
-            last_klines = klines.tail(5) #only analyze last 5 candles
-            for index in range(1,5):
-                try:
-                    if (last_klines.iloc[-index]['c'] < last_klines.iloc[-index]['o']):
-                        continue
-                except IndexError: #incase coin has less than 5 candles
-                    break
-                else:
-                    gain = last_klines.iloc[-1]['c']/last_klines.iloc[-index]['o']
-                    max_gain = max(gain, max_gain)
-                    if (gain > (1+gain_threshold_value/100)):
-                        pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
-                            title="CTB2")
-                        print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying into {coin}.")
-                        lock.acquire()
-                        current_trades.append(coin)
-                        lock.release()
-                        threading.Thread(target = trade_loop, args = [lock, coin, interval]).start()
-        
-        print(f"Number of Coins: {len(top_coins)}\t\t {normalize_time(time.time())}\t\tLast Max Gain: {round(max_gain*100-100,2)}%  ", end='\r')
-                    
-        time.sleep(60*1.5)
+            lock.acquire()
+            for coin in current_trades: #if coin already being traded, skip it
+                if coin in top_coins:
+                    top_coins.remove(coin)
+            lock.release()
+            
+            for coin in top_coins.index:
+                init_coin(coin, interval) #if new coin, create file for data
+                klines = download_to_csv(coin, interval) #download recent data
+                
+                last_klines = klines.tail(5) #only analyze last 5 candles
+                for index in range(1,5):
+                    try:
+                        if (last_klines.iloc[-index]['c'] < \
+                            last_klines.iloc[-index]['o']):
+                            continue
+                    except IndexError: #incase coin has less than 5 candles
+                        break
+                    else:
+                        gain = last_klines.iloc[-1]['c']/ \
+                            last_klines.iloc[-index]['o']
+                        max_gain = max(gain, max_gain)
+                        if (gain > (1+gain_threshold_value/100)):
+                            pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
+                                title="CTB2")
+                            print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying into \
+                                {coin}.")
+                            lock.acquire()
+                            current_trades.append(coin)
+                            lock.release()
+                            threading.Thread(
+                                target = trade_loop, 
+                                args = [lock, coin, interval]).start()
+                            time.sleep(2)
+            
+            print(f"Number of Coins: {len(top_coins)}\t\t  \
+                {normalize_time(time.time())}\t\t  Last Max Gain: \
+                {round(max_gain*100-100,2)}%  \t\t  Thread Count: {threading.active_count()}  ", end='\r')
+                        
+            time.sleep(60*1.5)
+            
+        except requests.exceptions.ReadTimeout:
+            print(f"{RED}ERROR {WHITE} ReadTimeout Error Raised. Sleeping \
+                for 5 minutes.")
+            time.sleep(60*5)
 
 main()
