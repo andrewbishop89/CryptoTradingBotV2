@@ -25,12 +25,12 @@ def trade_loop(lock: threading.Lock, symbol: str, interval: str):
     
     buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
     
-    price_fluctuation = 0.1
+    stop_loss = 0.1
     
     buy_price = current_price_f(symbol)
 
     max_price = buy_price
-    stop_price = buy_price*(1-price_fluctuation)
+    stop_price = buy_price*(1-stop_loss)
     
     while True:
         klines = download_to_csv(symbol, interval)
@@ -47,8 +47,8 @@ def trade_loop(lock: threading.Lock, symbol: str, interval: str):
             print(f"{profit_color}PROFIT{WHITE}: {profit}%\n\n")
             break
         
-        if (max_price > ((1+price_fluctuation/2)*buy_price)):
-            price_fluctuation = max_price - buy_price*price_fluctuation #top value - 10% buy in
+        #top value - 10% buy in
+        stop_price = max_price - buy_price*stop_loss
         
         time.sleep(45)
         
