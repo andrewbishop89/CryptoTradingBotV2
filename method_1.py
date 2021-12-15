@@ -126,12 +126,23 @@ def main():
                 {normalize_time(time.time())}\t\t  Last Max Gain: \
                 {round(max_gain*100-100,2)}%  \t\t  Thread Count: \
                 {threading.active_count()}  ", end='\r')
-                        
-            time.sleep(60*1.5)
             
+            #change sleep time depending on last measure max gain
+            if (max_gain > gain_threshold_value*0.9):
+                time.sleep(30)
+            elif (max_gain > gain_threshold_value*0.7):
+                time.sleep(60)
+            elif (max_gain > gain_threshold_value*0.5):
+                time.sleep(90)
+            elif (max_gain > gain_threshold_value*0.3):
+                time.sleep(120)
+            else:
+                time.sleep(240)
+            
+        #incase a network connection error is raised
         except requests.exceptions.ReadTimeout:
             print(f"{RED}ERROR {WHITE} ReadTimeout Error Raised. Sleeping \
                 for 5 minutes.")
-            time.sleep(60*5)
+            time.sleep(300)
 
 main()
