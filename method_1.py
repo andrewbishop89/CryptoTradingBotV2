@@ -23,7 +23,7 @@ from parameters import *
 
 def trade_loop(lock: threading.Lock, symbol: str, interval: str):
     
-    buy_id, sell_quantity = buy_trade(symbol, 40) #buy in
+    buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
     
     price_fluctuation = 0.1
     
