@@ -100,8 +100,8 @@ def main():
                         if (gain > (1+gain_threshold_value/100)):
                             pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
                                 title="CTB2")
-                            print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying into \
-                                {coin}.")
+                            print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying \
+                                into {coin}.")
                             lock.acquire()
                             current_trades.append(coin)
                             lock.release()
@@ -112,7 +112,8 @@ def main():
             
             print(f"Number of Coins: {len(top_coins)}\t\t  \
                 {normalize_time(time.time())}\t\t  Last Max Gain: \
-                {round(max_gain*100-100,2)}%  \t\t  Thread Count: {threading.active_count()}  ", end='\r')
+                {round(max_gain*100-100,2)}%  \t\t  Thread Count: \
+                {threading.active_count()}  ", end='\r')
                         
             time.sleep(60*1.5)
             
