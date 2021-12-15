@@ -30,7 +30,7 @@ def trade_loop(
     if (not paper_flag):
         buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
     
-    stop_loss = 0.1
+    stop_loss = 0.1 #stop loss percent
     
     buy_price = current_price_f(symbol)
 
@@ -77,7 +77,7 @@ def main():
     while True:
         try: #try-except incase api requests raise error or loss of connection
         
-            #Find coins to trade
+            #find coins to trade
             top_coins = top_gainers(gain_threshold_value)
             max_gain = 1
             
