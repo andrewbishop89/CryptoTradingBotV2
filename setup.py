@@ -7,7 +7,7 @@
 #
 
 # modules imported
-import datetime
+from datetime import datetime
 import time
 import os
 import pandas as pd
@@ -94,7 +94,7 @@ def format_binance_klines(klines):
 #PARAM string(str): string to be padded with whitespace
 #PARAM padding(float=0.3): percentage of terminal width to use for padding
 #RETURN (string): string with padding formatted by terminal width
-def format_string_padding(string: str, padding: float=0.30):
+def format_string_padding(string: str, padding: float=0.25):
     terminal_width = os.get_terminal_size().columns
     return string.ljust(int(terminal_width*padding))
 
