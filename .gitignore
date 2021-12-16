@@ -24,3 +24,5 @@ logs
 #csv files
 *.csv
 
+#other files
+.DS_Store
