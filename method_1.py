@@ -88,6 +88,9 @@ def main():
             top_coins = top_gainers(gain_threshold_value)
             max_gain = 1
             
+            #TODO: cycle through current_trades and top_coins in multiple 
+            # threads to speed up execution time
+            
             lock.acquire()
             for coin in current_trades: #if coin already being traded, skip it
                 if coin in top_coins:
