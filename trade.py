@@ -241,8 +241,10 @@ def last_order_quantity(symbol, orderId):
             print(f"{RED}ERROR {WHITE}Could not find last order quantity.")
 
 
-def account_info(specific_data=[]):
+def account_info(specific_data=None):
     # returns dictionary of all the crypto the account holds
+    if (specific_data == None):
+        specific_data = []
     data = {}
     account = send_signed_request('GET', '/api/v3/account')
     balances = account['balances']
