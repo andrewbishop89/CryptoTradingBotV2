@@ -57,14 +57,20 @@ def convert_time(ts: float):
 #PARAM limit(int): number of candles before end time
 #PARAM end(float): unix time stamp for end time (default is current time)
 #RETURN (float): the time stamp of limit interval candles before end
-def kline_start_time(interval: str, limit: int, end: float=convert_time(time.time())):
+def kline_start_time(
+    interval: str, 
+    limit: int, 
+    end: float=convert_time(time.time())):
+    
     interval = decode_interval(interval)
     return end-60*interval*limit
 
 #PARAM klines(dict): the list of candles to be converted to DataFrame
 #RETURN (DataFrame): the dataframe version of the klines list
 def klines_dict_to_df(klines):
-    return pd.DataFrame(klines, columns=['o','c','h','l','t','n','v']).set_index('t')
+    return pd.DataFrame(
+        klines, 
+        columns=['o','c','h','l','t','n','v']).set_index('t')
 
 #RETURN (int): formatted current unix timestamp
 def get_timestamp():
