@@ -140,6 +140,9 @@ def main():
                 f" Last Max Gain: {round(max_gain*100-100,2)}%")
             current_string += format_string_padding(
                 f" Thread Count: {threading.active_count()}")
+            #subtract 8*3600 to convert from UTC to GMT-8 time
+            current_string += format_string_padding(
+                f" Time: {get_time(time.time()-8*3600)}")
             print(current_string, end='\r')
 
             
