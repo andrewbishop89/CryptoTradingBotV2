@@ -164,4 +164,8 @@ def main():
                 for 5 minutes.")
             time.sleep(300)
 
-main()
+try:
+    main()
+except KeyboardInterrupt:
+    print(f"\n{GREY}STATUS {WHITE}Finishing Program...")
+    sys.exit()
