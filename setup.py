@@ -86,6 +86,10 @@ def format_binance_klines(klines):
     return klines_dict_to_df(formatted_klines)
 
 
+def format_string_padding(string: str, padding: float = 0.30):
+    terminal_width = os.get_terminal_size().columns
+    return string.ljust(int(terminal_width*padding))
+
 def get_time(ts):
     return datetime.utcfromtimestamp(ts).strftime('%H:%M')
 
