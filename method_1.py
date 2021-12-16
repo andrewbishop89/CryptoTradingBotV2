@@ -68,6 +68,8 @@ def trade_loop(
         
     return
 
+#PARAM (none)
+#RETURN (none)
 def main():
     #Parameters
     gain_threshold_value = 10 #gain required in 5min period for buy in
