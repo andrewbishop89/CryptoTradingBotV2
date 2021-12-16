@@ -122,10 +122,16 @@ def main():
                                 ).start()
                             time.sleep(2)
             
-            print(f"Number of Coins: {len(top_coins)}\t\t  \
-                {normalize_time(time.time())}\t\t  Last Max Gain: \
-                {round(max_gain*100-100,2)}%  \t\t  Thread Count: \
-                {threading.active_count()}  ", end='\r')
+            
+            #print current program status (statistics)
+            current_string = format_string_padding(
+                f" Number of Coins: {len(top_coins)}")
+            current_string += format_string_padding(
+                f" Last Max Gain: {round(max_gain*100-100,2)}%")
+            current_string += format_string_padding(
+                f" Thread Count: {threading.active_count()}")
+            print(current_string, end='\r')
+
             
             #change sleep time depending on last measure max gain
             if (max_gain > gain_threshold_value*0.9):
