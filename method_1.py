@@ -7,7 +7,7 @@
 #
 
 # modules imported
-import os
+import sys
 import pync
 import threading
 
