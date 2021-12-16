@@ -70,8 +70,8 @@ def klines_dict_to_df(klines):
 def get_timestamp():
     return int(time.time()*1000)
 
-#
-#
+#PARAM klines: candles to be formated from dictionary to DataFrame
+#RETURN (DataFrame): DataFrame of formatted candles
 def format_binance_klines(klines):
     formatted_klines = []
     for kline in klines:
@@ -85,11 +85,15 @@ def format_binance_klines(klines):
         formatted_klines[-1]['n'] = float(kline[8])
     return klines_dict_to_df(formatted_klines)
 
-
-def format_string_padding(string: str, padding: float = 0.30):
+#PARAM string(str): string to be padded with whitespace
+#PARAM padding(float=0.3): percentage of terminal width to use for padding
+#RETURN (string): string with padding formatted by terminal width
+def format_string_padding(string: str, padding: float=0.30):
     terminal_width = os.get_terminal_size().columns
     return string.ljust(int(terminal_width*padding))
 
+#PARAM ts: unix time stamp to be converted to hour/minute format
+#RETURN (string): string formatted in hour/minute format
 def get_time(ts):
     return datetime.utcfromtimestamp(ts).strftime('%H:%M')
 

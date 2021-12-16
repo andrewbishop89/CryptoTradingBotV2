@@ -21,6 +21,11 @@ from parameters import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+#PARAM lock(threading.Lock): lock for making changes to current trades list
+#PARAM symbol(str): symbol of currency to trade
+#PARAM interval(str): interval of klines to be used for analysis
+#PARAM paper_flag(bool): to indicate whether to use real or paper money
+#RETURN (none)
 def trade_loop(
     lock: threading.Lock, 
     symbol: str, 
