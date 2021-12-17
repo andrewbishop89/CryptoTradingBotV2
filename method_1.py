@@ -117,8 +117,8 @@ def main():
                             #notify computer about buying in
                             pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
                                 title="CTB2")
-                            print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying \
-                                into {coin}.")
+                            print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
+                                f"into {coin}.")
                             lock.acquire()
                             current_trades.append(coin)
                             lock.release()
@@ -160,8 +160,8 @@ def main():
             
         #incase a network connection error is raised
         except requests.exceptions.ReadTimeout:
-            print(f"{RED}ERROR {WHITE} ReadTimeout Error Raised. Sleeping \
-                for 5 minutes.")
+            print(f"{RED}ERROR {WHITE} ReadTimeout Error Raised. Sleeping " +
+                "for 5 minutes.")
             time.sleep(300)
 
 try:
