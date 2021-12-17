@@ -30,12 +30,11 @@ def trade_loop(
     lock: threading.Lock, 
     symbol: str, 
     interval: str, 
-    paper_flag: bool):
+    paper_flag: bool,
+    stop_loss: float):
     
     if (not paper_flag):
         buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
-    
-    stop_loss = 0.1 #stop loss percent
     
     buy_price = current_price_f(symbol)
     print(f"{GREY}BUY PRICE{WHITE}: {buy_price}")
@@ -129,10 +128,12 @@ def main():
                             #creating trade loop thread for coin
                             threading.Thread(
                                 target = trade_loop, 
-                                args = [lock, 
-                                        coin, 
-                                        interval,
-                                        paper_flag]
+                                args = [
+                                    lock, 
+                                    coin, 
+                                    interval,
+                                    paper_flag,
+                                    buy_in_gain/100]
                                 ).start()
                             break
             
