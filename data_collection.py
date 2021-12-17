@@ -70,8 +70,8 @@ def historical_klines(
 
 #PARAM
 #RETURN
-def download_to_csv(symbol: str, interval: str):
-    klines = download_recent_klines(symbol, interval)
+def download_to_csv(symbol: str, interval: str, limit: int=500):
+    klines = download_recent_klines(symbol, interval, limit)
     klines_to_csv(klines, symbol, interval)
     return klines
 
