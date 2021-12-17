@@ -61,12 +61,12 @@ def historical_klines(
                 limit=limit,
                 start_str=str(start_time)
             )[:limit]
-        return klines_dict_to_df(klines)
+        return format_binance_klines(klines)
     except:
         if not len(klines):
             print(f"{RED}ERROR{WHITE} No klines were downloaded.")
             raise ValueError
-        return klines_dict_to_df(klines)
+        return format_binance_klines(klines)
 
 #PARAM
 #RETURN
