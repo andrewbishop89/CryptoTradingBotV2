@@ -134,7 +134,7 @@ def main():
                                         interval,
                                         paper_flag]
                                 ).start()
-                            time.sleep(2)
+                            break
             
             
             #print current program status (statistics)
