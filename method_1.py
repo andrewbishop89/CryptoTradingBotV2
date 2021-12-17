@@ -76,7 +76,7 @@ def trade_loop(
 #RETURN (none)
 def main():
     #Parameters
-    buy_in_gain = 10 #gain required in 5min period for buy in
+    buy_in_gain = 5 #gain required in 5 minute period for buy in
     interval = '1m'
     paper_flag = True #if true than using paper money, else using real money
     
