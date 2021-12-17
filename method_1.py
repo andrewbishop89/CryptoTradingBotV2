@@ -38,6 +38,8 @@ def trade_loop(
     stop_loss = 0.1 #stop loss percent
     
     buy_price = current_price_f(symbol)
+    print(f"{GREY}BUY PRICE{WHITE}: {buy_price}")
+    print(f"Start:\t{get_time(time.time()-8*3600)} - {time.time()}")
 
     max_price = buy_price
     stop_price = buy_price*(1-stop_loss)
@@ -55,6 +57,7 @@ def trade_loop(
             sell_price = current_price_f(symbol)
             profit = round((sell_price/buy_price-1)*100, 2)
             profit_color = GREEN if profit > 0 else RED
+            print(f"End:\t{get_time(time.time()-8*3600)} - {time.time()}")
             print(f"{profit_color}PROFIT{WHITE}: {profit}%\n\n")
             break
         
