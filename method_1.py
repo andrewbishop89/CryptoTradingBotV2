@@ -94,7 +94,7 @@ def main():
             lock.acquire()
             for coin in current_trades: #if coin already being traded, skip it
                 if coin in top_coins:
-                    top_coins.remove(coin)
+                    top_coins.drop(coin)
             lock.release()
             
             for coin in top_coins.index:
