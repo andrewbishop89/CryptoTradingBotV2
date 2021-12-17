@@ -72,7 +72,7 @@ def trade_loop(
 #RETURN (none)
 def main():
     #Parameters
-    gain_threshold_value = 10 #gain required in 5min period for buy in
+    buy_in_gain = 10 #gain required in 5min period for buy in
     interval = '1m'
     paper_flag = True #if true than using paper money, else using real money
     
@@ -85,7 +85,7 @@ def main():
         try: #try-except incase api requests raise error or loss of connection
         
             #find coins to trade
-            top_coins = top_gainers(gain_threshold_value)
+            top_coins = top_gainers(buy_in_gain)
             max_gain = 1
             
             #TODO: cycle through current_trades and top_coins in multiple 
@@ -113,7 +113,7 @@ def main():
                         gain = last_klines.iloc[-1]['c']/ \
                             last_klines.iloc[-index]['o']
                         max_gain = max(gain, max_gain)
-                        if (gain > (1+gain_threshold_value/100)):
+                        if (gain > (1+buy_in_gain/100)):
                             #notify computer about buying in
                             pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
                                 title="CTB2")
@@ -147,13 +147,13 @@ def main():
 
             
             #change sleep time depending on last measure max gain
-            if (max_gain > gain_threshold_value*0.9):
+            if (max_gain > buy_in_gain*0.9):
                 time.sleep(30)
-            elif (max_gain > gain_threshold_value*0.7):
+            elif (max_gain > buy_in_gain*0.7):
                 time.sleep(60)
-            elif (max_gain > gain_threshold_value*0.5):
+            elif (max_gain > buy_in_gain*0.5):
                 time.sleep(90)
-            elif (max_gain > gain_threshold_value*0.3):
+            elif (max_gain > buy_in_gain*0.3):
                 time.sleep(120)
             else:
                 time.sleep(240)
