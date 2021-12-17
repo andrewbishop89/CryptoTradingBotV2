@@ -57,7 +57,8 @@ def trade_loop(
             profit = round((sell_price/buy_price-1)*100, 2)
             profit_color = GREEN if profit > 0 else RED
             print(f"{BLUE}CRITERIA ACHIEVED{WHITE} selling {symbol}.")
-            print(f"End: {get_time(time.time()-8*3600)} - {time.time()}\n", end='\r')
+            print(f"End: {get_time(time.time()-8*3600)} - " +
+                  f"{time.time()}\n", end='\r')
             print(f"{profit_color}PROFIT{WHITE}: {profit}%\n")
             break
         
