@@ -103,7 +103,7 @@ def main():
             
             for coin in top_coins.index:
                 init_coin(coin, interval) #if new coin, create file for data
-                klines = download_to_csv(coin, interval) #download recent data
+                klines = download_to_csv(coin, interval, 5) #download recent data
                 
                 last_klines = klines.tail(5) #only analyze last 5 candles
                 for index in range(1,5):
