@@ -119,8 +119,8 @@ def main():
                         max_gain = max(gain, max_gain)
                         if (gain > (1+buy_in_gain/100)):
                             #notify computer about buying in
-                            pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
-                                title="CTB2")
+                            #pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
+                            #    title="CTB2")
                             print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
                                 f"into {coin}.")
                             lock.acquire()
