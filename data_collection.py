@@ -17,10 +17,11 @@ from setup import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#PARAM: symbol(str) - string of curreny symbol to download
+#PARAM: symbol(str) - string of current symbol to download
 #PARAM: interval(str) - interval of klines to return
 #PARAM: limit(int) - number of klines to download
 #PARAM: start_time(int) - start time in form of unix timestamp
+#RETURN: (DataFrame) - requested candles
 def historical_klines(
         symbol: str,
         interval: str,
