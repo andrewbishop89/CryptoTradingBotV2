@@ -67,10 +67,34 @@ def trade_loop(
         stop_price = max_price - buy_price*stop_loss
         time.sleep(30)
         
-    lock.acquire()
-    current_trades.remove(symbol)
-    lock.release()
-        
+    lock_1_flag = False
+    lock_2_flag = False
+    while True:
+        if not lock_1_flag: #if lock 1 task not done yet
+            if not locks['current_trades'].locked(): #wait until lock is open
+                locks['current_trades'].acquire()
+                #remove symbol from current trades
+                current_trades.remove(symbol) 
+                locks['current_trades'].release()
+                lock_1_flag = True #flag is true to mark task is completed
+        if not lock_2_flag: #if lock 2 task not done yet
+            if not locks['profits_file'].locked(): #wait until lock is open
+                locks['profits_file'].acquire()
+                #add profit data to profits file (locked to avoid collisions)
+                add_row_to_csv(
+                    file_path = os.path.join("logs", "profits.csv"), 
+                    data = [
+                        profit, 
+                        buy_price, 
+                        sell_price, 
+                        start_time, 
+                        end_time
+                    ])
+                locks['profits_file'].release()
+                lock_2_flag = True  # flag is true to mark task is completed
+        if (lock_1_flag and lock_2_flag): #if both locked tasks are done
+            break #break to finish trade cycle
+
     return
 
 #PARAM (none)
