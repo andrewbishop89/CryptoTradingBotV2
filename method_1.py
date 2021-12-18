@@ -27,7 +27,7 @@ from parameters import *
 #PARAM paper_flag(bool): to indicate whether to use real or paper money
 #RETURN (none)
 def trade_loop(
-    lock: threading.Lock, 
+    locks: dict, 
     symbol: str, 
     interval: str, 
     paper_flag: bool,
@@ -105,7 +105,10 @@ def main():
     interval = '1m'
     paper_flag = True #if true than using paper money, else using real money
     
-    lock = threading.Lock() #for thread synchronization
+    locks = { # for thread synchronization
+        'current_trades': threading.Lock(),
+        'profits_file': threading.Lock(),
+    }
     global current_trades #list of all coins currently being traded
     current_trades = []
     
@@ -120,11 +123,11 @@ def main():
             #TODO: cycle through current_trades and top_coins in multiple 
             # threads to speed up execution time
             
-            lock.acquire()
+            locks['current_trades'].acquire()
             for coin in current_trades: #if coin already being traded, skip it
                 if coin in top_coins:
                     top_coins.drop(coin)
-            lock.release()
+            locks['current_trades'].release()
             
             for coin in top_coins.index:
                 init_coin(coin, interval) #if new coin, create file for data
@@ -148,14 +151,14 @@ def main():
                             #    title="CTB2")
                             print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
                                 f"into {coin}.")
-                            lock.acquire()
+                            locks['current_trades'].acquire()
                             current_trades.append(coin)
-                            lock.release()
+                            locks['current_trades'].release()
                             #creating trade loop thread for coin
                             threading.Thread(
                                 target = trade_loop, 
                                 args = [
-                                    lock, 
+                                    locks, 
                                     coin, 
                                     interval,
                                     paper_flag,
