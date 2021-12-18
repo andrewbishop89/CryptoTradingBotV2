@@ -12,6 +12,7 @@ import time
 import os
 import pandas as pd
 from pprint import pprint, pformat
+import csv
 
 from parameters import *
 
@@ -107,6 +108,7 @@ def get_time(ts):
 
 #PARAM symbol(str):
 #PARAM interval(str):
+#RETURN (none)
 def init_coin(symbol: str, interval: str):
     file_path = os.path.join(
         "data", "live_data",
@@ -115,3 +117,11 @@ def init_coin(symbol: str, interval: str):
     if not os.path.isfile(file_path):
         with open(file_path, 'w') as f:
             f.write("")
+
+#PARAM file_path(str): file to be written to
+#PARAM data(list): list of data of row
+#RETURN (none)
+def add_row_to_csv(file_path: str, data: list):
+    with open(file_path, "a") as csv_file:
+        csv_obj = csv.writer(csv_file)
+        csv_obj.writerow(data)
