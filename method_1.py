@@ -184,7 +184,7 @@ def main():
             
             #print current program status (statistics)
             current_string = format_string_padding(
-                f" Number of Coins: {len(top_coins)}")
+                f"Number of Coins: {len(top_coins)}")
             current_string += format_string_padding(
                 f" Last Max Gain: {round(max_gain*100-100,2)}%")
             current_string += format_string_padding(
