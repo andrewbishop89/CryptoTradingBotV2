@@ -62,28 +62,33 @@ def trade_loop(
     stop_price = buy_price*(1-stop_loss)
     
     while True:
-        klines = download_to_csv(symbol, interval)
-        current_price = klines.iloc[-1]['c']
-        current_high = klines.iloc[-1]['h']
-        
-        max_price = max(max_price, current_high)
-        
-        if (current_price < stop_price): # if below stop loss take losses
-            if (not paper_flag):
-                sell_trade(symbol, quantity=sell_quantity)
-            sell_price = current_price_f(symbol)
-            profit = get_profit(buy_price, sell_price, paper=paper_flag)
-            profit_color = GREEN if profit > 0 else RED
-            print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling {symbol}.")
-            print(f"{GREY}SELL PRICE{WHITE}: {sell_price}")
-            end_time = time.time()
-            print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", end='\r')
-            print(f"{profit_color}PROFIT{WHITE}: {profit}%\n")
-            break
-        
-        #top value - 'stop_loss' percent of buy in price
-        stop_price = max_price - buy_price*stop_loss
-        time.sleep(30)
+        try:
+            klines = download_to_csv(symbol, interval)
+            current_price = klines.iloc[-1]['c']
+            current_high = klines.iloc[-1]['h']
+            
+            max_price = max(max_price, current_high)
+            
+            if (current_price < stop_price): # if below stop loss take losses
+                if (not paper_flag):
+                    sell_trade(symbol, quantity=sell_quantity)
+                sell_price = current_price_f(symbol)
+                profit = get_profit(buy_price, sell_price, paper=paper_flag)
+                profit_color = GREEN if profit > 0 else RED
+                print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling {symbol}.")
+                print(f"{GREY}SELL PRICE{WHITE}: {sell_price}")
+                end_time = time.time()
+                print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", end='\r')
+                print(f"{profit_color}PROFIT{WHITE}: {profit}%\n")
+                break
+            
+            #top value - 'stop_loss' percent of buy in price
+            stop_price = max_price - buy_price*stop_loss
+            time.sleep(30)
+            
+        #incase loss of network during trade
+        except (requests.ConnectionError, requests.Timeout) as exception:
+            lost_connection_sleep(60) #sleep for 60 seconds
         
     lock_1_flag = False
     lock_2_flag = False
