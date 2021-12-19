@@ -34,6 +34,8 @@ from parameters import *
 #TODO: run on a crontab that restarts the program whenever network connection 
 # is obtained again, also restart program on computer reboot
 
+#TODO: go through setup.py and add specifications to all functions
+
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #PARAM lock(threading.Lock): lock for making changes to current trades list
