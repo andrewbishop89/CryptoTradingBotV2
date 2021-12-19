@@ -196,10 +196,6 @@ def main():
                                     target=trade_loop,
                                     args=[
                                         locks,
-                                    locks, 
-                                        locks,
-                                        coin,
-                                    coin, 
                                         coin,
                                         interval,
                                         paper_flag,
