@@ -185,9 +185,8 @@ def main():
             #subtract 8*3600 to convert from UTC to GMT-8 time
             current_string += format_string_padding(
                 f" Time: {get_time(time.time()-8*3600)}")
-            print(current_string, end='\r')
+            print(current_string)
 
-            
             #change sleep time depending on last measure max gain
             if (max_gain > buy_in_gain*0.9):
                 time.sleep(30)
