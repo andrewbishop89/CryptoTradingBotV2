@@ -142,6 +142,8 @@ def main():
         'profits_file': threading.Lock(),
     }
     
+    threading.current_thread().name = "MAIN"
+    
     print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
           f"Paper: {paper_flag}\n")
     
