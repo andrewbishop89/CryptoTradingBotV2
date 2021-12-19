@@ -191,17 +191,22 @@ def main():
                             current_trades.append(coin)
                             locks['current_trades'].release()
                             #creating trade loop thread for coin
-                            threading.Thread(
-                                target = trade_loop, 
-                                args = [
+                            start_trade(
+                                thread=threading.Thread(
+                                    target=trade_loop,
+                                    args=[
+                                        locks,
                                     locks, 
+                                        locks,
+                                        coin,
                                     coin, 
-                                    interval,
-                                    paper_flag,
-                                    buy_in_gain/100]
-                                ).start()
+                                        coin,
+                                        interval,
+                                        paper_flag,
+                                        buy_in_gain/100]),
+                                symbol=coin)
+                            
                             break
-            
             
             #print current program status (statistics)
             current_string = format_string_padding(
