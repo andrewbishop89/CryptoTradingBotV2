@@ -95,10 +95,15 @@ def format_binance_klines(klines):
 
 #PARAM string(str): string to be padded with whitespace
 #PARAM padding(float=0.3): percentage of terminal width to use for padding
+#PARAM terminal_width(float=os.get_terminal_size().columns): terminal window 
+# character width
 #RETURN (string): string with padding formatted by terminal width
-def format_string_padding(string: str, padding: float=0.25):
-    terminal_width = os.get_terminal_size().columns
+def format_string_padding(
+    string: str,
+    padding: float=0.25,
+    terminal_width: float=os.get_terminal_size().columns):
     return string.ljust(int(terminal_width*padding))
+
 
 #PARAM ts: unix time stamp to be converted to hour/minute format
 #RETURN (string): string formatted in hour/minute format
