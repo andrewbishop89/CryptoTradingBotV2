@@ -80,7 +80,7 @@ def trade_loop(
                 lock_1_flag = True #flag is true to mark task is completed
         if not lock_2_flag: #if lock 2 task not done yet
             if not locks['profits_file'].locked(): #wait until lock is open
-                #lock and add profit data to profits file (locked to avoid collisions)
+                #lock and add profit data to profits file 
                 locks['profits_file'].acquire()
                 add_row_to_csv(
                     file_path = os.path.join("logs", "profits.csv"), 
@@ -119,7 +119,8 @@ def main():
         'profits_file': threading.Lock(),
     }
     
-    print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\nPaper: {paper_flag}\n")
+    print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
+          f"Paper: {paper_flag}\n")
     
     # MAIN LOOP
     while True:
@@ -217,5 +218,6 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: {threading.active_count()}")
+        print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
+              f"{threading.active_count()}")
         sys.exit()
