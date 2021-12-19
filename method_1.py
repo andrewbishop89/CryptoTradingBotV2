@@ -134,11 +134,16 @@ def main():
             
             #TODO: switch to websocket for data source instead of api requests
             
-            locks['current_trades'].acquire()
-            for coin in current_trades: #if coin already being traded, skip it
+            #copying list to prevent collisions
+            locks['current_trades'].acquire() 
+            current_trades_copy = current_trades.copy()
+            locks['current_trades'].release()
+            
+            #if coin already being traded, skip it
+            for coin in current_trades_copy:
                 if coin in top_coins:
                     top_coins.drop(coin)
-            locks['current_trades'].release()
+            del current_trades_copy
             
             for coin in top_coins.index:
                 init_coin(coin, interval) #if new coin, create file for data
