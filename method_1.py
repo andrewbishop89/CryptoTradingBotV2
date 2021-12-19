@@ -55,7 +55,7 @@ def trade_loop(
             if (not paper_flag):
                 sell_trade(symbol, quantity=sell_quantity)
             sell_price = current_price_f(symbol)
-            profit = round((sell_price/buy_price-1)*100, 2)
+            profit = get_profit(buy_price, sell_price, paper=paper_flag)
             profit_color = GREEN if profit > 0 else RED
             print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling {symbol}.")
             print(f"{GREY}SELL PRICE{WHITE}: {sell_price}")

@@ -125,3 +125,18 @@ def add_row_to_csv(file_path: str, data: list):
     with open(file_path, "a") as csv_file:
         csv_obj = csv.writer(csv_file)
         csv_obj.writerow(data)
+
+#PARAM initial(float): initial price of trade
+#PARAM final(float): final price of trade
+#PARAM paper(bool): paper money flag, true if paper money trade
+#RETURN (float): profit percentage * 100 to decimal places
+def get_profit(initial: float, final: float, paper: bool=False):
+    if paper:
+        #rough estimate of fee
+        return round((final/initial-1)*100, 2) - 0.02
+    
+        #real fee
+        #paper_initial = (initial * 0.999)
+        #return round((((final / paper_initial) * 0.999) - 1) * 100, 2)
+    else:
+        return round((final/initial-1)*100,2)
