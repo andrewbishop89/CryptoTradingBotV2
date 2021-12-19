@@ -73,15 +73,15 @@ def trade_loop(
     while True:
         if not lock_1_flag: #if lock 1 task not done yet
             if not locks['current_trades'].locked(): #wait until lock is open
+                #lock and remove symbol from current trades
                 locks['current_trades'].acquire()
-                #remove symbol from current trades
                 current_trades.remove(symbol) 
                 locks['current_trades'].release()
                 lock_1_flag = True #flag is true to mark task is completed
         if not lock_2_flag: #if lock 2 task not done yet
             if not locks['profits_file'].locked(): #wait until lock is open
+                #lock and add profit data to profits file (locked to avoid collisions)
                 locks['profits_file'].acquire()
-                #add profit data to profits file (locked to avoid collisions)
                 add_row_to_csv(
                     file_path = os.path.join("logs", "profits.csv"), 
                     data = [
