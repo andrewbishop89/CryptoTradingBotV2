@@ -21,6 +21,16 @@ from parameters import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+#TODO: cycle through current_trades and top_coins in multiple
+# threads to speed up execution time
+
+#TODO: switch to websocket for data source instead of api requests
+
+#TODO: run on a crontab that restarts the program whenever network connection 
+# is obtained again, also restart program on computer reboot
+
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 #PARAM lock(threading.Lock): lock for making changes to current trades list
 #PARAM symbol(str): symbol of currency to trade
 #PARAM interval(str): interval of klines to be used for analysis
@@ -129,11 +139,6 @@ def main():
             #find coins to trade
             top_coins = top_gainers(buy_in_gain)
             max_gain = 1
-            
-            #TODO: cycle through current_trades and top_coins in multiple 
-            # threads to speed up execution time
-            
-            #TODO: switch to websocket for data source instead of api requests
             
             #copying list to prevent collisions
             locks['current_trades'].acquire() 
