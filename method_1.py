@@ -217,5 +217,5 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print(f"\n{GREY}STATUS {WHITE}Finishing Program...")
+        print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: {threading.active_count()}")
         sys.exit()
