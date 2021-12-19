@@ -36,6 +36,10 @@ from parameters import *
 
 #TODO: go through setup.py and add specifications to all functions
 
+#TODO: make function for sleep time for main
+
+#TODO: make function for main string formatting and printing
+
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #PARAM lock(threading.Lock): lock for making changes to current trades list
@@ -129,13 +133,13 @@ def trade_loop(
 def main():
     #Parameters
     global buy_in_gain
-    global current_trades #list of all coins currently being traded
+    global current_trades
     
-    buy_in_gain = 10 #gain required in 5 minute period for buy in
-    interval = '1m'
+    buy_in_gain = 10  #gain required in 5 minute period for buy in
+    interval = '1m' #candle interval used in analysis
     paper_flag = True #if true than using paper money, else using real money
-    current_trades = []
-    terminal_width = os.get_terminal_size().columns
+    current_trades = [] #list of symbols that are currently being traded
+    terminal_width = os.get_terminal_size().columns #width of terminal window
     
     locks = { #locks for thread synchronization
         'current_trades': threading.Lock(),
@@ -149,7 +153,7 @@ def main():
     
     # MAIN LOOP
     while True:
-        try: #try-except incase api requests raise error or loss of connection
+        try: #try-except for handling loss of internet connection
         
             #find coins to trade
             top_coins = top_gainers(buy_in_gain)
@@ -173,9 +177,9 @@ def main():
                 last_klines = klines.tail(5) #only analyze last 5 candles
                 for index in range(1,5):
                     try:
+                        #if bearish candle, skip this index
                         if (last_klines.iloc[-index]['c'] < \
                             last_klines.iloc[-index]['o']): 
-                            #if bearish candle, skip this index
                             continue
                     except IndexError: #incase coin has less than 5 candles
                         break
@@ -184,9 +188,9 @@ def main():
                             last_klines.iloc[-index]['o']
                         max_gain = max(gain, max_gain)
                         if (gain > (1+buy_in_gain/100)):
-                            #notify computer about buying in
                             print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
                                 f"into {coin}.")
+                            #add coin to current trades
                             locks['current_trades'].acquire()
                             current_trades.append(coin)
                             locks['current_trades'].release()
@@ -236,7 +240,8 @@ def main():
         except (requests.ConnectionError, requests.Timeout) as exception:
             lost_connection_sleep(300, terminal_width=terminal_width)
 
-if __name__ == '__main__':
+
+if __name__ == '__main__': #only run main() when running this file as main
     try:
         main()
     except KeyboardInterrupt:
