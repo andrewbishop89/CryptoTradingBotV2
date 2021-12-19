@@ -21,10 +21,15 @@ from parameters import *
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+#TODO: switch to websocket for data source instead of api requests
+
+#TODO: create a different lock for each coin, make a specific thread for data 
+# collection of that coin and make it so that multiple trade options can be 
+# executed at the same time without collisions (ie; trade with gain 10, 5, 3 
+# with different stop losses at same time while only collecting data once)
+
 #TODO: cycle through current_trades and top_coins in multiple
 # threads to speed up execution time
-
-#TODO: switch to websocket for data source instead of api requests
 
 #TODO: run on a crontab that restarts the program whenever network connection 
 # is obtained again, also restart program on computer reboot
