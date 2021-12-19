@@ -131,7 +131,7 @@ def main():
     global buy_in_gain
     global current_trades #list of all coins currently being traded
     
-    buy_in_gain = 10 #gain required in 5 minute period for buy in
+    buy_in_gain = 0.1 #gain required in 5 minute period for buy in
     interval = '1m'
     paper_flag = True #if true than using paper money, else using real money
     current_trades = []

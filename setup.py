@@ -13,6 +13,7 @@ import os
 import pandas as pd
 from pprint import pprint, pformat
 import csv
+import threading
 
 from parameters import *
 
@@ -145,3 +146,29 @@ def get_profit(initial: float, final: float, paper: bool=False):
         #return round((((final / paper_initial) * 0.999) - 1) * 100, 2)
     else:
         return round((final/initial-1)*100,2)
+
+#PARAM sleep_time(int=300): amount of seconds to sleep
+#PARAM terminal_width(int=os.get_terminal_size().columns): width of terminal 
+# window
+#RETURN (none)
+def lost_connection_sleep(
+        sleep_time: int = 300,
+        terminal_width: int = os.get_terminal_size().columns):
+
+    print_string = f"{RED}ERROR {WHITE} ReadTimeout Error Raised in Thread" + \
+        f" {threading.current_thread().name}. Sleeping: {sleep_time}"
+    print(print_string.ljust(terminal_width), end='\r')
+
+    for index in range(1, sleep_time+1):
+        print_string = f"{RED}ERROR {WHITE} ReadTimeout Error Raised in " + \
+            f"Thread {threading.current_thread().name}. Sleeping: " + \
+            f"{sleep_time-index}"
+        print(print_string.ljust(terminal_width), end='\r')
+        time.sleep(1)
+
+    print_string = f"{RED}ERROR {WHITE} ReadTimeout Error Raised in Thread" + \
+        f" {threading.current_thread().name}. Slept for " + \
+        f"{round(sleep_time/60)} minutes\n"
+    print(print_string.ljust(terminal_width), end='\r')
+
+    return

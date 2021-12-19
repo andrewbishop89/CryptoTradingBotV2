@@ -11,6 +11,7 @@
 from pprint import pprint, pformat
 import datetime
 import os
+import threading
 
 from parameters import *
 from api import *
@@ -277,3 +278,23 @@ def normalize_time(ts):
     if len(str(int(ts))) != 10:
         ts = convert_time(ts)
     return datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+
+#PARAM thread(threading.Thread): thread object for trade loop
+#PARAM symbol(str): string of symbol to be traded
+#RETURN (none)
+def start_trade(thread: threading.Thread, symbol: str):
+    #get all active thread names
+    thread_names = [t.name for t in threading.enumerate()]
+    count = 1
+    for name in thread_names: #find avaible thread name
+        if symbol in name:
+            count += 1
+    thread_name = f"{symbol}-{count}"
+    if thread_name in thread_names: #raise error if error in name
+        print(f"{RED}ERROR{WHITE} two threads have same name.")
+        raise ValueError
+    thread.name = thread_name #assign name to thread
+    thread.start() #start trade loop thread
+    
+    return
