@@ -119,6 +119,8 @@ def main():
         'profits_file': threading.Lock(),
     }
     
+    print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\nPaper: {paper_flag}\n")
+    
     # MAIN LOOP
     while True:
         try: #try-except incase api requests raise error or loss of connection
