@@ -233,11 +233,8 @@ def main():
                 time.sleep(240)
             
         #incase a network connection error is raised
-        except requests.exceptions.ReadTimeout:
-            print(f"{RED}ERROR {WHITE} ReadTimeout Error Raised. Sleeping " +
-                "for 5 minutes.")
-            time.sleep(300)
-
+        except (requests.ConnectionError, requests.Timeout) as exception:
+            lost_connection_sleep(300, terminal_width=terminal_width)
 
 if __name__ == '__main__':
     try:
