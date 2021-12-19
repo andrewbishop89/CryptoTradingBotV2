@@ -85,6 +85,9 @@ def trade_loop(
                     file_path = os.path.join("logs", "profits.csv"), 
                     data = [
                         profit, 
+                        buy_in_gain,
+                        interval,
+                        stop_loss,
                         buy_price, 
                         sell_price, 
                         start_time, 
@@ -101,16 +104,18 @@ def trade_loop(
 #RETURN (none)
 def main():
     #Parameters
+    global buy_in_gain
+    global current_trades #list of all coins currently being traded
+    
     buy_in_gain = 10 #gain required in 5 minute period for buy in
     interval = '1m'
     paper_flag = True #if true than using paper money, else using real money
+    current_trades = []
     
-    locks = { # for thread synchronization
+    locks = { #locks for thread synchronization
         'current_trades': threading.Lock(),
         'profits_file': threading.Lock(),
     }
-    global current_trades #list of all coins currently being traded
-    current_trades = []
     
     # MAIN LOOP
     while True:
@@ -123,6 +128,8 @@ def main():
             #TODO: cycle through current_trades and top_coins in multiple 
             # threads to speed up execution time
             
+            #TODO: switch to websocket for data source instead of api requests
+            
             locks['current_trades'].acquire()
             for coin in current_trades: #if coin already being traded, skip it
                 if coin in top_coins:
@@ -131,13 +138,14 @@ def main():
             
             for coin in top_coins.index:
                 init_coin(coin, interval) #if new coin, create file for data
-                klines = download_to_csv(coin, interval, 5) #download recent data
+                klines = download_to_csv(coin, interval, 5) #download candles
                 
                 last_klines = klines.tail(5) #only analyze last 5 candles
                 for index in range(1,5):
                     try:
                         if (last_klines.iloc[-index]['c'] < \
-                            last_klines.iloc[-index]['o']):
+                            last_klines.iloc[-index]['o']): 
+                            #if bearish candle, skip this index
                             continue
                     except IndexError: #incase coin has less than 5 candles
                         break
@@ -147,8 +155,6 @@ def main():
                         max_gain = max(gain, max_gain)
                         if (gain > (1+buy_in_gain/100)):
                             #notify computer about buying in
-                            #pync.notify(f"{coin}: {round(gain*100-100,2)}%", 
-                            #    title="CTB2")
                             print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
                                 f"into {coin}.")
                             locks['current_trades'].acquire()
@@ -198,8 +204,10 @@ def main():
                 "for 5 minutes.")
             time.sleep(300)
 
-try:
-    main()
-except KeyboardInterrupt:
-    print(f"\n{GREY}STATUS {WHITE}Finishing Program...")
-    sys.exit()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{GREY}STATUS {WHITE}Finishing Program...")
+        sys.exit()
