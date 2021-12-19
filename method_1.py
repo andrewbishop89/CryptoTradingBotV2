@@ -85,7 +85,8 @@ def trade_loop(
                 add_row_to_csv(
                     file_path = os.path.join("logs", "profits.csv"), 
                     data = [
-                        profit, 
+                        profit,
+                        symbol,
                         buy_in_gain,
                         interval,
                         stop_loss,
