@@ -25,7 +25,8 @@ from parameters import *
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #TODO: either make crontab write to non plain text file or make it so that 
-# print statements to text file don't have any invalid characters in them
+# print statements to text file don't have any invalid characters in them and 
+# fix so that os.get_ternibal_size() is not called if running from crontab
 
 #TODO: switch to websocket for data source instead of api requests
 
