@@ -17,6 +17,7 @@ data
 __pycache__
 pictures
 logs
+venv
 
 #json files
 *.json
