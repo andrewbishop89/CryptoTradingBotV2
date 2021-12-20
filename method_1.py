@@ -6,9 +6,9 @@
 # 2021/11/25
 #
 # Crontab: 
-# @reboot cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/
-# Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_1.py >> 
-# ~/CryptoTradingBotV2/cron_logs.txt 2>&1
+# @reboot sleep 120 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/
+# Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_1.py 
+# >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
 #
 
 # modules imported
