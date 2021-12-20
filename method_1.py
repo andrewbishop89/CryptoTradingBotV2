@@ -5,14 +5,17 @@
 # Andrew Bishop, Ryan Manak
 # 2021/11/25
 #
+# Crontab: 
+# @reboot cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/
+# Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_1.py >> 
+# ~/CryptoTradingBotV2/cron_logs.txt 2>&1
+#
 
 # modules imported
 import sys
-import pync
 import threading
 
 from data_collection import *
-from graphing import graph
 from market import *
 from trade import *
 from parameters import *
@@ -20,6 +23,9 @@ from parameters import *
 
 # functions
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+#TODO: either make crontab write to non plain text file or make it so that 
+# print statements to text file don't have any invalid characters in them
 
 #TODO: switch to websocket for data source instead of api requests
 
