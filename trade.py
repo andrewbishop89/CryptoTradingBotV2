@@ -290,7 +290,7 @@ def start_trade(thread: threading.Thread, symbol: str):
     for name in thread_names: #find avaible thread name
         if symbol in name:
             count += 1
-    thread_name = f"{symbol}-{count}"
+    thread_name = f"Thread-{symbol}-{count}"
     if thread_name in thread_names: #raise error if error in name
         print(f"{RED}ERROR{WHITE} two threads have same name.")
         raise ValueError
