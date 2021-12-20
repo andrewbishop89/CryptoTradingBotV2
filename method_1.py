@@ -14,6 +14,7 @@
 # modules imported
 import sys
 import threading
+import pync
 
 from data_collection import *
 from market import *
@@ -153,7 +154,9 @@ def main():
         'profits_file': threading.Lock(),
     }
     
-    threading.current_thread().name = "MAIN"
+    pync.notify(f"Buy-In Gain: {buy_in_gain}%", title="Starting CryptoBotV2")
+    
+    threading.current_thread().name = "Thread-MAIN"
     
     print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
           f"Paper: {paper_flag}\n")
@@ -255,3 +258,6 @@ if __name__ == '__main__': #only run main() when running this file as main
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}")
         sys.exit()
+    finally:
+        pync.notify("Finishing CrytoBotV2", title="The program is " + 
+                    "terminating.")
