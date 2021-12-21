@@ -250,6 +250,8 @@ def run_method(buy_in_gain_param: float):
             lost_connection_sleep(300, terminal_width=terminal_width)
 
 
+#-------------------------------------main-------------------------------------
+
 if __name__ == '__main__': #only run main() when running this file as main
     
     buy_in_gains = [10]
