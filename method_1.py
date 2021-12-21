@@ -42,6 +42,8 @@ from parameters import *
 #TODO: run on a crontab that restarts the program whenever network connection 
 # is obtained again, also restart program on computer reboot
 
+#TODO: add hardcoded profit and loss and see if it's more profitable
+
 #TODO: go through setup.py and add specifications to all functions
 
 #TODO: make function for sleep time for main
