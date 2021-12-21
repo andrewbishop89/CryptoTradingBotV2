@@ -13,8 +13,7 @@ from parameters import *
 from api import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
 
 #PARAM min_percent(float) = 0: minimum threshold percent
 #PARAM max_percent(float) = 0: maximum threshold percent

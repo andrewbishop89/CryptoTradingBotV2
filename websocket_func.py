@@ -17,9 +17,7 @@ from setup import *
 from data_collection import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
+#----------------------------------functions-----------------------------------
 
 def connect_websocket(symbol, interval):
     socket = f"wss://stream.binance.com:9443/ws/{symbol.lower()}\

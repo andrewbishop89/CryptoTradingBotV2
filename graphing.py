@@ -1,3 +1,11 @@
+#!/usr/bin/python3
+#
+# graphing.py: contains all functions for graphing candlestick patterns.
+#
+# Andrew Bishop
+# 2021/11/13
+#
+
 
 from data_collection import *
 from setup import *
@@ -5,6 +13,7 @@ from parameters import *
 import plotly.graph_objects as go
 import pandas as pd
 
+#----------------------------------functions-----------------------------------
 
 def graph(klines, x=False):
     fig = go.Figure(data=[go.Candlestick(

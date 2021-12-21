@@ -14,8 +14,7 @@ from parameters import *
 from setup import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
 
 #PARAM: symbol(str) - string of current symbol to download
 #PARAM: interval(str) - interval of klines to return

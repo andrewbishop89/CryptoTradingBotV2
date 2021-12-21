@@ -19,11 +19,10 @@ from setup import *
 from data_collection import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
 
-#
-#
+# PARAM
+# RETURN
 def request_order(payload={}):
     order_request = send_signed_request('POST', '/api/v3/order', payload)
     try:

@@ -17,8 +17,7 @@ from parameters import *
 from setup import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
 
 #PARAM http_method(str): http method used in api call
 #PARAM url_path(str): api url path specifiying request

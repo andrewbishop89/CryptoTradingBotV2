@@ -18,8 +18,7 @@ import threading
 from parameters import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
             
 #PARAM interval(int): interval in int form to be converted to str form
 #RETURN (int): str value of interval

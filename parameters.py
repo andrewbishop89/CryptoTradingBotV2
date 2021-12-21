@@ -4,7 +4,8 @@
 #
 # Andrew Bishop
 
-#global variables
+#------------------------------global-variables--------------------------------
+
 BLUE    = '\u001b[1;38;5;$39m'
 YELLOW  = '\u001b[38;5;$220m'
 GREEN   = '\u001b[38;5;$46m'
@@ -15,7 +16,8 @@ WHITE   = '\033[0;37m'
 PRIMARY_COLOR   = BLUE
 SECONDARY_COLOR = GREY
 
-#initialize API values
+#-------------------------------API-variables----------------------------------
+
 global API_KEY, API_SECRET, BASE_URL #global so they are accessible everywhere
 
 with open('keys.txt', 'r') as f:
