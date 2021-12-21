@@ -15,8 +15,7 @@ from ta.trend import sma_indicator
 from parameters import *
 
 
-# functions
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#----------------------------------functions-----------------------------------
 
 #PARAM start_price(float): start point for fibonacci retracement levels
 #PARAM end_price(float): end point for fibonacci retracement levels
@@ -77,8 +76,7 @@ def triple_SMMA_check(
         (trend_direction({}, data=long_smma, window=5) == 'up')
 """
 
-# chart patterns
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#-------------------------------chart-patterns---------------------------------
 
 #PARAM klines(DataFrame): 5 candles in a row
 #RETURN (bool): true if bull flag was just formed, false otherwise
