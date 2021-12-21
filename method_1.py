@@ -138,12 +138,12 @@ def trade_loop(
 
 #PARAM (none)
 #RETURN (none)
-def main():
+def run_method(buy_in_gain_param: float):
     #Parameters
     global buy_in_gain
     global current_trades
     
-    buy_in_gain = 10  #gain required in 5 minute period for buy in
+    buy_in_gain = buy_in_gain_param  #gain required in 5 minute period for buy in
     interval = '1m' #candle interval used in analysis
     paper_flag = True #if true than using paper money, else using real money
     current_trades = [] #list of symbols that are currently being traded
@@ -252,8 +252,12 @@ def main():
 
 
 if __name__ == '__main__': #only run main() when running this file as main
+    
+    pync.notify(f"Buy-In Gain: {buy_in_gain}%", title="Starting CryptoBotV2")
+    threading.current_thread().name = "Thread-MAIN"
+    
     try:
-        main()
+        run_method(buy_in_gain_param=10)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}")
