@@ -2,7 +2,7 @@
 #
 # method_1.py: contains functions for method 1 of crypto bot version 2.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/25
 #
 # Crontab: 
@@ -251,15 +251,18 @@ def run_method(buy_in_gain_param: float):
 
 if __name__ == '__main__': #only run main() when running this file as main
     
-    pync.notify(f"Buy-In Gain: {buy_in_gain}%", title="Starting CryptoBotV2")
+    buy_in_gains = [10]
+    
+    pync.notify(f"Buy-In Gain: {','.join([str(g) for g in buy_in_gains])}%", 
+                title="Starting CryptoBotV2")
     threading.current_thread().name = "Thread-MAIN"
     
     try:
-        run_method(buy_in_gain_param=10)
+        for gain in buy_in_gains:
+            run_method(buy_in_gain_param=gain)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}")
         sys.exit()
     finally:
-        pync.notify("Finishing CrytoBotV2", title="The program is " + 
-                    "terminating.")
+        pync.notify(f"Ending Main of Program", title="Finishing CryptoBotV2")
