@@ -154,10 +154,6 @@ def run_method(buy_in_gain_param: float):
         'profits_file': threading.Lock(),
     }
     
-    pync.notify(f"Buy-In Gain: {buy_in_gain}%", title="Starting CryptoBotV2")
-    
-    threading.current_thread().name = "Thread-MAIN"
-    
     print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
           f"Paper: {paper_flag}\n")
     
