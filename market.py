@@ -2,7 +2,7 @@
 #
 # market.py: contains all the functions involving market information
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

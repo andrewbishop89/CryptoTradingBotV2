@@ -2,7 +2,7 @@
 #
 # backtest.py: contains all the functions for backtesting.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

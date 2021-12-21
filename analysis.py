@@ -3,7 +3,7 @@
 # analysis.py: contains all the functions involving technical analysis or any 
 # other mathematical operations and transformations.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

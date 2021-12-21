@@ -2,7 +2,7 @@
 #
 # data_collection.py: contains all functions to download data
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

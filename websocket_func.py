@@ -2,7 +2,7 @@
 #
 # websocket.py: contains all functions for the websocket connection.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/25
 #
 

@@ -3,7 +3,7 @@
 # trade.py: contains all the functions involving the process of making trades 
 # and verifying they are valid.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

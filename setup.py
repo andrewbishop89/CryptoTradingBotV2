@@ -2,7 +2,7 @@
 #
 # setup.py: contains all the functions to setup the program.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 

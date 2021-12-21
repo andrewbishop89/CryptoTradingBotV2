@@ -2,7 +2,7 @@
 #
 # parameters.py: contains all imported modules and global variables.
 #
-# Andrew Bishop, Ryan Manak
+# Andrew Bishop
 # 2021/11/13
 #
 
