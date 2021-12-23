@@ -22,7 +22,7 @@ def graph(klines, x=False):
         low=klines.loc[:, 'l'], close=klines.loc[:, 'c'],
         increasing_line_color= 'green', decreasing_line_color= 'red'
     )])
-    
+
     if x:
         fig.update_layout(
             shapes=[dict(

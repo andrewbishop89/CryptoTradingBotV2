@@ -50,7 +50,6 @@ from parameters import *
 #TODO: make function for main string formatting and printing (code already 
 # exists)
 
-
 #----------------------------------functions-----------------------------------
 
 
@@ -255,7 +254,7 @@ def run_method(buy_in_gain_param: float):
 
 #------------------------------------main--------------------------------------
 
-if __name__ == '__main__': #only run main() when running this file as main
+if __name__ == '__main__': #only run main when running this file as main
     
     buy_in_gains = [10]
     
