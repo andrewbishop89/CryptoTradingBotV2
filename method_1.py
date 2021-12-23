@@ -15,6 +15,7 @@
 import sys
 import threading
 import pync
+import os
 
 from data_collection import *
 from market import *
@@ -103,7 +104,8 @@ def trade_loop(
             
         #incase loss of network during trade
         except (requests.ConnectionError, requests.Timeout) as exception:
-            lost_connection_sleep(60) #sleep for 60 seconds
+            lost_connection_sleep(60, 1 if (len(sys.argv) > 1) else \
+                os.get_terminal_size().columns) #sleep for 60 seconds
         
     lock_1_flag = False
     lock_2_flag = False
@@ -150,7 +152,8 @@ def run_method(buy_in_gain_param: float):
     interval = '1m' #candle interval used in analysis
     paper_flag = True #if true than using paper money, else using real money
     current_trades = [] #list of symbols that are currently being traded
-    terminal_width = os.get_terminal_size().columns #width of terminal window
+    terminal_width = 1 if (len(sys.argv) > 1) else \
+        os.get_terminal_size().columns #width of terminal window
     
     locks = { #locks for thread synchronization
         'current_trades': threading.Lock(),
@@ -250,7 +253,7 @@ def run_method(buy_in_gain_param: float):
             lost_connection_sleep(300, terminal_width=terminal_width)
 
 
-#-------------------------------------main-------------------------------------
+#------------------------------------main--------------------------------------
 
 if __name__ == '__main__': #only run main() when running this file as main
     

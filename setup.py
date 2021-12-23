@@ -9,6 +9,7 @@
 # modules imported
 from datetime import datetime
 import time
+import sys
 import os
 import pandas as pd
 from pprint import pprint, pformat
@@ -101,7 +102,10 @@ def format_binance_klines(klines):
 def format_string_padding(
     string: str,
     padding: float=0.25,
-    terminal_width: float=os.get_terminal_size().columns):
+    terminal_width: float=None):
+    if (terminal_width == None):
+        terminal_width = 1 if (len(sys.argv) > 1) else \
+            os.get_terminal_size().columns
     return string.ljust(int(terminal_width*padding))
 
 
@@ -152,7 +156,10 @@ def get_profit(initial: float, final: float, paper: bool=False):
 #RETURN (none)
 def lost_connection_sleep(
         sleep_time: int = 300,
-        terminal_width: int = os.get_terminal_size().columns):
+        terminal_width: int = None):
+    if (terminal_width == None):
+        terminal_width = 1 if (len(sys.argv) > 1) else \
+            os.get_terminal_size().columns
 
     print_string = f"{RED}ERROR {WHITE} ReadTimeout Error Raised in Thread" + \
         f" {threading.current_thread().name}. Sleeping: {sleep_time}"
