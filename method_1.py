@@ -142,7 +142,7 @@ def trade_loop(
 
 #PARAM (none)
 #RETURN (none)
-def run_method(buy_in_gain_param: float):
+def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
     #Parameters
     global buy_in_gain
     global current_trades
@@ -214,7 +214,7 @@ def run_method(buy_in_gain_param: float):
                                         coin,
                                         interval,
                                         paper_flag,
-                                        buy_in_gain/100]),
+                                        buy_in_gain/risk_reward_ratio]),
                                 symbol=coin)
                             
                             break
@@ -257,6 +257,7 @@ def run_method(buy_in_gain_param: float):
 if __name__ == '__main__': #only run main when running this file as main
     
     buy_in_gains = [10]
+    risk_reward_ratios = [1]
     
     pync.notify(f"Buy-In Gain: {','.join([str(g) for g in buy_in_gains])}%", 
                 title="Starting CryptoBotV2")
@@ -264,7 +265,8 @@ if __name__ == '__main__': #only run main when running this file as main
     
     try:
         for gain in buy_in_gains:
-            run_method(buy_in_gain_param=gain)
+            for risk_reward_ratio in risk_reward_ratios:
+                run_method(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}")
