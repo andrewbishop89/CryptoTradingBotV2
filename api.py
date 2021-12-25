@@ -19,11 +19,26 @@ from setup import *
 
 #----------------------------------functions-----------------------------------
 
-#PARAM http_method(str): http method used in api call
-#PARAM url_path(str): api url path specifiying request
-#PARAM payload(dict): dictionary of all request attributes
-#RETURN (dict): api request response
-def send_signed_request(http_method: str, url_path: str, payload: dict={}):
+def send_signed_request(
+    http_method: str, 
+    url_path: str, 
+    payload: dict=None
+    ) -> dict:
+    """
+    Description:
+        Creates a signed API request for specified parameters.
+    Args:
+        http_method (str): http method used in api call
+        url_path (str): api url path specifying request
+        payload (dict, optional): dictionary of all request attributes 
+        (defaults to None)
+    Raises:
+        ConnectionError: incase of a network connection error
+    Returns:
+        dict: api request response
+    """
+    if (payload == None):
+        payload = {}
     query_string = urlencode(payload)
     # replace single quote to double quote
     query_string = query_string.replace('%27', '%22')
@@ -42,12 +57,25 @@ def send_signed_request(http_method: str, url_path: str, payload: dict={}):
         raise ConnectionError
     return response.json()
 
-#PARAM url_path(str): api url path specifiying request
-#PARAM payload(dict): dictionary of all request attributes
-#RETURN (dict): api request response
-def send_public_request(url_path, payload={}):
+
+def send_public_request(url_path, payload=None) -> dict:
+    """
+    Description:
+        Creates a public API request for specified parameters.
+    Args:
+        url_path (str): api url path specifying request
+        payload (dict, optional): dictionary of all request attributes 
+        (defaults to None)
+    Raises:
+        ConnectionError: incase of a network connection error
+    Returns:
+        dict: api request response
+    """
+    if (payload == None):
+        payload = {}
     query_string = urlencode(payload, True)
     url = BASE_URL + url_path
+    
     if query_string:
         url = url + '?' + query_string
     try:
@@ -57,17 +85,31 @@ def send_public_request(url_path, payload={}):
         raise ConnectionError
     return response.json()
 
-#PARAM query_string(str): query string for api request
-#RETURN (str): hashed string for api requests
-def hashing(query_string: str):
+
+def hashing(query_string: str) -> str:
+    """
+    Description:
+        Hashes the string inputted as argument using SHA-256.
+    Args:
+        query_string (str): query string for api request
+    Returns:
+        str: hashed string for api requests
+    """
     return hmac.new(
         API_SECRET.encode('utf-8'), 
         query_string.encode('utf-8'),
         hashlib.sha256).hexdigest()
 
-#PARAM http_method(str): http method for request
-#RETURN (dict): api request status
-def dispatch_request(http_method: str):
+
+def dispatch_request(http_method: str) -> dict:
+    """
+    Description:
+        Dispatches an API request by getting ready to be sent.
+    Args:
+        http_method (str): http method for request
+    Returns:
+        dict: api request status
+    """
     session = requests.Session()
     session.headers.update({
         'Content-Type': 'application/json;charset=utf-8',
