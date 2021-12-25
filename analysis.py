@@ -17,12 +17,18 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-#PARAM start_price(float): start point for fibonacci retracement levels
-#PARAM end_price(float): end point for fibonacci retracement levels
-#RETURN fibonacci_levels(list[floats]): list of all fibonacci price levels
 def fibonacci_retracement_levels(
     start_price: float, 
-    end_price: float):
+    end_price: float) -> list:
+    """
+    Description:
+        Calculates the fibonacci price levels for parameters specified.
+    Args:
+        start_price (float): start point for fibonacci retracement levels
+        end_price (float): end point for fibonacci retracement levels
+    Returns:
+        list: list of all floats of all fibonacci price levels
+    """
     
     level_percentages = np.array([0, 0.382, 0.5, 0.618, 0.764, 0.88, 1, -0.25, 
         -0.618, -1.618])
@@ -31,21 +37,45 @@ def fibonacci_retracement_levels(
         level_percentages]
     
 
-def list_to_series(data):
+def list_to_series(data: list) -> pd.Series:
+    """
+    Description:
+        Converts a list object to a series object.
+    Args:
+        data (list): list of data to be converted
+    Returns:
+        pd.Series: list of data in converted series form
+    """
     return pd.Series(np.array(data))
 
-#PARAM data(): TODO
-#PARAM window(): TODO
-#RETURN (): TODO 
-def SMA(data, window=10):
+
+def SMA(data: list, window: int=10) -> list:
+    """
+    Description:
+        Calculates Simple Moving Average (SMA) of data passed as parameter.
+    Args:
+        data (list): list of data used in calculation
+        window (int, optional): amount of elements in average (defaults to 10)
+    Returns:
+        list: list of SMA values for all data passed
+    """
     series = list_to_series(data)
     sma_values = sma_indicator(series, window=window).values.tolist()
     return sma_values
 
-#PARAM klines(DataFrame): candles to analyze
-#PARAM window(int): number of values for SMMA
-#RETURN (DataFrame): 
-def SMMA(klines: pd.DataFrame, window: int):
+
+def SMMA(klines: pd.DataFrame, window: int) -> list:
+    """
+    Description:
+        Calculates Smoothed Moving Average (SMMA) of data passed as parameter.
+    Args:
+        klines (pd.DataFrame): list of data used in calculation
+        window (int): amount of elements in average
+    Raises:
+        IndexError: if data length is smaller than half the calculation window
+    Returns:
+        list: list of SMMA values for all data passed
+    """
     closing_prices = [kline['c'] for kline in klines.iloc]
     if len(klines) < 2*window:
         print(f"{RED}ERROR{WHITE} Window not large enough for SMMA calculation\
@@ -58,31 +88,19 @@ def SMMA(klines: pd.DataFrame, window: int):
             (smma_values[-1]*(window-1) + closing_prices[index-window])/window)
     return smma_values
 
-#PARAM klines(DataFrame): candles to analyze
-#PARAM short_window
-"""
-def triple_SMMA_check(
-    klines: pd.DataFrame, 
-    short_window: int, 
-    mid_window: int, 
-    long_window: int):
-    
-    short_smma = SMMA(klines.iloc[-2*short_window:], short_window)
-    mid_smma = SMMA(klines.iloc[-2*mid_window:], mid_window)
-    long_smma = SMMA(klines.iloc[-2*long_window:], long_window)
-    return (short_smma[-1] > mid_smma[-1]) and (mid_smma[-1] > long_smma[-1]) and \
-        (trend_direction({}, data=short_smma, window=5) == 'up') and \
-        (trend_direction({}, data=mid_smma, window=5) == 'up') and \
-        (trend_direction({}, data=long_smma, window=5) == 'up')
-"""
 
 #-------------------------------chart-patterns---------------------------------
 
-#PARAM klines(DataFrame): 5 candles in a row
-#RETURN (bool): true if bull flag was just formed, false otherwise
-#DESCRIPTION: 5 candles, low_0 < lows_1,2,3 and high_1 > high_2 > high_3 and 
-# then close_4 > high_3
-def bull_flag(klines: pd.DataFrame):
+def bull_flag(klines: pd.DataFrame) -> bool:
+    """
+    Description:
+        Checks whether the last 5 candles follow a bullish flag candle pattern.
+    Args:
+        klines (pd.DataFrame): The last 5 most recent candles
+    Returns:
+        bool: true if bull flag was just formed, false otherwise
+    """
+    
     lows = klines[:, 'l']
     highs = klines[:, 'h']
     close_4 = klines[4, 'c']
