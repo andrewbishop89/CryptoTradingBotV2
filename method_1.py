@@ -52,19 +52,25 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-
-#PARAM lock(threading.Lock): lock for making changes to current trades list
-#PARAM symbol(str): symbol of currency to trade
-#PARAM interval(str): interval of klines to be used for analysis
-#PARAM paper_flag(bool): to indicate whether to use real or paper money
-#RETURN (none)
 def trade_loop(
     locks: dict, 
     symbol: str, 
     interval: str, 
     paper_flag: bool,
     stop_loss: float):
-    
+    """
+    Description: 
+        Initiates a trade cycle (buys & waits til sold) for the specified 
+        currency.
+    Args:
+        locks (dict): lock for making changes to current trades list
+        symbol (str): symbol of currency to trade
+        interval (str): symbol of currency to trade
+        paper_flag (bool): interval of klines to be used for analysis 
+        stop_loss (float): to indicate whether to use real or paper money
+    Return: 
+        None
+    """
     if (not paper_flag):
         buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
     
@@ -90,10 +96,12 @@ def trade_loop(
                 sell_price = current_price_f(symbol)
                 profit = get_profit(buy_price, sell_price, paper=paper_flag)
                 profit_color = GREEN if profit > 0 else RED
-                print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling {symbol}.")
+                print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling " + \
+                    f"{symbol}.")
                 print(f"{GREY}SELL PRICE{WHITE}: {sell_price}")
                 end_time = time.time()
-                print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", end='\r')
+                print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", \
+                      end='\r')
                 print(f"{profit_color}PROFIT{WHITE}: {profit}%\n")
                 break
             
@@ -140,14 +148,25 @@ def trade_loop(
 
     return
 
-#PARAM (none)
-#RETURN (none)
+
 def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
+    """
+    Description: 
+        Runs Method 1 with specified parameters.
+    Args:
+        buy_in_gain_param (float): The gain required for trade buy in
+        risk_reward_ratio (float): The risk to reward ratio for calculating 
+        stop loss
+    Returns: 
+        None
+    """
+    
     #Parameters
     global buy_in_gain
     global current_trades
     
-    buy_in_gain = buy_in_gain_param  #gain required in 5 minute period for buy in
+    #gain required in 5 minute period for buy in
+    buy_in_gain = buy_in_gain_param  
     interval = '1m' #candle interval used in analysis
     paper_flag = True #if true than using paper money, else using real money
     current_trades = [] #list of symbols that are currently being traded
