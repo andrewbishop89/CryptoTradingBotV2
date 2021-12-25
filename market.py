@@ -15,11 +15,20 @@ from api import *
 
 #----------------------------------functions-----------------------------------
 
-#PARAM min_percent(float) = 0: minimum threshold percent
-#PARAM max_percent(float) = 0: maximum threshold percent
-#RETURN (DataFrame): all coins that have a daily price change inbetween min 
-# and max percentages
-def top_gainers(min_percent: float = 0, max_percent: float = 0):
+def top_gainers(min_percent: float = 0, 
+    max_percent: float = 0) -> pd.DataFrame:
+    """
+    Description:
+        Returns a list of the top gainer currencies in the last 24 hours.
+    Args:
+        min_percent (float, optional): minimum threshold percent (defaults 
+        to 0)
+        max_percent (float, optional): maximum threshold percent (defaults 
+        to 0)
+    Returns:
+        pd.DataFrame: all coins that have a daily price change inbetween the 
+        min and max percentages
+    """
     price_change = send_public_request('/api/v3/ticker/24hr')
     df = pd.DataFrame.from_dict(price_change)
     df = df[df['symbol'].str.contains(
