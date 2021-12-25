@@ -154,8 +154,8 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
     Description: 
         Runs Method 1 with specified parameters.
     Args:
-        buy_in_gain_param (float): The gain required for trade buy in
-        risk_reward_ratio (float): The risk to reward ratio for calculating 
+        buy_in_gain_param (float): gain required for trade buy in
+        risk_reward_ratio (float): risk to reward ratio for calculating 
         stop loss
     Returns: 
         None
