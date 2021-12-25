@@ -31,8 +31,7 @@ def top_gainers(min_percent: float = 0,
     """
     price_change = send_public_request('/api/v3/ticker/24hr')
     df = pd.DataFrame.from_dict(price_change)
-    df = df[df['symbol'].str.contains(
-        'USDT')]
+    df = df[df['symbol'].str.contains('USDT')]
     #df = df[df['symbol'].str.contains('DOWN') == False]
     #df = df[df['symbol'].str.contains('UP') == False]
     df = df.reset_index().set_index('symbol')
