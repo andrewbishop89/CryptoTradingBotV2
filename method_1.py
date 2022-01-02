@@ -53,7 +53,7 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-def trade_loop(
+def trade_loop_1(
     locks: dict, 
     symbol: str, 
     interval: str, 
@@ -153,7 +153,7 @@ def trade_loop(
     return
 
 
-def run_method(buy_in_gain_param: float, risk_reward_ratio: float, 
+def run_method_1(buy_in_gain_param: float, risk_reward_ratio: float, 
                backtest_flag: bool=False):
     """
     Description: 
@@ -235,7 +235,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float,
                             #creating trade loop thread for coin
                             start_trade(
                                 thread=threading.Thread(
-                                    target=trade_loop,
+                                    target=trade_loop_1,
                                     args=[
                                         locks,
                                         coin,
@@ -293,7 +293,7 @@ if __name__ == '__main__': #only run main when running this file as main
     try:
         for gain in buy_in_gains:
             for risk_reward_ratio in risk_reward_ratios:
-                run_method(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
+                run_method_1(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}") if (not cron_flag) else None
