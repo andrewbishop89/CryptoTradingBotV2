@@ -17,14 +17,11 @@ import threading
 import pync
 import os
 
-import data_collection as DC
-import backtest as BT
+from data_collection import *
 from market import *
 from trade import *
 from parameters import *
 
-from data_collection import *
-del globals()['get_klines']
 
 #------------------------------------TODOs-------------------------------------
 
@@ -86,10 +83,10 @@ def trade_loop(
 
     max_price = buy_price
     stop_price = buy_price*(1-stop_loss)
-    
+        
     while True:
         try:
-            klines = download_to_csv(symbol, interval)
+            klines = download_to_csv(symbol, interval) #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ DOWNLOADING CANDLES HERE
             current_price = klines.iloc[-1]['c']
             current_high = klines.iloc[-1]['h']
             
