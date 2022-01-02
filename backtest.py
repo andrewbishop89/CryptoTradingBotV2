@@ -118,20 +118,18 @@ def backtest_trade_loop_1(
 
     return
 
-
-def run_method(buy_in_gain_param: float, risk_reward_ratio: float, 
-               backtest_flag: bool=False):
+def backtest_symbols(amount: int=30) -> list:
     """
-    Description: 
-        Runs Method 1 with specified parameters.
+    Description:
+        Finds the top 'amount' symbols for backtesting.
     Args:
-        buy_in_gain_param (float): gain required for trade buy in
-        risk_reward_ratio (float): risk to reward ratio for calculating 
-        stop loss
-        backtest_flag (bool=False): true if backtesting false otherwise
-    Returns: 
-        None
+        amount (int, optional): amount of symbols to return (defaults to 30)
+    Returns:
+        list: list of top symbols
     """
+    gainers = top_gainers()
+    top_symbols = gainers.head(amount).index
+    return list(top_symbols)
 def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None, 
     
     #Parameters
