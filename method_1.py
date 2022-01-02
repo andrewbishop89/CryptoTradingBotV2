@@ -17,10 +17,14 @@ import threading
 import pync
 import os
 
-from data_collection import *
+import data_collection as DC
+import backtest as BT
 from market import *
 from trade import *
 from parameters import *
+
+from data_collection import *
+del globals()['get_klines']
 
 #------------------------------------TODOs-------------------------------------
 
