@@ -83,10 +83,10 @@ def trade_loop(
 
     max_price = buy_price
     stop_price = buy_price*(1-stop_loss)
-        
+    
     while True:
         try:
-            klines = download_to_csv(symbol, interval) #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ DOWNLOADING CANDLES HERE
+            klines = download_to_csv(symbol, interval)
             current_price = klines.iloc[-1]['c']
             current_high = klines.iloc[-1]['h']
             
