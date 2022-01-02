@@ -19,7 +19,7 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-def trade_loop(
+def backtest_trade_loop_1(
     locks: dict, 
     symbol: str, 
     interval: str, 
@@ -132,6 +132,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float,
     Returns: 
         None
     """
+def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None, 
     
     #Parameters
     global buy_in_gain
