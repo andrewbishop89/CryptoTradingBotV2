@@ -130,6 +130,10 @@ def backtest_symbols(amount: int=30) -> list:
     gainers = top_gainers()
     top_symbols = gainers.head(amount).index
     return list(top_symbols)
+
+def backtest_1():
+    return
+
 def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None, 
     
     #Parameters
