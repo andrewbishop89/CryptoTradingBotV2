@@ -11,6 +11,7 @@ import sys
 import threading
 import pync
 import os
+from multiprocessing import Pool
 
 from data_collection import *
 from market import *
@@ -118,18 +119,24 @@ def backtest_trade_loop_1(
 
     return
 
-def backtest_symbols(amount: int=30) -> list:
+def backtest_symbols(amount: int=30, limit: int=1000) -> list:
     """
     Description:
-        Finds the top 'amount' symbols for backtesting.
+        Finds and downloads the last 'limit' candles of the top 'amount' 
+        symbols for backtesting.
     Args:
         amount (int, optional): amount of symbols to return (defaults to 30)
+        limit (int, optional): amount of candles to download (defaults to 1000)
     Returns:
-        list: list of top symbols
+        list: list of top 'amount' symbols
     """
     gainers = top_gainers()
-    top_symbols = gainers.head(amount).index
-    return list(top_symbols)
+    top_symbols = list(gainers.head(amount).index)
+    with Pool(processes=os.cpu_count()) as p:
+        p.starmap(download_for_backtest, 
+            [(symbol, '1m', limit) for symbol in top_symbols])
+        
+    return top_symbols
 
 def backtest_1():
     return
