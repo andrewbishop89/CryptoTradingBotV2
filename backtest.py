@@ -264,7 +264,8 @@ if __name__ == '__main__':
     #minimum multiplier to buy in at
     backtest_buy_in_gains = [4, 5, 8, 10, 15]
     #risk to reward ratios for stop loss calculations
-    backtest_risk_reward_ratios = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3]
+    backtest_risk_reward_ratios = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, \
+        2.5, 3]
     #number of coins to backtest
     backtest_symbols_amount = 10
     #number of candles for each coin to backtest
