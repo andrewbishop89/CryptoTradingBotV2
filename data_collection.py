@@ -74,6 +74,26 @@ def historical_klines(symbol: str, interval: str, limit: int,
         return format_binance_klines(klines)
 
 
+def candle_data_file_path(symbol: str, interval: str, 
+        historical: bool=False) -> str:
+    """
+    Description:
+        Returns the file path for the corresponding input parameters.
+    Args:
+        symbol (str): symbol of coin data
+        interval (str): interval of coin data
+        historical (bool, optional): true if historical data, else false
+            (defaults to False)
+    Returns:
+        str: file path for input data
+    """
+    if historical:
+        return os.path.join('data', 'historical_data', str(interval), 
+            f"{symbol}_{interval}.csv")
+    else:
+        return os.path.join('data', 'live_data', str(interval), 
+            f"{symbol}_{interval}.csv")
+
 def download_to_csv(symbol: str, interval: str, 
     limit: int = 500) -> pd.DataFrame:
     """
