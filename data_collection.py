@@ -111,12 +111,13 @@ def download_to_csv(symbol: str, interval: str,
     return klines
 
 
-def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str):
+def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str, 
+        historical: bool=False):
     """
     Description:
         Saves the candles passed as argument to a csv file.
     Args:
-        klines ([type]): candles to be sent to csv
+        klines (pd.DataFrame): candles to be saved to csv
         symbol (str): symbol of candles
         interval (str): interval of candles
     Returns:
@@ -125,8 +126,7 @@ def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str):
     if (type(klines) != pd.DataFrame):
         klines = klines_dict_to_df(klines)
     init_coin(symbol, interval)
-    klines.to_csv(os.path.join("data", "live_data", f"{interval}",
-        f"{symbol.upper()}_{interval}.csv"))
+    klines.to_csv(candle_data_file_path(str, interval, historical))
     
 
 def download_recent_klines(symbol: str, interval:str, 
