@@ -257,22 +257,35 @@ def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None,
 
 #------------------------------------main--------------------------------------
 
-if __name__ == '__main__': #only run main when running this file as main
+if __name__ == '__main__':
     
-    buy_in_gains = [10]
-    risk_reward_ratios = [1]
+    # ---- Backtest Parameters ----
     
-    pync.notify(f"Buy-In Gain: {','.join([str(g) for g in buy_in_gains])}%", 
-                title="Starting CryptoBotV2")
-    threading.current_thread().name = "Thread-MAIN"
+    #minimum multiplier to buy in at
+    backtest_buy_in_gains = [4, 5, 8, 10, 15]
+    #risk to reward ratios for stop loss calculations
+    backtest_risk_reward_ratios = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3]
+    #number of coins to backtest
+    backtest_symbols_amount = 10
+    #number of candles for each coin to backtest
+    backtest_klines_limit = 5_000
+    
+    pync.notify(f"Starting Backtesting " +
+        f"({len(backtest_buy_in_gains)*len(backtest_risk_reward_ratios)}).", 
+        title="CryptoBotV2") #notification for program start
+    threading.current_thread().name = "Thread-MAIN" #rename main thread
     
     try:
-        for gain in buy_in_gains:
-            for risk_reward_ratio in risk_reward_ratios:
-                run_method(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
-    except KeyboardInterrupt:
+        init_backtest_1( #init and prepare all variables for backtest
+            buy_in_gains=backtest_buy_in_gains,
+            risk_reward_ratios=backtest_risk_reward_ratios,
+            symbols=backtest_symbols(backtest_symbols_amount, 
+                backtest_klines_limit))
+        
+    except KeyboardInterrupt: #incase of keyboard interrupts during execution
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
-              f"{threading.active_count()}") if (not cron_flag) else None
+              f"{threading.active_count()}")
         sys.exit()
-    finally:
-        pync.notify(f"Ending Main of Program", title="Finishing CryptoBotV2")
+    finally: #notify user that program is ending
+        pync.notify(f"Ending Main of Program (Backtesting)", 
+            title="CryptoBotV2")
