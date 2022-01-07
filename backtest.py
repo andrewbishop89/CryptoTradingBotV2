@@ -24,69 +24,59 @@ from parameters import *
 #----------------------------------functions-----------------------------------
 
 def backtest_trade_loop_1(
-    locks: dict, 
-    symbol: str, 
-    interval: str, 
-    paper_flag: bool,
-    stop_loss: float):
-    """
-    Description: 
-        Initiates a trade cycle (buys & waits til sold) for the specified 
-        currency.
-    Args:
-        locks (dict): lock for making changes to current trades list
-        symbol (str): symbol of currency to trade
-        interval (str): symbol of currency to trade
-        paper_flag (bool): interval of klines to be used for analysis 
-        stop_loss (float): to indicate whether to use real or paper money
-    Return: 
-        None
-    """
-    if (not paper_flag):
-        buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
+    symbol,
+    klines,
+    stop_loss):
     
-    buy_price = current_price_f(symbol)
-    print(f"{GREY}BUY PRICE{WHITE}: {buy_price}") if (not cron_flag) else None
-    start_time = time.time()
-    print(f"Start: {get_time(start_time-8*3600)} - {start_time}\n") if \
-        (not cron_flag) else None
+    buy_price = current_price_f(klines[0]['c'])
+    start_time = klines[0]['t']
 
     max_price = buy_price
     stop_price = buy_price*(1-stop_loss)
     
-    while True:
-        try:
-            klines = download_to_csv(symbol, interval)
-            current_price = klines.iloc[-1]['c']
-            current_high = klines.iloc[-1]['h']
+    for backtest_index in range(len(klines)):
+        klines = klines.iloc[backtest_index]
+        current_price = klines.iloc[backtest_index]['c']
+        current_high = klines.iloc[backtest_index]['h']
+        
+        max_price = max(max_price, current_high)
+        
+        if (current_price < stop_price): # if below stop loss take losses
+            sell_price = stop_price
+            profit = get_profit(buy_price, sell_price, paper=True)
+            end_time = klines.iloc[backtest_index]['t']
             
-            max_price = max(max_price, current_high)
+            date_today = date.today()
+            file_path = os.path.join("logs", "backtest_logs", f"{date_today}.csv")
+            if not os.path.isfile(file_path):
+                with open(file_path, 'w') as f:
+                    f.write("profit,symbol,buy_in_gain,interval,stop_loss," + \
+                        "buy_price,sell_price,start_time,end_time")
             
-            if (current_price < stop_price): # if below stop loss take losses
-                if (not paper_flag):
-                    sell_trade(symbol, quantity=sell_quantity)
-                sell_price = current_price_f(symbol)
-                profit = get_profit(buy_price, sell_price, paper=paper_flag)
-                profit_color = GREEN if profit > 0 else RED
-                print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling " + \
-                    f"{symbol}.") if (not cron_flag) else None
-                print(f"{GREY}SELL PRICE{WHITE}: {sell_price}") if \
-                    (not cron_flag) else None
-                end_time = time.time()
-                print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", \
-                      end='\r') if (not cron_flag) else None
-                print(f"{profit_color}PROFIT{WHITE}: {profit}%\n") if \
-                    (not cron_flag) else None
-                break
+            add_row_to_csv(
+                file_path = os.path.join("logs", "backtest_logs", \
+                    f"{date_today}.csv"), 
+                data = [
+                        profit,
+                        symbol,
+                        buy_in_gain,
+                        "1m",
+                        stop_loss,
+                        buy_price, 
+                        sell_price, 
+                        start_time, 
+                        end_time
+                    ])
             
-            #top value - 'stop_loss' percent of buy in price
-            stop_price = max_price - buy_price*stop_loss
-            time.sleep(30)
-            
-        #incase loss of network during trade
-        except (requests.ConnectionError, requests.Timeout) as exception:
-            lost_connection_sleep(60, 1 if (len(sys.argv) > 1) else \
-                os.get_terminal_size().columns) #sleep for 60 seconds
+            return
+
+        
+        #top value - 'stop_loss' percent of buy in price
+        stop_price = max_price - buy_price*stop_loss
+  
+  
+  
+  
         
     lock_1_flag = False
     lock_2_flag = False
@@ -203,7 +193,6 @@ def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None,
     #Parameters
     global buy_in_gain
     global current_trades
-    global cron_flag #true if running from crontab (only print certain lines)
     
     #gain required in 5 minute period for buy in
     buy_in_gain = buy_in_gain_param  
@@ -215,8 +204,8 @@ def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None,
     cron_flag = (len(sys.argv) > 1)
     
     locks = { #locks for thread synchronization
-        'current_trades': threading.Lock(),
-        'profits_file': threading.Lock(),
+        'current_trades': multiprocessing.Lock(),
+        'profits_file': multiprocessing.Lock(),
     }
     
     print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
@@ -268,13 +257,14 @@ def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None,
                             #creating trade loop thread for coin
                             start_trade(
                                 thread=threading.Thread(
-                                    target=trade_loop,
+                                    target=backtest_trade_loop_1,
                                     args=[
                                         locks,
                                         coin,
                                         interval,
                                         paper_flag,
-                                        buy_in_gain/risk_reward_ratio]),
+                                        buy_in_gain,
+                                        risk_reward_ratio]),
                                 symbol=coin)
                             
                             break
@@ -337,7 +327,7 @@ if __name__ == '__main__':
         init_backtest_1( #init and prepare all variables for backtest
             buy_in_gains=backtest_buy_in_gains,
             risk_reward_ratios=backtest_risk_reward_ratios,
-            symbols=backtest_symbols(backtest_symbols_amount, 
+            klines=backtest_klines(backtest_symbols_amount, 
                 backtest_klines_limit))
         
     except KeyboardInterrupt: #incase of keyboard interrupts during execution
