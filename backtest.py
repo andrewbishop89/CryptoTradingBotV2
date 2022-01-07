@@ -170,7 +170,35 @@ def backtest_1(symbol: str, gain: float, ratio: float,
     
     return
 
+
 def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None, 
+        symbols: list=None):
+    
+    """TODO"""
+
+    file_lock = multiprocessing.Lock() #lock for writing to logs file
+    
+    symbol_locks = {} #for reading candles from each coins file
+    for symbol in symbols:
+        symbol_locks[symbol] = multiprocessing.Lock()
+
+    #cycle through all combinations for input parameters
+    backtest_parameter_combinations = []
+    for gain in buy_in_gains: 
+        for ratio in risk_reward_ratios:
+            #WARNING to avoid concurrency problems, symbols must be iterated through last here
+            for symbol in symbols: 
+                backtest_parameter_combinations.append((symbol, gain, ratio, 
+                    file_lock))
+                
+    process_count = min(os.cpu_count(), len(symbols))
+    with Pool(processes=process_count) as p:
+        p.starmap(backtest_1, backtest_parameter_combinations)
+                    
+    print("Backtesting Complete")
+
+
+    
     
     #Parameters
     global buy_in_gain
