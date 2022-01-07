@@ -9,9 +9,12 @@
 # modules imported
 import sys
 import threading
+from method_1 import trade_loop_1
 import pync
 import os
 from multiprocessing import Pool
+import multiprocessing
+from datetime import date
 
 from data_collection import *
 from market import *
