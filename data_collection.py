@@ -74,6 +74,32 @@ def historical_klines(symbol: str, interval: str, limit: int,
         return format_binance_klines(klines)
 
 
+def candle_data_file_path(symbol: str, interval: str, 
+        historical: bool=False) -> str:
+    """
+    Description:
+        Returns the file path for the corresponding input parameters.
+    Args:
+        symbol (str): symbol of coin data
+        interval (str): interval of coin data
+        historical (bool, optional): true if historical data, else false
+            (defaults to False)
+    Returns:
+        str: file path for input data
+    """
+    if historical:
+        return os.path.join('data', 'historical_data', str(interval), 
+            f"{symbol}_{interval}.csv")
+    else:
+        return os.path.join('data', 'live_data', str(interval), 
+            f"{symbol}_{interval}.csv")
+
+
+def download_for_backtest(symbol: str, interval: str, limit: int = 1000):
+    klines = download_recent_klines(symbol, interval, limit)
+    klines_to_csv(klines, symbol, interval, historical=True)
+    return klines
+
 def download_to_csv(symbol: str, interval: str, 
     limit: int = 500) -> pd.DataFrame:
     """
@@ -91,12 +117,13 @@ def download_to_csv(symbol: str, interval: str,
     return klines
 
 
-def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str):
+def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str, 
+        historical: bool=False):
     """
     Description:
         Saves the candles passed as argument to a csv file.
     Args:
-        klines ([type]): candles to be sent to csv
+        klines (pd.DataFrame): candles to be saved to csv
         symbol (str): symbol of candles
         interval (str): interval of candles
     Returns:
@@ -105,9 +132,27 @@ def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str):
     if (type(klines) != pd.DataFrame):
         klines = klines_dict_to_df(klines)
     init_coin(symbol, interval)
-    klines.to_csv(os.path.join("data", "live_data", f"{interval}",
-        f"{symbol.upper()}_{interval}.csv"))
+    klines.to_csv(candle_data_file_path(str, interval, historical))
     
+def get_saved_klines(symbol: str, interval: str, limit: int=None, 
+        historical: bool=False) -> pd.DataFrame:
+    """
+    Description:
+        Returns locally saved klines for specified parameters.
+    Args:
+        symbol (str): symbol of klines
+        interval (str): interval of klines
+        limit (int, optional): amount of candles to return (defaults to 1000)
+        historical (bool, optional): True if historical data, false otherwise 
+            (defaults to False)
+    Returns:
+        pd.DataFrame: klines specified by parameters
+    """
+    klines = pd.read_csv(candle_data_file_path(symbol, interval, historical))
+    if (limit == None):
+        return klines
+    else:
+        return klines.iloc[:limit]
 
 def download_recent_klines(symbol: str, interval:str, 
     limit: int = 500) -> pd.DataFrame:

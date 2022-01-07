@@ -22,6 +22,7 @@ from market import *
 from trade import *
 from parameters import *
 
+
 #------------------------------------TODOs-------------------------------------
 
 #TODO: switch to websocket for data source instead of api requests
@@ -52,7 +53,7 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-def trade_loop(
+def trade_loop_1(
     locks: dict, 
     symbol: str, 
     interval: str, 
@@ -75,9 +76,10 @@ def trade_loop(
         buy_id, sell_quantity = buy_trade(symbol, 15) #buy in
     
     buy_price = current_price_f(symbol)
-    print(f"{GREY}BUY PRICE{WHITE}: {buy_price}")
+    print(f"{GREY}BUY PRICE{WHITE}: {buy_price}") if (not cron_flag) else None
     start_time = time.time()
-    print(f"Start: {get_time(start_time-8*3600)} - {start_time}\n")
+    print(f"Start: {get_time(start_time-8*3600)} - {start_time}\n") if \
+        (not cron_flag) else None
 
     max_price = buy_price
     stop_price = buy_price*(1-stop_loss)
@@ -97,12 +99,14 @@ def trade_loop(
                 profit = get_profit(buy_price, sell_price, paper=paper_flag)
                 profit_color = GREEN if profit > 0 else RED
                 print(f"{profit_color}CRITERIA ACHIEVED{WHITE} selling " + \
-                    f"{symbol}.")
-                print(f"{GREY}SELL PRICE{WHITE}: {sell_price}")
+                    f"{symbol}.") if (not cron_flag) else None
+                print(f"{GREY}SELL PRICE{WHITE}: {sell_price}") if \
+                    (not cron_flag) else None
                 end_time = time.time()
                 print(f"End: {get_time(end_time-8*3600)} - {end_time}\n", \
-                      end='\r')
-                print(f"{profit_color}PROFIT{WHITE}: {profit}%\n")
+                      end='\r') if (not cron_flag) else None
+                print(f"{profit_color}PROFIT{WHITE}: {profit}%\n") if \
+                    (not cron_flag) else None
                 break
             
             #top value - 'stop_loss' percent of buy in price
@@ -149,7 +153,8 @@ def trade_loop(
     return
 
 
-def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
+def run_method_1(buy_in_gain_param: float, risk_reward_ratio: float, 
+               backtest_flag: bool=False):
     """
     Description: 
         Runs Method 1 with specified parameters.
@@ -157,6 +162,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
         buy_in_gain_param (float): gain required for trade buy in
         risk_reward_ratio (float): risk to reward ratio for calculating 
         stop loss
+        backtest_flag (bool=False): true if backtesting false otherwise
     Returns: 
         None
     """
@@ -164,6 +170,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
     #Parameters
     global buy_in_gain
     global current_trades
+    global cron_flag #true if running from crontab (only print certain lines)
     
     #gain required in 5 minute period for buy in
     buy_in_gain = buy_in_gain_param  
@@ -172,6 +179,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
     current_trades = [] #list of symbols that are currently being traded
     terminal_width = 1 if (len(sys.argv) > 1) else \
         os.get_terminal_size().columns #width of terminal window
+    cron_flag = (len(sys.argv) > 1)
     
     locks = { #locks for thread synchronization
         'current_trades': threading.Lock(),
@@ -179,7 +187,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
     }
     
     print(f"{GREY}STARTING PROGRAM{WHITE}\nBuy-in Gain: {buy_in_gain}%\n" + 
-          f"Paper: {paper_flag}\n")
+        f"Paper: {paper_flag}\n") if (not cron_flag) else None
     
     # MAIN LOOP
     while True:
@@ -219,7 +227,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
                         max_gain = max(gain, max_gain)
                         if (gain > (1+buy_in_gain/100)):
                             print(f"{GREY}CRITERIA ACHIEVED{WHITE} buying " +
-                                f"into {coin}.")
+                                f"into {coin}.") if (not cron_flag) else None
                             #add coin to current trades
                             locks['current_trades'].acquire()
                             current_trades.append(coin)
@@ -227,7 +235,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
                             #creating trade loop thread for coin
                             start_trade(
                                 thread=threading.Thread(
-                                    target=trade_loop,
+                                    target=trade_loop_1,
                                     args=[
                                         locks,
                                         coin,
@@ -252,7 +260,7 @@ def run_method(buy_in_gain_param: float, risk_reward_ratio: float):
             current_string += format_string_padding(
                 f" Time: {get_time(time.time()-8*3600)}",
                 terminal_width=terminal_width)
-            print(current_string)
+            print(current_string) if (not cron_flag) else None
 
             #change sleep time depending on last measure max gain
             if (max_gain > buy_in_gain*0.9):
@@ -285,10 +293,10 @@ if __name__ == '__main__': #only run main when running this file as main
     try:
         for gain in buy_in_gains:
             for risk_reward_ratio in risk_reward_ratios:
-                run_method(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
+                run_method_1(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
-              f"{threading.active_count()}")
+              f"{threading.active_count()}") if (not cron_flag) else None
         sys.exit()
     finally:
         pync.notify(f"Ending Main of Program", title="Finishing CryptoBotV2")
