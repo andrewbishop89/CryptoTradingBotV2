@@ -141,7 +141,33 @@ def backtest_symbols(amount: int=30, limit: int=1000) -> list:
         
     return top_symbols
 
-def backtest_1():
+
+def backtest_1(symbol: str, gain: float, ratio: float, 
+        file_lock: bool, coin_lock: bool): 
+    
+    klines = get_saved_klines(symbol, "1m", historical=True)
+    for backtest_index in range(4, len(klines)): #main backtest loop
+        
+        #only analyze last 5 candles
+        last_klines = klines.iloc[backtest_index-5:backtest_index] 
+        for index in range(1,5):
+            try:
+                #if bearish candle, skip this index
+                if (last_klines.iloc[-index]['c'] < \
+                    last_klines.iloc[-index]['o']): 
+                    continue
+            except IndexError: #incase coin has less than 5 candles
+                break
+            else:
+                gain = last_klines.iloc[-1]['c']/ \
+                    last_klines.iloc[-index]['o']
+                max_gain = max(gain, max_gain)
+                if (gain > (1+buy_in_gain/100)):
+                    trade_loop_1(
+                        klines.iloc[backtest_index:], 
+                        stop_loss=gain/ratio)
+                    backtest_index += 5
+    
     return
 
 def init_backtest_1(buy_in_gains: list=None, risk_reward_ratios: list=None, 
