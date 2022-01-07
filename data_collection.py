@@ -134,6 +134,25 @@ def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str,
     init_coin(symbol, interval)
     klines.to_csv(candle_data_file_path(str, interval, historical))
     
+def get_saved_klines(symbol: str, interval: str, limit: int=None, 
+        historical: bool=False) -> pd.DataFrame:
+    """
+    Description:
+        Returns locally saved klines for specified parameters.
+    Args:
+        symbol (str): symbol of klines
+        interval (str): interval of klines
+        limit (int, optional): amount of candles to return (defaults to 1000)
+        historical (bool, optional): True if historical data, false otherwise 
+            (defaults to False)
+    Returns:
+        pd.DataFrame: klines specified by parameters
+    """
+    klines = pd.read_csv(candle_data_file_path(symbol, interval, historical))
+    if (limit == None):
+        return klines
+    else:
+        return klines.iloc[:limit]
 
 def download_recent_klines(symbol: str, interval:str, 
     limit: int = 500) -> pd.DataFrame:
