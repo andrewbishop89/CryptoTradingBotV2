@@ -289,11 +289,20 @@ if __name__ == '__main__': #only run main when running this file as main
                 title="Starting CryptoBotV2")
     threading.current_thread().name = "Thread-MAIN"
     
+    all_threads = []
+    
     try:
-        for gain in buy_in_gains:
+        #iterate through all parameter combinations
+        for gain in buy_in_gains: 
             for risk_reward_ratio in risk_reward_ratios:
-                run_method_1(buy_in_gain_param=gain, 
-                    risk_reward_ratio=risk_reward_ratio)
+                current_thread = threading.Thread( #create method 1 thread
+                    target=run_method_1, 
+                    args=[gain, risk_reward_ratio])
+                #rename thread
+                current_thread.name = f"Thread-{gain}:{risk_reward_ratio}"
+                all_threads.append(current_thread)
+                current_thread.start() #start thread
+                
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}") if (not cron_flag) else None
