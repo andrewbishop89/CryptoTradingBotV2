@@ -293,7 +293,8 @@ if __name__ == '__main__': #only run main when running this file as main
     try:
         for gain in buy_in_gains:
             for risk_reward_ratio in risk_reward_ratios:
-                run_method_1(buy_in_gain_param=gain, stop_loss=risk_reward_ratio)
+                run_method_1(buy_in_gain_param=gain, 
+                    risk_reward_ratio=risk_reward_ratio)
     except KeyboardInterrupt:
         print(f"\n{GREY}STATUS {WHITE}Finishing Program. Thread Count: " + 
               f"{threading.active_count()}") if (not cron_flag) else None
