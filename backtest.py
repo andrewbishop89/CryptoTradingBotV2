@@ -74,43 +74,8 @@ def backtest_trade_loop_1(
         #top value - 'stop_loss' percent of buy in price
         stop_price = max_price - buy_price*stop_loss
   
-  
-  
-  
-        
-    lock_1_flag = False
-    lock_2_flag = False
-    while True:
-        if not lock_1_flag: #if lock 1 task not done yet
-            if not locks['current_trades'].locked(): #wait until lock is open
-                #lock and remove symbol from current trades
-                locks['current_trades'].acquire()
-                current_trades.remove(symbol) 
-                locks['current_trades'].release()
-                lock_1_flag = True #flag is true to mark task is completed
-        if not lock_2_flag: #if lock 2 task not done yet
-            if not locks['profits_file'].locked(): #wait until lock is open
-                #lock and add profit data to profits file 
-                locks['profits_file'].acquire()
-                add_row_to_csv(
-                    file_path = os.path.join("logs", "profits.csv"), 
-                    data = [
-                        profit,
-                        symbol,
-                        buy_in_gain,
-                        interval,
-                        stop_loss,
-                        buy_price, 
-                        sell_price, 
-                        start_time, 
-                        end_time
-                    ])
-                locks['profits_file'].release()
-                lock_2_flag = True  # flag is true to mark task is completed
-        if (lock_1_flag and lock_2_flag): #if both locked tasks are done
-            break #break to finish trade cycle
-
     return
+
 
 def backtest_symbols(amount: int=30, limit: int=1000) -> list:
     """
