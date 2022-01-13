@@ -154,7 +154,7 @@ def trade_loop_1(
 
 
 def run_method_1(buy_in_gain_param: float, risk_reward_ratio: float, 
-               backtest_flag: bool=False):
+        backtest_flag: bool=False):
     """
     Description: 
         Runs Method 1 with specified parameters.
