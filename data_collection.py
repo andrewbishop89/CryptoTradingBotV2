@@ -100,6 +100,7 @@ def download_for_backtest(symbol: str, interval: str, limit: int = 1000):
     klines_to_csv(klines, symbol, interval, historical=True)
     return klines
 
+
 def download_to_csv(symbol: str, interval: str, 
     limit: int = 500) -> pd.DataFrame:
     """
