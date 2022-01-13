@@ -178,7 +178,7 @@ def download_recent_klines(symbol: str, interval:str,
     )
     return format_binance_klines(klines)
 
-# NOTE extra args are for backtesting.
+
 def get_klines(symbol: str, limit: int, interval: str = '1m', 
     offset: int = -1) -> pd.DataFrame:
     """
