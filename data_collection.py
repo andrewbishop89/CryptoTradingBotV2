@@ -168,7 +168,7 @@ def download_recent_klines(symbol: str, interval:str,
     Returns:
         pd.DataFrame: the candles that were downloaded
     """
-    if (limit > 1000): #this func can do over 1000 func but other func can
+    if (limit > 1000): #this func cant do over 1000 func but other func can
         return historical_klines(symbol, interval, limit)
     client = Client(API_KEY, API_SECRET)
     klines = client.get_klines(
