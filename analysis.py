@@ -10,6 +10,7 @@
 # modules imported
 import pandas as pd
 import numpy as np
+from ta.trend import ema_indicator
 from ta.trend import sma_indicator
 
 from parameters import *
@@ -48,6 +49,9 @@ def list_to_series(data: list) -> pd.Series:
     """
     return pd.Series(np.array(data))
 
+
+def EMA(data, window: int=50, offset: int=0):
+    return ema_indicator(data, window=window).values
 
 def SMA(data: list, window: int=10) -> list:
     """
