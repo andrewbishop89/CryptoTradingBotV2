@@ -50,22 +50,30 @@ def list_to_series(data: list) -> pd.Series:
     return pd.Series(np.array(data))
 
 
-def EMA(data, window: int=50, offset: int=0):
-    return ema_indicator(data, window=window).values
+def EMA(data, window: int=50, offset: int=0) -> pd.Series:
+    """
+    Description:
+        Calculates Exponential Moving Average (EMA) of data passed as 
+        parameter.
+    Args:
+        data: list/series of data used in calculation
+        window (int, optional): amount of elements in average (defaults to 50)
+    Returns:
+        list: list of EMA values for all data passed
+    """
+    return pd.Series(ema_indicator(data, window=window).values)
 
-def SMA(data: list, window: int=10) -> list:
+def SMA(data, window: int=10) -> pd.Series:
     """
     Description:
         Calculates Simple Moving Average (SMA) of data passed as parameter.
     Args:
-        data (list): list of data used in calculation
+        data: list/series of data used in calculation
         window (int, optional): amount of elements in average (defaults to 10)
     Returns:
         list: list of SMA values for all data passed
     """
-    series = list_to_series(data)
-    sma_values = sma_indicator(series, window=window).values.tolist()
-    return sma_values
+    return pd.Series(sma_indicator(data, window=window).values)
 
 
 def SMMA(klines: pd.DataFrame, window: int) -> list:
