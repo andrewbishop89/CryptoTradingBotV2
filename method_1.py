@@ -153,7 +153,9 @@ def trade_loop_1(
     return
 
 
-def run_method_1(buy_in_gain_param: float, risk_reward_ratio: float):
+def run_method_1(
+        buy_in_gain_param: float, 
+        risk_reward_ratio: float):
     """
     Description: 
         Runs Method 1 with specified parameters.
