@@ -42,7 +42,12 @@ from backtest_2 import *
 
 #----------------------------------functions-----------------------------------
 
-def run_all(symbols):
+def log_profits(profit, buy_price, sell_price, buy_time, sell_time, side, file_lock):
+    file_lock.acquire()
+    with open(os.path.join("logs", "profits.csv"), "a") as f:
+        f.write(f"{profit},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
+    file_lock.release()
+
     
     print(f"Live Symbols ({len(symbols)}):")
     threading.current_thread.name = "MAIN-Thread"
