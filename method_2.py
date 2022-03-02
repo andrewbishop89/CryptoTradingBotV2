@@ -113,16 +113,30 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             # ================================================================
             
             # download 1h klines
-            long_klines = download_recent_klines(
-                symbol=symbol,
-                interval="1h",
-                limit=high_w).reset_index()
+            while True:
+                try:
+                    long_klines = download_recent_klines(
+                        symbol=symbol,
+                        interval="1h",
+                        limit=high_w).reset_index()
+                except requests.exceptions.ConnectionError:
+                    print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
+                    time.sleep(15)
+                else:
+                    break
 
             # download 5m klines
-            short_klines = download_recent_klines(
-                symbol=symbol,
-                interval="5m",
-                limit=high_w).reset_index()
+            while True:
+                try:
+                    short_klines = download_recent_klines(
+                        symbol=symbol,
+                        interval="5m",
+                        limit=high_w).reset_index()
+                except requests.exceptions.ConnectionError:
+                    print(f"{RED}ERROR {WHITE}Could Not Download 5m {symbol}.")
+                    time.sleep(15)
+                else:
+                    break
             
             # calculate long EMA values
             long_EMAs = pd.DataFrame([
