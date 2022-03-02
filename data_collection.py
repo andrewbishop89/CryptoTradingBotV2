@@ -96,7 +96,7 @@ def candle_data_file_path(symbol: str, interval: str,
 
 
 def download_for_backtest(symbol: str, interval: str, limit: int = 1000):
-    klines = download_recent_klines(symbol, interval, limit)
+    klines = historical_klines(symbol, interval, limit)
     klines_to_csv(klines, symbol, interval, historical=True)
     return klines
 
