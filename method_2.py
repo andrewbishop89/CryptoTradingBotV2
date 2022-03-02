@@ -105,7 +105,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             if not init_flag:        
                 start = time.time()
                 #trade_lock.acquire()
-                sleep_time = 2.5*60 if (not trade_flag) else 30
+                sleep_time = 90 if (not trade_flag) else 30
                 #trade_lock.release()
                 end = time.time()
                 time.sleep(sleep_time - (end-start))
