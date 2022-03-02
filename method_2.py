@@ -209,6 +209,10 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             if trade_flag:
                 #trade_lock.release()
                 
+                print(f"\tSTOP: {round(abs(current_price-stop_price))}".rjust(25) + \
+                      f" PROFIT 1: {round(abs(profit_price_1-current_price))}".rjust(20) + \
+                      f" PROFIT 2: {round(abs(profit_price_2-current_price))}".rjust(20)) if print_flag else None
+                
                 # STOP LOSS
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if not profit_flag else 0
