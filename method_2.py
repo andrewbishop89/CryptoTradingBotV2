@@ -54,6 +54,8 @@ def run_all(symbols, p_f=False):
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
+    profit_file_lock = threading.Lock()
+    
     global trade_flag, current_balance
     # flag indicating active trade (thread safe, linked with trade_lock)
     trade_flag = False 
@@ -61,10 +63,11 @@ def run_all(symbols, p_f=False):
     current_balance = 15 
     
     for symbol in symbols:
-        threads_list += [threading.Thread(target=live_method_2, args=[symbol])]
+        threads_list += [threading.Thread(target=live_method_2, args=[symbol, profit_file_lock, p_f])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         print(f"\tStarting {threads_list[-1].name}.")
+        time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
     print()
         
     thread_count = len(threads_list)+1
