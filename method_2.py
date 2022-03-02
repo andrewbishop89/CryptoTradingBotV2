@@ -197,6 +197,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 profit_price_2 = buy_price*(1+2*percent_profit)
                 
                 profit_flag = False
+                continue
                 
             #else:
                 #trade_lock.release()
