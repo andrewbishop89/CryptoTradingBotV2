@@ -272,7 +272,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 
             # ================================================================
     except Exception as e:
-        print(f"{RED}ERROR{WHITE} In {threading.current_thread.name}")
+        print(f"{RED}ERROR{WHITE} In {symbol}-Thread.")
         raise e
     
 
