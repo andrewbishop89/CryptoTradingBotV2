@@ -89,6 +89,8 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
     mid_w = 13
     high_w = 21
     
+    min_profit = 0.15
+    
     # trade flag
     trade_flag = False
     
