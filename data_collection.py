@@ -133,7 +133,7 @@ def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str,
     if (type(klines) != pd.DataFrame):
         klines = klines_dict_to_df(klines)
     init_coin(symbol, interval)
-    klines.to_csv(candle_data_file_path(str, interval, historical))
+    klines.to_csv(candle_data_file_path(symbol, interval, historical))
     
 def get_saved_klines(symbol: str, interval: str, limit: int=None, 
         historical: bool=False) -> pd.DataFrame:
