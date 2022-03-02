@@ -31,7 +31,14 @@ from backtest_2 import *
 
 #------------------------------------TODOs-------------------------------------
 
-#TODO: 
+# TODO: add trades.csv and run similar to profits.csv so that if the program 
+# crashes you can still see if there was an existing trade and then continue 
+# with it
+
+# TODO: change threading lock to dictionary full of all threading locks
+
+# TODO: add check to see if there are any new coins in top gainers that can 
+# have new threads created for them
 
 #----------------------------------functions-----------------------------------
 
