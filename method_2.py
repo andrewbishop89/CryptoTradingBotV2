@@ -219,6 +219,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                     #total_profit += profit
                     #print(RED, profit, WHITE, total_profit)
                     print(f"LOSS:\t\t\t{RED}{round(profit*100,2)}%{WHITE}") if print_flag else None
+                    log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Stop Loss", profit_file_lock)
                     #trade_lock.acquire()
                     trade_flag = False
                     #trade_lock.release()
@@ -232,6 +233,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                         #total_profit += profit
                         #print(BLUE, profit, WHITE, total_profit)
                         print(f"Profit 1:\t\t{GREEN}{round(profit*100,2)}%{WHITE}") if print_flag else None
+                        log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Profit 1", profit_file_lock)
                         profit_flag = True
                         stop_price = buy_price
                         
@@ -242,6 +244,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                         #total_profit += profit
                         #print(GREEN, profit, WHITE, total_profit)
                         print(f"Profit 2:\t\t{GREEN}{round(profit*100,2)}%{WHITE}") if print_flag else None
+                        log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Profit 2", profit_file_lock)
                         trade_flag = False
                         profit_flag = False
                         continue
