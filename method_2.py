@@ -48,6 +48,7 @@ def log_profits(profit, buy_price, sell_price, buy_time, sell_time, side, file_l
         f.write(f"{profit},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
     file_lock.release()
 
+def run_all(symbols, p_f=False):
     
     print(f"Live Symbols ({len(symbols)}):")
     threading.current_thread.name = "MAIN-Thread"
@@ -78,7 +79,7 @@ def log_profits(profit, buy_price, sell_price, buy_time, sell_time, side, file_l
                     
         time.sleep(2*60)
 
-def live_method_2(symbol, print_flag=False):#trade_lock, balance_lock):
+def live_method_2(symbol, profit_file_lock, print_flag=False):
 
     # EMA windows
     low_w = 8
@@ -91,6 +92,7 @@ def live_method_2(symbol, print_flag=False):#trade_lock, balance_lock):
     init_flag = True
     
     # start backtest loop
+    print(f"Starting Live {symbol}.") if print_flag else None
     try:
         while True:
             
@@ -150,34 +152,46 @@ def live_method_2(symbol, print_flag=False):#trade_lock, balance_lock):
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
+                print(f"{symbol} Criteria 1 Met.") if print_flag else None
                 
                 # 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
                     (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
+                print(f"{symbol} Criteria 2 Met.") if print_flag else None
                 
                 # 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
+                print(f"{symbol} Criteria 3 Met.") if print_flag else None
                 
                 # 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
+                print(f"{symbol} Criteria 4 Met.") if print_flag else None
                 
-                # 5: buy in
-                trade_flag = True
+                # 5: 5m -> low > 21 EMA (current kline)
+                criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
+                if not criteria_5:
+                    continue
+                print(f"{symbol} Criteria 5 Met.") if print_flag else None
+                
+                # 6: buy in
                 buy_price = current_price
                 buy_time = short_klines.loc[high_w-1, 't']
-                print(f"Bought into {symbol} @{buy_time} for {buy_price}.")
                 
-                # 6: stop loss at min(last 5 lows)
+                # 7: stop loss at min(last 5 lows)
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
+                trade_flag = (percent_profit*100 > 0.1)
+                if not trade_flag:
+                    continue
+                print(f"{symbol} Criteria 7 Met.") if print_flag else None
                 
-                # 7: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
+                # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
                 profit_price_1 = buy_price*(1+percent_profit)
                 profit_price_2 = buy_price*(1+2*percent_profit)
