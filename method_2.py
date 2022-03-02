@@ -42,10 +42,10 @@ from backtest_2 import *
 
 #----------------------------------functions-----------------------------------
 
-def log_profits(profit, buy_price, sell_price, buy_time, sell_time, side, file_lock):
+def log_profits(profit, symbol, buy_price, sell_price, buy_time, sell_time, side, file_lock):
     file_lock.acquire()
     with open(os.path.join("logs", "profits.csv"), "a") as f:
-        f.write(f"{profit},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
+        f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
     file_lock.release()
 
 def run_all(symbols, p_f=False):
