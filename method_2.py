@@ -12,7 +12,6 @@
 #
 
 # modules imported
-from concurrent.futures import thread
 import sys
 import threading
 import pync
