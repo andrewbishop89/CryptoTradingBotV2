@@ -88,6 +88,9 @@ def run_all(symbols, p_f=False):
 
 def live_method_2(symbol, profit_file_lock, print_flag=False):
 
+    # real money flag
+    real_money = False
+
     # EMA windows
     low_w = 8
     mid_w = 13
@@ -203,8 +206,16 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 print(f"{symbol} Criteria 5 Met.") if print_flag else None
                 
                 # 6: buy in
+                if real_money:
+                    balance = account_balance("USDT")
+                    if (balance < 15):
+                        continue
+                    buy_id, profit_quantity = \
+                        buy_trade(symbol=symbol, quote_quantity=balance)
+                    buy_time = time.time()
+                else:
+                    buy_time = short_klines.loc[high_w-1, 't']
                 buy_price = current_price
-                buy_time = short_klines.loc[high_w-1, 't']
                 
                 # 7: stop loss at min(last 5 lows)
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
@@ -241,12 +252,8 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                     profit = (-percent_profit) if not profit_flag else 0
                     #total_profit += profit
                     #print(RED, profit, WHITE, total_profit)
-                    print(f"LOSS:\t\t\t{RED}{round(profit*100,2)}%{WHITE}") if print_flag else None
-                    log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Stop Loss", profit_file_lock)
-                    #trade_lock.acquire()
-                    trade_flag = False
-                    #trade_lock.release()
-                    profit_flag = False
+                    if real_money:
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                     continue
 
                 # FIRST TAKE PROFIT
@@ -255,11 +262,9 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                         profit = (percent_profit/2)
                         #total_profit += profit
                         #print(BLUE, profit, WHITE, total_profit)
-                        print(f"Profit 1:\t\t{GREEN}{round(profit*100,2)}%{WHITE}") if print_flag else None
-                        log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Profit 1", profit_file_lock)
-                        profit_flag = True
-                        stop_price = buy_price
-                        
+                    if real_money:
+                        profit_quantity /= 2
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                 # SECOND TAKE PROFIT
                 if profit_flag: # if first profit already reached
                     if (current_price > profit_price_2):
