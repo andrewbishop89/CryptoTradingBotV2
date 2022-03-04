@@ -220,17 +220,17 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 # 7: stop loss at min(last 5 lows)
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
-                trade_flag = (percent_profit*100 > 0.1)
+                trade_flag = (percent_profit*100 > min_profit)
                 if not trade_flag:
                     continue
-                print(f"{symbol} Criteria 7 Met.") if print_flag else None
+                #print(f"{symbol} Criteria 7 Met.") if print_flag else None
                 
                 # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
-                profit_price_1 = buy_price*(1+percent_profit)
-                profit_price_2 = buy_price*(1+2*percent_profit)
+                profit_price = buy_price*(1+percent_profit)
+                profit_index = 1 # index for which take profits have been reached
                 
-                profit_flag = False
+                print(f"\tIN: {symbol}".ljust(20) + f"@{int(buy_time)} for".ljust(15) + f"{round(buy_price,4)} ".rjust(20) + f"{round(stop_price,4)}".rjust(20) + f"{round(profit_price,4)} ".rjust(20) + f"{round(percent_profit*100,2)}%".rjust(20))
                 continue
                 
             #else:
@@ -243,9 +243,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             if trade_flag:
                 #trade_lock.release()
                 
-                print(f"\tSTOP: {round(abs(current_price-stop_price))}".rjust(25) + \
-                      f" PROFIT 1: {round(abs(profit_price_1-current_price))}".rjust(20) + \
-                      f" PROFIT 2: {round(abs(profit_price_2-current_price))}".rjust(20)) if print_flag else None
+                #print(symbol.rjust(20), str(round(abs((current_price/stop_price-1)*100), 2)).rjust(20) + "%", str(round(abs((current_price/profit_price-1)*100), 2)).rjust(20) + "%")
                 
                 # STOP LOSS
                 if (current_price < stop_price): # if stop loss is reached
