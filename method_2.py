@@ -178,32 +178,27 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
-                print(f"{symbol} Criteria 1 Met.") if print_flag else None
                 
                 # 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
                     (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
-                print(f"{symbol} Criteria 2 Met.") if print_flag else None
                 
                 # 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
-                print(f"{symbol} Criteria 3 Met.") if print_flag else None
                 
                 # 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
-                print(f"{symbol} Criteria 4 Met.") if print_flag else None
                 
                 # 5: 5m -> low > 21 EMA (current kline)
                 criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
-                print(f"{symbol} Criteria 5 Met.") if print_flag else None
                 
                 # 6: buy in
                 if real_money:
@@ -223,7 +218,6 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 trade_flag = (percent_profit*100 > min_profit)
                 if not trade_flag:
                     continue
-                #print(f"{symbol} Criteria 7 Met.") if print_flag else None
                 
                 # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
