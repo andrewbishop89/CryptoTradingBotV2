@@ -34,10 +34,15 @@ from backtest_2 import *
 # crashes you can still see if there was an existing trade and then continue 
 # with it
 
+# TODO: add async websocket connection
+
 # TODO: change threading lock to dictionary full of all threading locks
 
 # TODO: add check to see if there are any new coins in top gainers that can 
 # have new threads created for them
+
+# TODO: add stop loss check to see if it is outside one standard deviation of 
+# the last hour, if so, make that the stop loss
 
 #----------------------------------functions-----------------------------------
 
