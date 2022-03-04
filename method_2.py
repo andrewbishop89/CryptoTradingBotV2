@@ -249,33 +249,36 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 
                 # STOP LOSS
                 if (current_price < stop_price): # if stop loss is reached
-                    profit = (-percent_profit) if not profit_flag else 0
+                    profit = (-percent_profit) if (profit_index < 2) else 0
+                    trade_flag = False
+                    
                     #total_profit += profit
                     #print(RED, profit, WHITE, total_profit)
                     if real_money:
                         sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
+                    print(f"\t{symbol} LOSS:".ljust(30) + f"{RED if (profit_index < 2) else GREY}{round(profit*100,2)}%{WHITE}")
+                    if (profit_index < 2):
+                        log_profits(round(profit*100,2), symbol, buy_price, current_price, buy_time, time.time(), "Stop-Loss", profit_file_lock)
                     continue
 
-                # FIRST TAKE PROFIT
-                if not profit_flag: # if first profit not reached yet
-                    if (current_price > profit_price_1):
-                        profit = (percent_profit/2)
-                        #total_profit += profit
-                        #print(BLUE, profit, WHITE, total_profit)
+                # TAKE PROFIT
+                if (current_price > profit_price):
+                    profit = ((current_price/buy_price-1)/2/profit_index) # divide by profit index because quantity decays by factor of 2 each time
+                    if (profit*100 < min_profit):
+                        profit = ((current_price/buy_price-1)/profit_index)
+                        trade_flag = False
+                    #total_profit += profit
+                    #print(BLUE, profit, WHITE, total_profit)
                     if real_money:
                         profit_quantity /= 2
                         sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
-                # SECOND TAKE PROFIT
-                if profit_flag: # if first profit already reached
-                    if (current_price > profit_price_2):
-                        profit = percent_profit
-                        #total_profit += profit
-                        #print(GREEN, profit, WHITE, total_profit)
-                        print(f"Profit 2:\t\t{GREEN}{round(profit*100,2)}%{WHITE}") if print_flag else None
-                        log_profits(round(profit*100,2), buy_price, current_price, buy_time, time.time(), "Profit 2", profit_file_lock)
-                        trade_flag = False
-                        profit_flag = False
-                        continue
+                    print(f"\t{symbol} Profit {profit_index}{f' (F)' if (not trade_flag) else ''}:".ljust(30) + f"{GREEN}{round(profit*100,2)}%{WHITE}")
+                    log_profits(round(profit*100,2), symbol, buy_price, current_price, buy_time, time.time(), f"Profit-{profit_index}{f'-F' if not trade_flag else ''}", profit_file_lock)
+                    stop_price = buy_price # new stop is og buy price
+                    buy_price = profit_price # new buy is og profit price
+                    profit_price = buy_price*(1+percent_profit) # new profit is new buy + percent profit
+                    profit_index += 1 # increment profit index
+                    
             #else:
                 #trade_lock.release()
                 
