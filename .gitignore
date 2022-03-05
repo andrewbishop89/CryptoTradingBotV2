@@ -12,6 +12,9 @@ testing.py
 #pyc files
 *.pyc
 
+#.xlsx files
+*.xlsx
+
 #directories
 data
 __pycache__
