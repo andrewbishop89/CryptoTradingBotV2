@@ -49,7 +49,13 @@ from backtest_2 import *
 
 #----------------------------------functions-----------------------------------
 
-def log_profits(profit, symbol, buy_price, sell_price, buy_time, sell_time, side, file_lock):
+def get_profits() -> pd.DataFrame:
+    """
+    Description:
+        Returns DataFrame of the most recent profit logs.
+    """
+    return pd.read_csv(os.path.join("logs", "profits.csv"))
+
     file_lock.acquire()
     with open(os.path.join("logs", "profits.csv"), "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
