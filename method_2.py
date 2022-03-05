@@ -94,6 +94,26 @@ def display_profit(symbol: str, profit_index: int, profit: float):
     print(f"\t{symbol} PROFIT {profit_index}:".ljust(30) + \
           f"{GREEN}{'{:.4f}'.format(profit*100)}%{WHITE}")
 
+def init_logs():
+    """
+    Description:
+        Moves the previous profits to a new file and clears the profits.csv 
+        file.
+    """
+    with open(os.path.join("logs", "profits.csv"), "r") as f:
+        old_logs = f.read()
+    with open(os.path.join("logs", "profits.csv"), "w") as f:
+        f.write("profit,symbol,buy_price,sell_price,buy_time," + \
+            "sell_time,side,profit_split_ratio,std_5m,difference_1h," + \
+            "price_24h\n")
+    index = 1
+    fp = os.path.join("logs", f"profits_{index}.csv")
+    while os.path.isfile(fp):
+        index += 1
+        fp = os.path.join("logs", f"profits_{index}.csv")
+    with open(fp, "w") as f:
+        f.write(old_logs)        
+
     file_lock.acquire()
     with open(os.path.join("logs", "profits.csv"), "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
