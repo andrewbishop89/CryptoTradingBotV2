@@ -49,12 +49,7 @@ def top_gainers(min_percent: float = 0,
         pd.DataFrame: all coins that have a daily price change inbetween the 
         min and max percentages
     """
-    price_change = send_public_request('/api/v3/ticker/24hr')
-    df = pd.DataFrame.from_dict(price_change)
-    df = df[df['symbol'].str.contains('USDT')]
-    #df = df[df['symbol'].str.contains('DOWN') == False]
-    #df = df[df['symbol'].str.contains('UP') == False]
-    df = df.reset_index().set_index('symbol')
+    df = daily_ticker_24hr()
     if min_percent:
         df = df[df['priceChangePercent'].astype(float) > min_percent]
     if max_percent:
