@@ -170,7 +170,11 @@ def run_all(symbols, p_f=False):
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
-    profit_file_lock = threading.Lock()
+    # dictionary of all locks
+    locks = {
+        "trade": threading.Lock(),
+        "profit_file": threading.Lock()
+    }
     
     global trade_flag, current_balance
     # flag indicating active trade (thread safe, linked with trade_lock)
@@ -179,7 +183,8 @@ def run_all(symbols, p_f=False):
     current_balance = 15 
     
     for symbol in symbols:
-        threads_list += [threading.Thread(target=live_method_2, args=[symbol, profit_file_lock, p_f])]
+        threads_list += [threading.Thread(target=live_method_2, \
+            args=[symbol, locks, p_f])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         print(f"\tStarting {threads_list[-1].name}.")
@@ -198,7 +203,7 @@ def run_all(symbols, p_f=False):
                     
         time.sleep(2*60)
 
-def live_method_2(symbol, profit_file_lock, print_flag=False):
+def live_method_2(symbol, locks, print_flag=False):
 
     # real money flag
     real_money = False
@@ -216,17 +221,16 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
     init_flag = True
     
     # start backtest loop
-    print(f"Starting Live {symbol}.") if print_flag else None
     try:
         while True:
             
             # sleep
             # ================================================================
                     
-            if not init_flag:        
+            if (not init_flag):
                 start = time.time()
                 #trade_lock.acquire()
-                sleep_time = 90 if (not trade_flag) else 30
+                sleep_time = 60*2.5 if (not trade_flag) else 30
                 #trade_lock.release()
                 end = time.time()
                 time.sleep(sleep_time - (end-start))
@@ -237,7 +241,7 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             # ================================================================
             
             # download 1h klines
-            while True:
+            while True and (not trade_flag):
                 try:
                     long_klines = download_recent_klines(
                         symbol=symbol,
@@ -283,7 +287,8 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
             current_price = current_kline['c'] # current price
             
             #trade_lock.acquire()
-            if not trade_flag: # only check buy in criteria if looking for buy in
+            # only check buy in criteria if looking for buy in
+            if not trade_flag: 
                 #trade_lock.release()
                 
                 # 1: 1h -> 8 EMA > 21 EMA)
@@ -334,9 +339,27 @@ def live_method_2(symbol, profit_file_lock, print_flag=False):
                 # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
                 profit_price = buy_price*(1+percent_profit)
-                profit_index = 1 # index for which take profits have been reached
+                # index for which take profits have been reached
+                profit_index = 1 
                 
-                print(f"\tIN: {symbol}".ljust(20) + f"@{int(buy_time)} for".ljust(15) + f"{round(buy_price,4)} ".rjust(20) + f"{round(stop_price,4)}".rjust(20) + f"{round(profit_price,4)} ".rjust(20) + f"{round(percent_profit*100,2)}%".rjust(20))
+                # 9: record buy in values
+                # short closing values
+                short_closing = short_klines.loc[:, 'c']
+                # standard deviation of last 15 short values
+                std_5m = short_closing[high_w-15:high_w-1].std()
+                # difference of 1h EMA over buy price
+                difference_1h = (long_EMAs.loc[low_w, high_w-1] - \
+                    long_EMAs.loc[high_w, high_w-1])/buy_price*100
+                # 24h price change percent
+                price_24h = daily_ticker_24hr(symbol)
+                price_24h = float(price_24h['priceChangePercent'])
+                
+                print(f"\tIN: {symbol}".ljust(20) + \
+                      f"@{int(buy_time)} for".ljust(15) + \
+                      f"{round(buy_price,4)} ".rjust(20) + \
+                      f"{round(stop_price,4)}".rjust(20) + \
+                      f"{round(profit_price,4)} ".rjust(20) + \
+                      f"{round(percent_profit*100,2)}%".rjust(20))
                 continue
                 
             #else:
