@@ -44,6 +44,9 @@ from backtest_2 import *
 # TODO: add stop loss check to see if it is outside one standard deviation of 
 # the last hour, if so, make that the stop loss
 
+# TODO: add dynamic stop loss that changes to maximum - stop loss percent and 
+# changes as price changes
+
 #----------------------------------functions-----------------------------------
 
 def log_profits(profit, symbol, buy_price, sell_price, buy_time, sell_time, side, file_lock):
