@@ -178,11 +178,11 @@ def run_all(symbols, p_f=False):
         "profit_file": threading.Lock()
     }
     
-    global trade_flag, current_balance
+    #global trade_flag, current_balance
     # flag indicating active trade (thread safe, linked with trade_lock)
-    trade_flag = False 
+    #trade_flag = False
     # current balance (thread safe, linked with balance_lock)
-    current_balance = 15 
+    #current_balance = 15
     
     for symbol in symbols:
         threads_list += [threading.Thread(target=live_method_2, \
