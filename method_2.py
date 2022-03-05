@@ -82,6 +82,18 @@ def display_loss(symbol: str, profit_index: int, profit: float):
           f"{RED if (profit_index < 2) else GREY}" + \
           f"{'{:.4f}'.format(profit*100)}%{WHITE}")
 
+def display_profit(symbol: str, profit_index: int, profit: float):
+    """
+    Description:
+        Prints trade profit on the screen.
+    Args:
+        symbol (str): symbol of coin traded.
+        profit_index (int): index of profit trade.
+        profit (float): profit during trade.
+    """
+    print(f"\t{symbol} PROFIT {profit_index}:".ljust(30) + \
+          f"{GREEN}{'{:.4f}'.format(profit*100)}%{WHITE}")
+
     file_lock.acquire()
     with open(os.path.join("logs", "profits.csv"), "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
