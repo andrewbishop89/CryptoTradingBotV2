@@ -56,6 +56,19 @@ def get_profits() -> pd.DataFrame:
     """
     return pd.read_csv(os.path.join("logs", "profits.csv"))
 
+def display_all_profits():
+    """
+    Description:
+        Prints all profit information to the screen.
+    """
+    profits = get_profits()
+    print(f"PROFIT: {round(sum(profits.iloc[:, 0]),2)}%")
+    print(profits.iloc[:, 0].describe())
+    print(profits.iloc[:, 0][profits.iloc[:, 0] > 0].describe())
+    print(profits.iloc[:, 0][profits.iloc[:, 0] < 0].describe())
+    print(profits.iloc[:, 1][profits.iloc[:, 0] > 0].describe())
+    print(profits.iloc[:, 1][profits.iloc[:, 0] < 0].describe())
+
     file_lock.acquire()
     with open(os.path.join("logs", "profits.csv"), "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
