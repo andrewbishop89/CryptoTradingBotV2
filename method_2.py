@@ -166,6 +166,8 @@ def log_profits(
 
 def run_all(symbols, p_f=False):
     
+    #init_logs()
+    
     print(f"Live Symbols ({len(symbols)}):")
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
