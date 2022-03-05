@@ -376,6 +376,8 @@ def live_method_2(symbol, locks, print_flag=False):
             if trade_flag:
                 #trade_lock.release()
                 
+                profit_split_ratio = 1
+                
                 #print(symbol.rjust(20), str(round(abs((current_price/stop_price-1)*100), 2)).rjust(20) + "%", str(round(abs((current_price/profit_price-1)*100), 2)).rjust(20) + "%")
                 
                 # STOP LOSS
@@ -386,8 +388,12 @@ def live_method_2(symbol, locks, print_flag=False):
                     #total_profit += profit
                     #print(RED, profit, WHITE, total_profit)
                     if real_money:
-                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
-                    print(f"\t{symbol} LOSS:".ljust(30) + f"{RED if (profit_index < 2) else GREY}{round(profit*100,2)}%{WHITE}")
+                        sell_id = sell_trade(
+                            symbol=symbol, 
+                            quantity=profit_quantity)[0]
+                    
+                    display_loss(symbol, profit_index, profit)
+                    
                     if (profit_index < 2):
                         log_profits(
                             "{:.4f}".format(profit*100), 
@@ -407,13 +413,24 @@ def live_method_2(symbol, locks, print_flag=False):
 
                 # TAKE PROFIT
                 if (current_price > profit_price):
-                    profit = ((current_price/buy_price-1)/2/profit_index) # divide by profit index because quantity decays by factor of 2 each time
-                    if (profit*100 < min_profit):
-                        profit = ((current_price/buy_price-1)/profit_index)
+                    # divide by profit index because quantity decays by factor 
+                    # of 2 each time
+                    profit = (current_price / buy_price) - 1
+                    profit *= ((1-profit_index) / profit_index)
+                    if True:
+                    #if (profit*100 < min_profit):
+                        profit = ((current_price/buy_price)-1)/profit_index
                         trade_flag = False
                     #total_profit += profit
                     #print(BLUE, profit, WHITE, total_profit)
                     if real_money:
+                        profit_quantity *= (1 - profit_split_ratio)
+                        sell_id = sell_trade(
+                            symbol=symbol, 
+                            quantity=profit_quantity)[0]
+                        
+                    display_profit(symbol, profit_index, profit)
+                    
                     log_profits(
                         "{:.4f}".format(profit*100), 
                         symbol, 
