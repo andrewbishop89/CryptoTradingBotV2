@@ -114,9 +114,54 @@ def init_logs():
     with open(fp, "w") as f:
         f.write(old_logs)        
 
+def log_profits(
+        profit, 
+        symbol: str, 
+        buy_price, 
+        sell_price, 
+        buy_time, 
+        sell_time, 
+        side, 
+        profit_split_ratio, 
+        std_5m, 
+        difference_1h,
+        price_24h,
+        file_lock: threading.Lock, 
+        real: bool=False):
+    """
+    Description:
+        Logs the data of the trade specified in the arguments.
+    Args:
+        profit (_type_): profit in trade.
+        symbol (str): symbol in trade.
+        buy_price (_type_): buy price in trade.
+        sell_price (_type_): sell price in trade.
+        buy_time (_type_): buy time in trade.
+        sell_time (_type_): sell time in trade.
+        side (_type_): side in trade.
+        profit_split_ratio (_type_): profit split ratio in trade.
+        std_5m (_type_): std of 5m candles in trade.
+        difference_1h (_type_): difference of 1h EMA in trade.
+        price_24h (_type_): 24h price ticker of symbol in trade.
+        file_lock (threading.Lock): file lock for threading
+        real (bool, optional): True for real money and False otherwise
+        (defaults to False)
+    """
     file_lock.acquire()
-    with open(os.path.join("logs", "profits.csv"), "a") as f:
-        f.write(f"{profit},{symbol},{buy_price},{sell_price},{buy_time},{sell_time},{side}\n")
+    if not real:
+        fp = os.path.join("logs", "profits.csv")
+    else:
+        today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
+        fp = os.path.join("logs", "live_logs", today)
+        if not os.isfile(fp):
+            with open(fp, "w") as f:
+                f.write("profit,symbol,buy_price,sell_price,buy_time," + \
+                    "sell_time,side,profit_split_ratio,std_5m," + \
+                    "difference_1h,price_24h\n")
+    with open(fp, "a") as f:
+        f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
+            f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
+            f"{std_5m},{difference_1h},{price_24h}\n")
     file_lock.release()
 
 def run_all(symbols, p_f=False):
