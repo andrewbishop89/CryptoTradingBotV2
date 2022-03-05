@@ -197,7 +197,8 @@ def run_all(symbols, p_f=False):
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
-                    print(f"{RED}ERROR {WHITE}{t.name} Is Not Responding. Thread Count: {current_count}")
+                    print(f"{RED}ERROR {WHITE}{t.name} Is Not Responding." + \
+                        f" Thread Count: {current_count}")
                     threads_list.remove(t)
                     break
                     
@@ -292,13 +293,16 @@ def live_method_2(symbol, locks, print_flag=False):
                 #trade_lock.release()
                 
                 # 1: 1h -> 8 EMA > 21 EMA)
-                criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
+                criteria_1 = (long_EMAs.loc[8, high_w-1] > \
+                    long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
                 
                 # 2: 5m -> 8 EMA > 13 EMA > 21 EMA
-                criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
-                    (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
+                criteria_2 = (short_EMAs.loc[8, high_w-1] > \
+                    short_EMAs.loc[13, high_w-1]) and \
+                    (short_EMAs.loc[13, high_w-1] > \
+                    short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
                 
@@ -385,7 +389,20 @@ def live_method_2(symbol, locks, print_flag=False):
                         sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                     print(f"\t{symbol} LOSS:".ljust(30) + f"{RED if (profit_index < 2) else GREY}{round(profit*100,2)}%{WHITE}")
                     if (profit_index < 2):
-                        log_profits(round(profit*100,2), symbol, buy_price, current_price, buy_time, time.time(), "Stop-Loss", profit_file_lock)
+                        log_profits(
+                            "{:.4f}".format(profit*100), 
+                            symbol, 
+                            buy_price, 
+                            current_price, 
+                            buy_time, 
+                            time.time(), 
+                            f"S", 
+                            profit_split_ratio, 
+                            std_5m, 
+                            difference_1h,
+                            price_24h,
+                            locks["profit_file"], 
+                            real=real_money)
                     continue
 
                 # TAKE PROFIT
@@ -397,14 +414,29 @@ def live_method_2(symbol, locks, print_flag=False):
                     #total_profit += profit
                     #print(BLUE, profit, WHITE, total_profit)
                     if real_money:
-                        profit_quantity /= 2
-                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
-                    print(f"\t{symbol} Profit {profit_index}{f' (F)' if (not trade_flag) else ''}:".ljust(30) + f"{GREEN}{round(profit*100,2)}%{WHITE}")
-                    log_profits(round(profit*100,2), symbol, buy_price, current_price, buy_time, time.time(), f"Profit-{profit_index}{f'-F' if not trade_flag else ''}", profit_file_lock)
-                    stop_price = buy_price # new stop is og buy price
-                    buy_price = profit_price # new buy is og profit price
-                    profit_price = buy_price*(1+percent_profit) # new profit is new buy + percent profit
-                    profit_index += 1 # increment profit index
+                    log_profits(
+                        "{:.4f}".format(profit*100), 
+                        symbol, 
+                        buy_price, 
+                        current_price, 
+                        buy_time, 
+                        time.time(), 
+                        f"P_{profit_index}", 
+                        profit_split_ratio, 
+                        std_5m, 
+                        difference_1h, 
+                        price_24h,
+                        locks["profit_file"], 
+                        real=real_money)
+                    
+                    # new stop is og buy price
+                    stop_price = buy_price 
+                    # new buy is og profit price
+                    buy_price = profit_price 
+                    # new profit is new buy + percent profit
+                    profit_price = buy_price*(1+percent_profit) 
+                    # increment profit index
+                    profit_index += 1
                     
             #else:
                 #trade_lock.release()
