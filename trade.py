@@ -122,6 +122,7 @@ def get_desired_quantity(
     set_price: float=-1):
     
     if set_price == -1:
+        
         price = float(current_price_f(symbol))
         minimum_cut = get_minimum_cut(symbol)
         if percentage_cut < minimum_cut:
