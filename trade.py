@@ -185,7 +185,7 @@ def get_hardcoded_quantity(symbol, trade_quote_qty):
             (${round(payment, 2)}).")
         return -1
     else:
-        return validate_quantity(symbol, float(trade_quote_qty/price))
+        return float(validate_quantity(symbol, float(trade_quote_qty/price)))
 
 
 def current_price_f(symbol):
