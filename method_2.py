@@ -185,6 +185,9 @@ def run_all(symbols, p_f=False):
     #current_balance = 15
     
     for symbol in symbols:
+        if symbol[-4:] != "USDT":
+            print(f"\tSkipping {symbol}.")
+            continue
         threads_list += [threading.Thread(target=live_method_2, \
             args=[symbol, locks, p_f])]
         threads_list[-1].name = f"{symbol}-Thread"
