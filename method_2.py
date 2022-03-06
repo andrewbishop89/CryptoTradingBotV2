@@ -329,7 +329,8 @@ def live_method_2(symbol, locks, print_flag=False):
                 # 6: buy in
                 if real_money:
                     balance = account_balance("USDT")
-                    if (balance < 15):
+                    if (balance < 10):
+                        trade_flag = False
                         continue
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
