@@ -335,6 +335,7 @@ def live_method_2(symbol, locks, print_flag=False):
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
                     buy_time = time.time()
+                    print(f"\tBUY ID: {buy_id}")
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
                 buy_price = current_price
@@ -397,6 +398,7 @@ def live_method_2(symbol, locks, print_flag=False):
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
+                        print(f"\tSELL ID: {sell_id}")
                     
                     display_loss(symbol, profit_index, profit)
                     
@@ -434,6 +436,7 @@ def live_method_2(symbol, locks, print_flag=False):
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
+                        print(f"\tSELL ID: {sell_id}")
                         
                     display_profit(symbol, profit_index, profit)
                     
