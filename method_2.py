@@ -153,7 +153,7 @@ def log_profits(
     else:
         today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
         fp = os.path.join("logs", "live_logs", today)
-        if not os.isfile(fp):
+        if not os.path.isfile(fp):
             with open(fp, "w") as f:
                 f.write("profit,symbol,buy_price,sell_price,buy_time," + \
                     "sell_time,side,profit_split_ratio,std_5m," + \
