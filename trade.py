@@ -281,7 +281,7 @@ def account_balance(symbol):
 def normalize_time(ts):
     if len(str(int(ts))) != 10:
         ts = convert_time(ts)
-    return datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
 
 #PARAM thread(threading.Thread): thread object for trade loop
