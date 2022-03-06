@@ -137,7 +137,7 @@ def get_desired_quantity(
         validated_quantity = validate_quantity(symbol, quantity)
         return float(validated_quantity)
     else:
-        return get_hardcoded_quantity(symbol, set_price)
+        return float(get_hardcoded_quantity(symbol, set_price))
 
 
 def get_profit_quantity(symbol, buy_quantity):
