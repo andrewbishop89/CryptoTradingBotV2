@@ -209,7 +209,7 @@ def validate_quantity(symbol, quantity):
     if quantity < float(minQty):
         print(f"{RED}ERROR {WHITE}Desired quantity is below minimum quantity.")
         return -1
-    notional = float(quantity*current_price)
+    notional = float(quantity)*float(current_price)
     if notional < minNotional:
         print(f"{RED}ERROR {WHITE}Order criteria is below the minimum \
             notional.")
