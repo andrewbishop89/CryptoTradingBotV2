@@ -330,7 +330,21 @@ def live_method_2(symbol, locks, print_flag=False):
                     continue
                 
                 # 6: buy in
+                # difference of 1h EMA over buy price
+                buy_price = current_price_f(symbol) if real_money else current_price
+                stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
+                percent_profit = buy_price/stop_price-1
+                trade_flag = (percent_profit*100 > min_profit)
+                if not trade_flag:
+                    continue
+                
+                difference_1h = (long_EMAs.loc[low_w, high_w-1] - \
+                    long_EMAs.loc[high_w, high_w-1])/buy_price*100
+                
                 if real_money:
+                    if (difference_1h < 0.9):
+                        trade_flag = False
+                        continue
                     balance = account_balance("USDT")
                     if (balance < 10):
                         trade_flag = False
@@ -341,14 +355,9 @@ def live_method_2(symbol, locks, print_flag=False):
                     print(f"\tBUY ID: {buy_id}") if print_flag else None
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
-                buy_price = current_price
                 
                 # 7: stop loss at min(last 5 lows)
-                stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
-                percent_profit = buy_price/stop_price-1
-                trade_flag = (percent_profit*100 > min_profit)
-                if not trade_flag:
-                    continue
+                
                 
                 # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
