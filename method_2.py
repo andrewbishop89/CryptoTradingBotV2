@@ -170,7 +170,8 @@ def run_all(symbols, p_f=False):
     
     #init_logs()
     
-    print(f"Live Symbols ({len(symbols)}):")
+    print(f"Live Symbols ({len(symbols)}) at " + \
+          f"{normalize_time(time.time()-8*3600)}:")
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
@@ -188,13 +189,13 @@ def run_all(symbols, p_f=False):
     
     for symbol in symbols:
         if symbol[-4:] != "USDT":
-            print(f"\tSkipping {symbol}.")
+            print(f"\tSkipping {symbol}.") if p_f else None
             continue
         threads_list += [threading.Thread(target=live_method_2, \
             args=[symbol, locks, p_f])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
-        print(f"\tStarting {threads_list[-1].name}.")
+        print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
         time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
     print()
         
@@ -337,7 +338,7 @@ def live_method_2(symbol, locks, print_flag=False):
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
                     buy_time = time.time()
-                    print(f"\tBUY ID: {buy_id}")
+                    print(f"\tBUY ID: {buy_id}") if print_flag else None
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
                 buy_price = current_price
@@ -389,8 +390,6 @@ def live_method_2(symbol, locks, print_flag=False):
                 
                 profit_split_ratio = 1
                 
-                #print(symbol.rjust(20), str(round(abs((current_price/stop_price-1)*100), 2)).rjust(20) + "%", str(round(abs((current_price/profit_price-1)*100), 2)).rjust(20) + "%")
-                
                 # STOP LOSS
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
@@ -402,7 +401,7 @@ def live_method_2(symbol, locks, print_flag=False):
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
-                        print(f"\tSELL ID: {sell_id}")
+                        print(f"\tSELL ID: {sell_id}") if print_flag else None
                     
                     display_loss(symbol, profit_index, profit)
                     
@@ -419,6 +418,7 @@ def live_method_2(symbol, locks, print_flag=False):
                             std_5m, 
                             difference_1h,
                             price_24h,
+                            volume_24h,
                             locks["profit_file"], 
                             real=real_money)
                     continue
