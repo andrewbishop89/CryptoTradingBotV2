@@ -105,7 +105,7 @@ def init_logs():
     with open(os.path.join("logs", "profits.csv"), "w") as f:
         f.write("profit,symbol,buy_price,sell_price,buy_time," + \
             "sell_time,side,profit_split_ratio,std_5m,difference_1h," + \
-            "price_24h\n")
+            "price_24h,volume_24h\n")
     index = 1
     fp = os.path.join("logs", f"profits_{index}.csv")
     while os.path.isfile(fp):
@@ -126,6 +126,7 @@ def log_profits(
         std_5m, 
         difference_1h,
         price_24h,
+        volume_24h,
         file_lock: threading.Lock, 
         real: bool=False):
     """
@@ -143,6 +144,7 @@ def log_profits(
         std_5m (_type_): std of 5m candles in trade.
         difference_1h (_type_): difference of 1h EMA in trade.
         price_24h (_type_): 24h price ticker of symbol in trade.
+        volume_24h (_type_): 24h volume of symbol.
         file_lock (threading.Lock): file lock for threading
         real (bool, optional): True for real money and False otherwise
         (defaults to False)
@@ -161,7 +163,7 @@ def log_profits(
     with open(fp, "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
             f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
-            f"{std_5m},{difference_1h},{price_24h}\n")
+            f"{std_5m},{difference_1h},{price_24h},{volume_24h}\n")
     file_lock.release()
 
 def run_all(symbols, p_f=False):
@@ -358,9 +360,11 @@ def live_method_2(symbol, locks, print_flag=False):
                 short_closing = short_klines.loc[:, 'c']
                 # standard deviation of last 15 short values
                 std_5m = short_closing[high_w-15:high_w-1].std()
-                # difference of 1h EMA over buy price
-                difference_1h = (long_EMAs.loc[low_w, high_w-1] - \
-                    long_EMAs.loc[high_w, high_w-1])/buy_price*100
+                
+                # 24h volume
+                volume_24h = daily_ticker_24hr(symbol)
+                volume_24h = float(volume_24h['volume'])
+                
                 # 24h price change percent
                 price_24h = daily_ticker_24hr(symbol)
                 price_24h = float(price_24h['priceChangePercent'])
@@ -452,6 +456,7 @@ def live_method_2(symbol, locks, print_flag=False):
                         std_5m, 
                         difference_1h, 
                         price_24h,
+                        volume_24h,
                         locks["profit_file"], 
                         real=real_money)
                     
@@ -475,34 +480,12 @@ def live_method_2(symbol, locks, print_flag=False):
 
 #------------------------------------main--------------------------------------
 
+def main():
+    #symbols = top_gainers().index.tolist()[-200:]    
+    symbols = top_volume_gainers(250)
 
+    #backtest_all(symbols)
+    run_all(symbols, False)
 
 if __name__ == '__main__':
-    
-    symbols = [
-        "XRPUSDT",
-        "FILUSDT",
-        "TRXUSDT",
-        "ETHUSDT",
-        "BTCUSDT",
-        "BNBUSDT",
-        "LTCUSDT",
-        "ADAUSDT",
-        "XLMUSDT",
-        "SOLUSDT",
-        "DOTUSDT",
-        "VETUSDT",
-        #"DOGEUSDT",
-        #"SHIBUSDT",
-        #"CAKEUSDT",
-    ] + top_gainers(5).index.tolist()
-    
-    symbols = list(dict.fromkeys(symbols)) # remove duplicates
-    
-    
-    #backtest_all(symbols)
-    run_all(symbols)
-    
-    
-
-
+    main()
