@@ -331,9 +331,9 @@ def live_method_2(symbol, locks, print_flag=False):
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
                         print(f"\tSELL ID: {sell_id}")
-                        
+
                     display_profit(symbol, profit_index, profit)
-                    
+
                     log_profits(
                         "{:.4f}".format(profit*100), 
                         symbol, 
@@ -351,24 +351,25 @@ def live_method_2(symbol, locks, print_flag=False):
                         risk_multiplier,
                         locks["profit_file"], 
                         real=real_money)
-                    
+
                     # new stop is og buy price
                     stop_price = buy_price 
                     # new buy is og profit price
                     buy_price = profit_price 
                     # new profit is new buy + percent profit
-                    profit_price = buy_price*(1+percent_profit) 
+                    profit_price = buy_price*(1+percent_profit)
                     # increment profit index
                     profit_index += 1
-                    
+
             #else:
                 #trade_lock.release()
                 
             # ================================================================
     except Exception as e:
         print(f"{RED}ERROR{WHITE} In {symbol}-Thread.")
+        pync.notify("ERROR")
         raise e
-    
+
 
 #------------------------------------main--------------------------------------
 
