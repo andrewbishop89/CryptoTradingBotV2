@@ -6,9 +6,7 @@
 # 2022/02/28
 #
 # Crontab: 
-# @reboot sleep 120 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/
-# Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_1.py 
-# >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
+# @reboot sleep 60 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_2.py >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
 #
 
 # modules imported
@@ -26,6 +24,7 @@ from trade import *
 from analysis import *
 from parameters import *
 from backtest_2 import *
+from method_2_func import *
 
 
 #------------------------------------TODOs-------------------------------------
@@ -49,129 +48,10 @@ from backtest_2 import *
 
 #----------------------------------functions-----------------------------------
 
-def get_profits() -> pd.DataFrame:
-    """
-    Description:
-        Returns DataFrame of the most recent profit logs.
-    """
-    return pd.read_csv(os.path.join("logs", "profits.csv"))
-
-def display_all_profits():
-    """
-    Description:
-        Prints all profit information to the screen.
-    """
-    profits = get_profits()
-    print(f"PROFIT: {round(sum(profits.iloc[:, 0]),2)}%")
-    print(profits.iloc[:, 0].describe())
-    print(profits.iloc[:, 0][profits.iloc[:, 0] > 0].describe())
-    print(profits.iloc[:, 0][profits.iloc[:, 0] < 0].describe())
-    print(profits.iloc[:, 1][profits.iloc[:, 0] > 0].describe())
-    print(profits.iloc[:, 1][profits.iloc[:, 0] < 0].describe())
-
-def display_loss(symbol: str, profit_index: int, profit: float):
-    """
-    Description:
-        Prints trade loss on the screen.
-    Args:
-        symbol (str): symbol of coin traded.
-        profit_index (int): index of profit trade.
-        profit (float): profit during trade.
-    """
-    print(f"\t{symbol} LOSS:".ljust(30) + \
-          f"{RED if (profit_index < 2) else GREY}" + \
-          f"{'{:.4f}'.format(profit*100)}%{WHITE}")
-
-def display_profit(symbol: str, profit_index: int, profit: float):
-    """
-    Description:
-        Prints trade profit on the screen.
-    Args:
-        symbol (str): symbol of coin traded.
-        profit_index (int): index of profit trade.
-        profit (float): profit during trade.
-    """
-    print(f"\t{symbol} PROFIT {profit_index}:".ljust(30) + \
-          f"{GREEN}{'{:.4f}'.format(profit*100)}%{WHITE}")
-
-def init_logs():
-    """
-    Description:
-        Moves the previous profits to a new file and clears the profits.csv 
-        file.
-    """
-    with open(os.path.join("logs", "profits.csv"), "r") as f:
-        old_logs = f.read()
-    with open(os.path.join("logs", "profits.csv"), "w") as f:
-        f.write("profit,symbol,buy_price,sell_price,buy_time," + \
-            "sell_time,side,profit_split_ratio,std_5m,difference_1h," + \
-            "price_24h,volume_24h\n")
-    index = 1
-    fp = os.path.join("logs", f"profits_{index}.csv")
-    while os.path.isfile(fp):
-        index += 1
-        fp = os.path.join("logs", f"profits_{index}.csv")
-    with open(fp, "w") as f:
-        f.write(old_logs)        
-
-def log_profits(
-        profit, 
-        symbol: str, 
-        buy_price, 
-        sell_price, 
-        buy_time, 
-        sell_time, 
-        side, 
-        profit_split_ratio, 
-        std_5m, 
-        difference_1h,
-        price_24h,
-        volume_24h,
-        file_lock: threading.Lock, 
-        real: bool=False):
-    """
-    Description:
-        Logs the data of the trade specified in the arguments.
-    Args:
-        profit (_type_): profit in trade.
-        symbol (str): symbol in trade.
-        buy_price (_type_): buy price in trade.
-        sell_price (_type_): sell price in trade.
-        buy_time (_type_): buy time in trade.
-        sell_time (_type_): sell time in trade.
-        side (_type_): side in trade.
-        profit_split_ratio (_type_): profit split ratio in trade.
-        std_5m (_type_): std of 5m candles in trade.
-        difference_1h (_type_): difference of 1h EMA in trade.
-        price_24h (_type_): 24h price ticker of symbol in trade.
-        volume_24h (_type_): 24h volume of symbol.
-        file_lock (threading.Lock): file lock for threading
-        real (bool, optional): True for real money and False otherwise
-        (defaults to False)
-    """
-    file_lock.acquire()
-    if not real:
-        fp = os.path.join("logs", "profits.csv")
-    else:
-        today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
-        fp = os.path.join("logs", "live_logs", today)
-        if not os.path.isfile(fp):
-            with open(fp, "w") as f:
-                f.write("profit,symbol,buy_price,sell_price,buy_time," + \
-                    "sell_time,side,profit_split_ratio,std_5m," + \
-                    "difference_1h,price_24h\n")
-    with open(fp, "a") as f:
-        f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
-            f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
-            f"{std_5m},{difference_1h},{price_24h},{volume_24h}\n")
-    file_lock.release()
-
 def run_all(symbols, p_f=False):
     
-    #init_logs()
-    
-    print(f"Live Symbols ({len(symbols)}) at " + \
-          f"{normalize_time(time.time()-8*3600)}:")
+    print(f"Starting Live Symbols ({len(symbols)}) at " + \
+          f"{normalize_time(time.time()-8*3600)}")
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
@@ -180,12 +60,6 @@ def run_all(symbols, p_f=False):
         "trade": threading.Lock(),
         "profit_file": threading.Lock()
     }
-    
-    #global trade_flag, current_balance
-    # flag indicating active trade (thread safe, linked with trade_lock)
-    #trade_flag = False
-    # current balance (thread safe, linked with balance_lock)
-    #current_balance = 15
     
     for symbol in symbols:
         if symbol[-4:] != "USDT":
@@ -212,6 +86,8 @@ def run_all(symbols, p_f=False):
                     
         time.sleep(2*60)
 
+
+
 def live_method_2(symbol, locks, print_flag=False):
 
     # real money flag
@@ -221,6 +97,9 @@ def live_method_2(symbol, locks, print_flag=False):
     low_w = 8
     mid_w = 13
     high_w = 21
+    
+    # risk multiplier
+    risk_multiplier = 2
     
     min_profit = 0.15
     
@@ -239,7 +118,7 @@ def live_method_2(symbol, locks, print_flag=False):
             if (not init_flag):
                 start = time.time()
                 #trade_lock.acquire()
-                sleep_time = 60*2.5 if (not trade_flag) else 30
+                sleep_time = 60*2.5 if (not trade_flag) else 60*0.5
                 #trade_lock.release()
                 end = time.time()
                 time.sleep(sleep_time - (end-start))
@@ -342,9 +221,9 @@ def live_method_2(symbol, locks, print_flag=False):
                     long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
                 if real_money:
-                    if (difference_1h < 0.9):
-                        trade_flag = False
-                        continue
+                    #if (difference_1h < 0.9):
+                    #    trade_flag = False
+                    #    continue
                     balance = account_balance("USDT")
                     if (balance < 10):
                         trade_flag = False
@@ -361,7 +240,7 @@ def live_method_2(symbol, locks, print_flag=False):
                 
                 # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
-                profit_price = buy_price*(1+percent_profit)
+                profit_price = buy_price*(1+percent_profit*risk_multiplier)
                 # index for which take profits have been reached
                 profit_index = 1 
                 
@@ -371,20 +250,20 @@ def live_method_2(symbol, locks, print_flag=False):
                 # standard deviation of last 15 short values
                 std_5m = short_closing[high_w-15:high_w-1].std()
                 
+                ticker = daily_ticker_24hr(symbol)
                 # 24h volume
-                volume_24h = daily_ticker_24hr(symbol)
-                volume_24h = float(volume_24h['volume'])
-                
+                volume_24h = float(ticker['volume'])
+                volume_rel = round(short_klines.loc[:, 'v'].iloc[-6:].sum()*48/volume_24h*100,2)
                 # 24h price change percent
-                price_24h = daily_ticker_24hr(symbol)
-                price_24h = float(price_24h['priceChangePercent'])
+                price_24h = float(ticker['priceChangePercent'])
                 
                 print(f"\tIN: {symbol}".ljust(20) + \
                       f"@{int(buy_time)} for".ljust(15) + \
                       f"{round(buy_price,4)} ".rjust(20) + \
                       f"{round(stop_price,4)}".rjust(20) + \
                       f"{round(profit_price,4)} ".rjust(20) + \
-                      f"{round(percent_profit*100,2)}%".rjust(20))
+                      f"{round(percent_profit*100,2)}%".rjust(20)) if \
+                          print_flag else None
                 continue
                 
             #else:
@@ -404,8 +283,6 @@ def live_method_2(symbol, locks, print_flag=False):
                     profit = (-percent_profit) if (profit_index < 2) else 0
                     trade_flag = False
                     
-                    #total_profit += profit
-                    #print(RED, profit, WHITE, total_profit)
                     if real_money:
                         sell_id = sell_trade(
                             symbol=symbol, 
@@ -428,6 +305,8 @@ def live_method_2(symbol, locks, print_flag=False):
                             difference_1h,
                             price_24h,
                             volume_24h,
+                            volume_rel,
+                            risk_multiplier,
                             locks["profit_file"], 
                             real=real_money)
                     continue
@@ -439,11 +318,9 @@ def live_method_2(symbol, locks, print_flag=False):
                     profit = (current_price / buy_price) - 1
                     profit *= ((1-profit_index) / profit_index)
                     if True:
-                    #if (profit*100 < min_profit):
                         profit = ((current_price/buy_price)-1)/profit_index
                         trade_flag = False
-                    #total_profit += profit
-                    #print(BLUE, profit, WHITE, total_profit)
+
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
                         sell_id = sell_trade(
@@ -466,6 +343,8 @@ def live_method_2(symbol, locks, print_flag=False):
                         difference_1h, 
                         price_24h,
                         volume_24h,
+                        volume_rel,
+                        risk_multiplier,
                         locks["profit_file"], 
                         real=real_money)
                     
@@ -490,10 +369,9 @@ def live_method_2(symbol, locks, print_flag=False):
 #------------------------------------main--------------------------------------
 
 def main():
-    #symbols = top_gainers().index.tolist()[-200:]    
-    symbols = top_volume_gainers(250)
-
     #backtest_all(symbols)
+    
+    symbols = top_volume_gainers(200).index
     run_all(symbols, False)
 
 if __name__ == '__main__':
