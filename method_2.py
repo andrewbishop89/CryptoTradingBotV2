@@ -211,13 +211,15 @@ def live_method_2(symbol, locks, print_flag=False):
                     continue
                 
                 # 5: 5m -> low > 21 EMA (current kline)
-                criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
+                criteria_5 = \
+                    (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
                 
                 # 6: buy in
                 # difference of 1h EMA over buy price
-                buy_price = float(current_price_f(symbol)) if real_money else current_price
+                buy_price = float(current_price_f(symbol)) if real_money \
+                    else current_price
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
                 trade_flag = (percent_profit*100 > min_profit)
@@ -263,17 +265,18 @@ def live_method_2(symbol, locks, print_flag=False):
                 ticker = daily_ticker_24hr(symbol)
                 # 24h volume
                 volume_24h = float(ticker['volume'])
-                volume_rel = round(short_klines.loc[:, 'v'].iloc[-6:].sum()*48/volume_24h*100,2)
+                # relative volume
+                volume_rel = short_klines.loc[:, 'v'].iloc[-6:]
+                volume_rel = round(volume_rel.sum()*48/volume_24h*100,2)
                 # 24h price change percent
                 price_24h = float(ticker['priceChangePercent'])
-                
+                                
                 print(f"\tIN: {symbol}".ljust(20) + \
                       f"@{int(buy_time)} for".ljust(15) + \
                       f"{round(buy_price,4)} ".rjust(20) + \
                       f"{round(stop_price,4)}".rjust(20) + \
                       f"{round(profit_price,4)} ".rjust(20) + \
-                      f"{round(percent_profit*100,2)}%".rjust(20)) if \
-                          print_flag else None
+                      f"{round(percent_profit*risk_multiplier*100,2)}%".rjust(20)) if print_flag else None
                 continue
                 
             #else:
