@@ -101,11 +101,14 @@ def live_method_2(symbol, locks, print_flag=False):
     # risk multiplier
     risk_multiplier = 2
     
+    # profit split ratio
+    profit_split_ratio = 0
+    
+    # minimum profit for trade
     min_profit = 0.15
     
-    # trade flag
+    # flags
     trade_flag = False
-    
     init_flag = True
     
     # start backtest loop
