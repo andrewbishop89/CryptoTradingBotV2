@@ -224,9 +224,9 @@ def live_method_2(symbol, locks, print_flag=False):
                     long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
                 if real_money:
-                    #if (difference_1h < 0.9):
-                    #    trade_flag = False
-                    #    continue
+                    if locks["trade"].locked():
+                        continue
+                    locks["trade"].acquire()
                     balance = account_balance("USDT")
                     if (balance < 10):
                         trade_flag = False
@@ -236,7 +236,8 @@ def live_method_2(symbol, locks, print_flag=False):
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
                     buy_time = time.time()
-                    print(f"\tBUY ID: {buy_id}") if print_flag else None
+                    locks["trade"].release()
+                    #print(f"\tBUY ID: {buy_id}") if print_flag else None
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
                 
