@@ -79,7 +79,7 @@ def init_logs():
     with open(os.path.join("logs", "profits.csv"), "w") as f:
         f.write("profit,symbol,buy_price,sell_price,buy_time," + \
             "sell_time,side,profit_split_ratio,std_5m,difference_1h," + \
-            "price_24h,volume_24h,volume_rel,risk_multiplier\n")
+            "price_24h,volume_24h,volume_rel,risk_multiplier,\n")
     index = 1
     fp = os.path.join("logs", f"profits_{index}.csv")
     while os.path.isfile(fp):
