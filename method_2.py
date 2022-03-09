@@ -79,7 +79,7 @@ def run_all(symbols, p_f=False):
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
-                    print(f"{RED}ERROR {WHITE}{t.name} Is Not Responding." + \
+                    print(f"{GREY}ERROR {WHITE}{t.name} Is Not Responding." + \
                         f" Thread Count: {current_count}")
                     threads_list.remove(t)
                     break
@@ -142,6 +142,10 @@ def live_method_2(symbol, locks, print_flag=False):
                     print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
                     time.sleep(15)
                 else:
+                    if len(long_klines) < high_w:
+                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
+                            f" Klines: {len(long_klines)}, Need: {high_w}")
+                        sys.exit()
                     break
 
             # download 5m klines
