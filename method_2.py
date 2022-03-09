@@ -222,8 +222,7 @@ def live_method_2(symbol, locks, print_flag=False):
                     else current_price
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
-                trade_flag = (percent_profit*100 > min_profit)
-                if not trade_flag:
+                if not (percent_profit*100 > min_profit):
                     continue
                 
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - \
@@ -232,20 +231,20 @@ def live_method_2(symbol, locks, print_flag=False):
                 if real_money:
                     if locks["trade"].locked():
                         continue
-                    locks["trade"].acquire()
                     balance = account_balance("USDT")
                     if (balance < 10):
                         trade_flag = False
-                        #print(f"{RED}ERROR {WHITE} {symbol}, Balance: {balance}, Need: 10")
                         time.sleep(60*1.5)
                         continue
+                    locks["trade"].acquire()
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
                     buy_time = time.time()
+                    trade_flag = True
                     locks["trade"].release()
-                    #print(f"\tBUY ID: {buy_id}") if print_flag else None
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
+                    trade_flag = True
                 
                 # 7: stop loss at min(last 5 lows)
                 
