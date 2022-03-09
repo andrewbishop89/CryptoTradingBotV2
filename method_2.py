@@ -179,7 +179,7 @@ def live_method_2(symbol, locks, print_flag=False):
             
             #trade_lock.acquire()
             # only check buy in criteria if looking for buy in
-            if not trade_flag: 
+            if not trade_flag:
                 #trade_lock.release()
                 
                 # 1: 1h -> 8 EMA > 21 EMA)
@@ -213,7 +213,7 @@ def live_method_2(symbol, locks, print_flag=False):
                 
                 # 6: buy in
                 # difference of 1h EMA over buy price
-                buy_price = current_price_f(symbol) if real_money else current_price
+                buy_price = float(current_price_f(symbol)) if real_money else current_price
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
                 trade_flag = (percent_profit*100 > min_profit)
@@ -230,6 +230,8 @@ def live_method_2(symbol, locks, print_flag=False):
                     balance = account_balance("USDT")
                     if (balance < 10):
                         trade_flag = False
+                        #print(f"{RED}ERROR {WHITE} {symbol}, Balance: {balance}, Need: 10")
+                        time.sleep(60*1.5)
                         continue
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=balance)
