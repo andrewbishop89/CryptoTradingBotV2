@@ -281,22 +281,20 @@ def live_method_2(symbol, locks, print_flag=False):
             #trade_lock.acquire()
             if trade_flag:
                 #trade_lock.release()
-                
-                profit_split_ratio = 1
-                
+
                 # STOP LOSS
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
                     trade_flag = False
-                    
+
                     if real_money:
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
                         print(f"\tSELL ID: {sell_id}") if print_flag else None
-                    
+
                     display_loss(symbol, profit_index, profit)
-                    
+
                     if (profit_index < 2):
                         log_profits(
                             "{:.4f}".format(profit*100), 
@@ -305,7 +303,7 @@ def live_method_2(symbol, locks, print_flag=False):
                             current_price, 
                             buy_time, 
                             time.time(), 
-                            f"S", 
+                            "S", 
                             profit_split_ratio, 
                             std_5m, 
                             difference_1h,
