@@ -143,5 +143,6 @@ def log_profits(
     with open(fp, "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
             f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
-            f"{std_5m},{difference_1h},{price_24h},{volume_24h},{volume_rel},{risk_multiplier},\n")
+            f"{std_5m},{difference_1h},{price_24h},{volume_24h}," + \
+            f"{volume_rel},{risk_multiplier},\n")
     file_lock.release()
