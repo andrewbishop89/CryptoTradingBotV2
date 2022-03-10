@@ -15,7 +15,7 @@ from market import *
 from trade import *
 from analysis import *
 from parameters import *
-from backtest_2 import *
+from method_2_backtest import *
 
 #----------------------------------functions-----------------------------------
 
