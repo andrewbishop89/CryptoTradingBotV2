@@ -22,8 +22,7 @@ from setup import *
 def send_signed_request(
     http_method: str, 
     url_path: str, 
-    payload: dict=None
-    ) -> dict:
+    payload: dict=None) -> dict:
     """
     Description:
         Creates a signed API request for specified parameters.
