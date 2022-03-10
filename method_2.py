@@ -93,7 +93,23 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
 
 
 
-def live_method_2(symbol, locks, print_flag=False):
+def live_method_2(
+        symbol: str, 
+        trade_quote_qty: float, 
+        locks: list, 
+        print_flag: bool=False):
+    """
+    Description:
+        Runs method 2 with live candles.
+    Args:
+        symbol (str): coin to trade
+        trade_quote_qty (float): amount of money to trade per trade
+        locks (list): list of all threading locks
+        print_flag (bool, optional): True for prints to be displayed (defaults 
+        to False)
+    Raises:
+        e: any error during main event loop.
+    """
 
     # real money flag
     real_money = False
