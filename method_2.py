@@ -373,7 +373,8 @@ def live_method_2(symbol, locks, print_flag=False):
             # ================================================================
     except Exception as e:
         print(f"{RED}ERROR{WHITE} In {symbol}-Thread.")
-        pync.notify("ERROR")
+        if real_money:
+            pync.notify("ERROR")
         raise e
 
 
