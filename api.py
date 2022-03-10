@@ -57,7 +57,7 @@ def send_signed_request(
     return response.json()
 
 
-def send_public_request(url_path, payload=None) -> dict:
+def send_public_request(url_path: str, payload: dict=None) -> dict:
     """
     Description:
         Creates a public API request for specified parameters.
