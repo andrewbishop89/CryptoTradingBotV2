@@ -138,7 +138,8 @@ def log_profits(
             with open(fp, "w") as f:
                 f.write("profit,symbol,buy_price,sell_price,buy_time," + \
                     "sell_time,side,profit_split_ratio,std_5m," + \
-                    "difference_1h,price_24h,volume_rel,risk_multiplier\n")
+                    "difference_1h,price_24h,volume_24h,volume_rel," + \
+                    "risk_multiplier,\n")
     with open(fp, "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
             f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
