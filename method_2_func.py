@@ -30,7 +30,7 @@ def get_profits() -> pd.DataFrame:
 def display_all_profits():
     """
     Description:
-        Prints all profit information to the screen.
+        Prints all recent profit information to the screen.
     """
     profits = get_profits()
     print(f"PROFIT: {round(sum(profits.iloc[:, 0]),2)}%")
