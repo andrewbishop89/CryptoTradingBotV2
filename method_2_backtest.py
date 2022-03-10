@@ -1,3 +1,39 @@
+#!/usr/bin/python3
+#
+# method_2_backtest.py: contains functions for backtest method 2 of crypto bot 
+# version 2.
+#
+# Andrew Bishop
+# 2022/03/1
+#
+# Crontab: 
+# @reboot sleep 120 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/
+# Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_1.py 
+# >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
+#
+
+# modules imported
+import sys
+import threading
+from typing import List
+import pync
+import os
+from multiprocessing import Pool
+from pprint import pprint
+
+from data_collection import *
+from market import *
+from trade import *
+from analysis import *
+from parameters import *
+
+
+#------------------------------------TODOs-------------------------------------
+
+#TODO: 
+
+#----------------------------------functions-----------------------------------
+
 def backtest_all(symbols: List):
     """
     Description:
@@ -12,6 +48,7 @@ def backtest_all(symbols: List):
     with Pool(10) as p:
         net_profit = sum(p.map(backtest_method_2, symbols))
     print(f"\nNet Profit: ".rjust(25) + f"{GREEN if (net_profit > 0) else RED}{round(net_profit*100,2)}%{WHITE}\n")
+
 
 def backtest_method_2(
         symbol: str, 
