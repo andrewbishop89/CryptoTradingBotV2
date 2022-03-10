@@ -253,13 +253,17 @@ def live_method_2(
                     if locks["trade"].locked():
                         continue
                     balance = account_balance("USDT")
-                    if (balance < 10):
+                    
+                    min_balance = 12 if (not trade_quote_qty) else trade_quote_qty
+                    if (not trade_quote_qty):
+                        trade_quote_qty = balance
+                    if (balance < min_balance):
                         trade_flag = False
                         time.sleep(60*1.5)
                         continue
                     locks["trade"].acquire()
                     buy_id, profit_quantity = \
-                        buy_trade(symbol=symbol, quote_quantity=balance)
+                        buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
                     buy_time = time.time()
                     trade_flag = True
                     locks["trade"].release()
