@@ -100,7 +100,9 @@ def live_method_2(
         print_flag: bool=False):
     """
     Description:
-        Runs method 2 with live candles.
+        Runs method 2 with live candles. To sell entire balance on each trade 
+        pass None as parameter for trade_quote_qty. Otherwise, for a set price 
+        pass the set price.
     Args:
         symbol (str): coin to trade
         trade_quote_qty (float): amount of money to trade per trade
