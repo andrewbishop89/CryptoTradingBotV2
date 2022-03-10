@@ -34,7 +34,7 @@ from parameters import *
 
 #----------------------------------functions-----------------------------------
 
-def backtest_all(symbols: List):
+def backtest_all(symbols: list):
     """
     Description:
         Backtests all symbols listed for method 2.
