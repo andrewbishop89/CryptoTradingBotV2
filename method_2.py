@@ -67,9 +67,11 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
     for symbol in symbols:
         if symbol[-4:] != "USDT":
             print(f"\tSkipping {symbol}.") if p_f else None
+            symbols.remove(symbol)
             continue
-        threads_list += [threading.Thread(target=live_method_2, \
-            args=[symbol, locks, p_f])]
+        threads_list += \
+            [threading.Thread(target=live_method_2, \
+                args=[symbol, trade_quote_qty, locks, p_f])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
