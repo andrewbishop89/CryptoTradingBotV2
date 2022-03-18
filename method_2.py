@@ -35,6 +35,9 @@ from method_2_func import *
 
 # TODO: add async websocket connection
 
+# TODO: rewrite main so that multiple parameters for live trading can be run 
+# at once, need async websocket connection for data
+
 # TODO: change threading lock to dictionary full of all threading locks
 
 # TODO: add check to see if there are any new coins in top gainers that can 
