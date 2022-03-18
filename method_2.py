@@ -364,9 +364,9 @@ def live_method_2(
                     # divide by profit index because quantity decays by factor 
                     # of 2 each time
                     profit = (current_price / buy_price) - 1
-                    profit *= ((1-profit_index) / profit_index)
-                    if True:
-                        profit = ((current_price/buy_price)-1)/profit_index
+                    # divide new profit by ratio and index
+                    if profit_split_ratio:
+                        profit *= ((1 - profit_split_ratio) / profit_index) 
                         trade_flag = False
 
                     if real_money:
