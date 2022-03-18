@@ -129,17 +129,15 @@ def log_profits(
         (defaults to False)
     """
     file_lock.acquire()
-    if not real:
-        fp = os.path.join("logs", "profits.csv")
-    else:
-        today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
-        fp = os.path.join("logs", "live_logs", today)
-        if not os.path.isfile(fp):
-            with open(fp, "w") as f:
-                f.write("profit,symbol,buy_price,sell_price,buy_time," + \
-                    "sell_time,side,profit_split_ratio,std_5m," + \
-                    "difference_1h,price_24h,volume_24h,volume_rel," + \
-                    "risk_multiplier,\n")
+    today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
+    fp = os.path.join("logs", "real_money" if real else "paper_money", \
+        f"{today}.csv")
+    if not os.path.isfile(fp):
+        with open(fp, "w") as f:
+            f.write("profit,symbol,buy_price,sell_price,buy_time," + \
+                "sell_time,side,profit_split_ratio,std_5m," + \
+                "difference_1h,price_24h,volume_24h,volume_rel," + \
+                "risk_multiplier,\n")
     with open(fp, "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
             f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
