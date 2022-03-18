@@ -126,12 +126,6 @@ def live_method_2(
     mid_w = 13
     high_w = 21
     
-    # risk multiplier
-    risk_multiplier = 2
-    
-    # profit split ratio
-    profit_split_ratio = 0
-    
     # minimum profit for trade
     min_profit = 0.15
     
@@ -142,6 +136,18 @@ def live_method_2(
     # start backtest loop
     try:
         while True:
+            
+            # update param if new day
+            # ================================================================
+            
+            # today's day for variable parameters
+            today = int(datetime.utcfromtimestamp(time.time()).strftime('%d'))
+            
+            # risk multiplier
+            risk_multiplier = (today%4)*0.5 + 1 # risk multiplier range from 1 to 2.5 changing every day
+            
+            # profit split ratio (float values range from 0 to 1)
+            profit_split_ratio = (today%5)/5
             
             # sleep
             # ================================================================
