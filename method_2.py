@@ -40,6 +40,12 @@ from method_2_func import *
 
 # TODO: change threading lock to dictionary full of all threading locks
 
+# TODO: create a Trade class that contains all trade information (to make it 
+# easier to pass the information around)
+
+# TODO: for log profits, send Trade (class) with all attributes instead of 10 
+# arguments alone
+
 # TODO: add check to see if there are any new coins in top gainers that can 
 # have new threads created for them
 
