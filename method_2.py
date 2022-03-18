@@ -67,6 +67,8 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
         "profit_file": threading.Lock()
     }
     
+    symbols = list(symbols)
+    
     for symbol in symbols:
         if symbol[-4:] != "USDT":
             print(f"\tSkipping {symbol}.") if p_f else None
