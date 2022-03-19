@@ -59,11 +59,11 @@ from method_2_func import *
 
 def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
     
-    print(
-        f"Starting Live Symbols ({len(symbols)}) at " + \
-        f"{normalize_time(time.time()-8*3600)} with " + \
-        f"{trade_quote_qty if (not trade_quote_qty) else account_balance("USDT")}" + \
-        f"$ Trades.")
+    #print( \
+    #    f"Starting Live Symbols ({len(symbols)}) at " + \
+    #    f"{normalize_time(time.time()-8*3600)} with " + \
+    #    f"{trade_quote_qty if (not trade_quote_qty) else account_balance("USDT")}" + \
+    #    f"$ Trades.")
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
