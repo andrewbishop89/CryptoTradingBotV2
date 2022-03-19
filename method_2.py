@@ -69,7 +69,7 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
     
     # dictionary of all locks
     locks = {
-        "trade": threading.Lock(),
+        "active_trade": threading.Lock(),
         "profit_file": threading.Lock()
     }
     
@@ -155,18 +155,21 @@ def live_method_2(
             # profit split ratio (float values range from 0 to 1)
             profit_split_ratio = (today%5)/5
             
+            
             # sleep
             # ================================================================
-                    
+                  
+            # continue if there is a trade currently running on different 
+            # thread
+            if locks["active_trade"].locked():
+                time.sleep(5)
+                continue
+                  
             if (not init_flag):
-                start = time.time()
-                #trade_lock.acquire()
                 sleep_time = 60*2.5 if (not trade_flag) else 60*0.5
-                #trade_lock.release()
-                end = time.time()
-                time.sleep(sleep_time - (end-start))
             else:
                 init_flag = False
+                
                 
             # download klines and calculate EMAs
             # ================================================================
@@ -269,7 +272,7 @@ def live_method_2(
                     long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
                 if real_money:
-                    if locks["trade"].locked():
+                    if locks["active_trade"].locked():
                         continue
                     balance = account_balance("USDT")
                     
@@ -280,7 +283,10 @@ def live_method_2(
                         trade_flag = False
                         time.sleep(60*1.5)
                         continue
-                    locks["trade"].acquire()
+                    # if current active trade then dont buy in
+                    if locks["active_trade"].locked():
+                        continue
+                    locks["active_trade"].acquire()
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
                     buy_time = time.time()
@@ -342,6 +348,7 @@ def live_method_2(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
                         print(f"\tSELL ID: {sell_id}") if print_flag else None
+                        locks["active_trade"].release()
 
                     display_loss(symbol, profit_index, profit)
 
@@ -381,6 +388,9 @@ def live_method_2(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
                         print(f"\tSELL ID: {sell_id}")
+                        # only unlock on take profit if 
+                        locks["active_trade"].release() if \
+                            (not profit_split_ratio) else None
 
                     display_profit(symbol, profit_index, profit)
 
