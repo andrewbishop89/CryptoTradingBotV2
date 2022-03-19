@@ -136,8 +136,10 @@ def live_method_2(
     min_profit = 0.15
     
     # flags
-    trade_flag = False
-    init_flag = True
+    # indicates whether trade is active in the current thread (locally)
+    trade_flag = False 
+    # indicates whether the program is just starting
+    init_flag = True 
     
     # start backtest loop
     try:
@@ -149,8 +151,8 @@ def live_method_2(
             # today's day for variable parameters
             today = int(datetime.utcfromtimestamp(time.time()).strftime('%d'))
             
-            # risk multiplier
-            risk_multiplier = (today%4)*0.5 + 1 # risk multiplier range from 1 to 2.5 changing every day
+            # risk multiplier (float from 1 to 2.5 changing every day)
+            risk_multiplier = (today%4)*0.5 + 1
             
             # profit split ratio (float values range from 0 to 1)
             profit_split_ratio = (today%5)/5
@@ -174,7 +176,8 @@ def live_method_2(
             # download klines and calculate EMAs
             # ================================================================
             
-            # download 1h klines
+            # download 1h klines, only download 1h if no currently active trade
+            # (dont need 1h for that)
             while True and (not trade_flag):
                 try:
                     long_klines = download_recent_klines(
@@ -224,10 +227,8 @@ def live_method_2(
             current_kline = short_klines.iloc[-1] # current candle
             current_price = current_kline['c'] # current price
             
-            #trade_lock.acquire()
             # only check buy in criteria if looking for buy in
-            if not trade_flag:
-                #trade_lock.release()
+            if (not trade_flag):
                 
                 # 1: 1h -> 8 EMA > 21 EMA)
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > \
@@ -279,8 +280,8 @@ def live_method_2(
                     min_balance = 12 if (not trade_quote_qty) else trade_quote_qty
                     if (not trade_quote_qty):
                         trade_quote_qty = balance
+                    # dont buy in if balance is too small for trade
                     if (balance < min_balance):
-                        trade_flag = False
                         time.sleep(60*1.5)
                         continue
                     # if current active trade then dont buy in
@@ -289,12 +290,10 @@ def live_method_2(
                     locks["active_trade"].acquire()
                     buy_id, profit_quantity = \
                         buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
-                    buy_time = time.time()
-                    trade_flag = True
-                    locks["trade"].release()
+                    buy_time = int(time.time()/1000)
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
-                    trade_flag = True
+                trade_flag = True
                 
                 # 7: stop loss at min(last 5 lows)
                 
@@ -327,18 +326,14 @@ def live_method_2(
                       f"{round(profit_price,4)} ".rjust(20) + \
                       f"{round(percent_profit*risk_multiplier*100,2)}%".rjust(20)) if print_flag else None
                 continue
-                
-            #else:
-                #trade_lock.release()
+            
                 
             # buy into trade
             # ================================================================
                 
-            #trade_lock.acquire()
             if trade_flag:
-                #trade_lock.release()
 
-                # STOP LOSS
+                # --------- STOP LOSS ---------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
                     trade_flag = False
@@ -359,7 +354,7 @@ def live_method_2(
                             buy_price, 
                             current_price, 
                             buy_time, 
-                            time.time(), 
+                            int(time.time()/1000), 
                             "S", 
                             profit_split_ratio, 
                             std_5m, 
@@ -372,15 +367,20 @@ def live_method_2(
                             real=real_money)
                     continue
 
-                # TAKE PROFIT
+                # --------- TAKE PROFIT --------- 
                 if (current_price > profit_price):
-                    # divide by profit index because quantity decays by factor 
-                    # of 2 each time
+                    # divide by profit index because quantity decays each time
                     profit = (current_price / buy_price) - 1
+                    
                     # divide new profit by ratio and index
-                    if profit_split_ratio:
-                        profit *= ((1 - profit_split_ratio) / profit_index) 
-                        trade_flag = False
+                    if profit_split_ratio:    
+                        # if proposed profit for profit split is lower than 
+                        # min, sell all quantity
+                        split_profit = profit*((1 - profit_split_ratio) / profit_index)
+                        if (split_profit > min_profit):
+                            profit = split_profit
+                        else:
+                            trade_flag = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
@@ -400,11 +400,11 @@ def live_method_2(
                         buy_price, 
                         current_price, 
                         buy_time, 
-                        time.time(), 
-                        f"P_{profit_index}", 
+                        int(time.time()/1000), 
+                        f"P_{profit_index}{'F' if (not trade_flag) else ''}", 
                         profit_split_ratio, 
-                        std_5m, 
-                        difference_1h, 
+                        "{:.4f}".format(std_5m), 
+                        "{:.4f}".format(difference_1h), 
                         price_24h,
                         volume_24h,
                         volume_rel,
@@ -420,9 +420,7 @@ def live_method_2(
                     profit_price = buy_price*(1+percent_profit)
                     # increment profit index
                     profit_index += 1
-
-            #else:
-                #trade_lock.release()
+                    
                 
             # ================================================================
     except Exception as e:
@@ -435,9 +433,9 @@ def live_method_2(
 #------------------------------------main--------------------------------------
 
 def main():
-    #backtest_all(symbols)
-    
     symbols = top_volume_gainers(200).index
+    
+    #backtest_all(symbols)
     run_all(symbols, False)
 
 if __name__ == '__main__':
