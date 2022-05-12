@@ -1,16 +1,20 @@
 CryptoTradingBotV2 Notes
 
-1. File Organization
-- As of right now the files are split up in sections based on the functions they contain. The parameters file contains a list of all the modules imported for all files excluding the files we created ourselves.
+The most recent model for this program is Method 2. This model uses 1 hour and 
+5 minute interval candles and exponential moving averages for it's criteria to 
+buy into a trade.
 
-2. Function Declaration
-- When declaring function, if possible include all parameter datatypes. Also include a note stating all the parameters, their expected datatype, their purpose in the function and describe the return value. The form for this will be 
-    - #PARAM 'parameter name'('paramater data type'): 'parameter purpose', and
-    - #RETURN ('value data type'): 'value description'
-- When working on functions, also include TODO if the part is not completed yet.
+The program starts by running the method_2.py file. The main idea of the method
+is that it cycles through a loop forever (or until a keyboard interrupt) and 
+checks the current candles to know whether to buy in or not.
 
-3. Additional Notes
-- Additional notes and links talking about what works and doesn't work, possible improvements for the code and possible strategies to try in the future can be added below here.
+The program is multithreaded and thread safe. It is a work in progress but is 
+fully functioning. Whenever I have free time I will spend time optimizing it.
 
-4. Links
-- Day Trading Strategy: https://www.warriortrading.com/momentum-day-trading-strategy/
+Optimizations for the future can be seen in the method_2.py TODOs list at the 
+start of the file.
+
+The cryptocurrency exchange is Binance. The program communicates with Binance 
+through public and signed API requests where the signed requests are encrypted 
+using SHA256. A WebSocket subscription is used for the data collection through 
+Binance.
