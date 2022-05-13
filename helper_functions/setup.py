@@ -16,7 +16,7 @@ from pprint import pprint, pformat
 import csv
 import threading
 
-from parameters import *
+from constants.parameters import *
 
 
 #----------------------------------functions-----------------------------------

@@ -12,9 +12,9 @@ import websocket
 import sys
 import os
 
-from parameters import *
-from setup import *
-from data_collection import *
+from constants.parameters import *
+from helper_functions.setup import *
+from helper_functions.data_collection import *
 
 
 #----------------------------------functions-----------------------------------

@@ -13,7 +13,7 @@ import numpy as np
 from ta.trend import ema_indicator
 from ta.trend import sma_indicator
 
-from parameters import *
+from constants.parameters import *
 
 
 #----------------------------------functions-----------------------------------

@@ -9,7 +9,7 @@
 
 from data_collection import *
 from setup import *
-from parameters import *
+from constants.parameters import *
 import plotly.graph_objects as go
 import pandas as pd
 

@@ -13,8 +13,8 @@ import hashlib
 import hmac
 from urllib.parse import urlencode
 
-from parameters import *
-from setup import *
+from constants.parameters import *
+from helper_functions.setup import *
 
 
 #----------------------------------functions-----------------------------------

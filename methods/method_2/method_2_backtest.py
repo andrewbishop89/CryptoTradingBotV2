@@ -21,11 +21,11 @@ import os
 from multiprocessing import Pool
 from pprint import pprint
 
-from data_collection import *
-from market import *
-from trade import *
-from analysis import *
-from parameters import *
+from helper_functions.data_collection import *
+from helper_functions.market import *
+from helper_functions.trade import *
+from helper_functions.analysis import *
+from constants.parameters import *
 
 
 #------------------------------------TODOs-------------------------------------
