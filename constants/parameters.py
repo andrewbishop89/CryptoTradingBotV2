@@ -4,6 +4,8 @@
 #
 # Andrew Bishop
 
+import os
+
 #------------------------------global-variables--------------------------------
 
 BLUE    = '\u001b[1;38;5;$39m'
@@ -20,7 +22,7 @@ SECONDARY_COLOR = GREY
 
 global API_KEY, API_SECRET, BASE_URL #global so they are accessible everywhere
 
-with open('keys.txt', 'r') as f:
+with open(os.path.join('constants', 'keys.txt'), 'r') as f:
     lines = f.readlines() #read from keys.txt file
     API_KEY = lines[0][:-1] #first line should be API key
     API_SECRET = lines[1][:-1] #second line should be API secret

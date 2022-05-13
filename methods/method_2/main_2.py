@@ -7,7 +7,7 @@
 #
 # Crontab: 
 # @reboot sleep 60 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_2.py >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
-#
+# 
 
 # modules imported
 import sys
@@ -18,13 +18,13 @@ import os
 from multiprocessing import Pool
 from pprint import pprint
 
-from data_collection import *
-from market import *
-from trade import *
-from analysis import *
-from parameters import *
-from method_2_backtest import *
-from method_2_func import *
+from helper_functions.data_collection import *
+from helper_functions.market import *
+from helper_functions.trade import *
+from helper_functions.analysis import *
+from constants.parameters import *
+from methods.method_2.method_2_backtest import *
+from methods.method_2.method_2_func import *
 
 
 #------------------------------------TODOs-------------------------------------
@@ -141,6 +141,8 @@ def live_method_2(
     # indicates whether the program is just starting
     init_flag = True 
     
+    print(f"Starting {symbol}.")
+    
     # start backtest loop
     try:
         while True:
@@ -155,8 +157,7 @@ def live_method_2(
             risk_multiplier = (today%4)*0.5 + 1
             
             # profit split ratio (float values range from 0 to 1)
-            profit_split_ratio = (today%5)/5
-            
+            profit_split_ratio = 0#(today%5)/5
             
             # sleep
             # ================================================================
@@ -433,10 +434,8 @@ def live_method_2(
 #------------------------------------main--------------------------------------
 
 def main():
-    symbols = top_volume_gainers(200).index
-    
-    #backtest_all(symbols)
-    run_all(symbols, False)
+    symbols = top_volume_gainers(10).index
+    run_all(symbols, p_f=False)
 
 if __name__ == '__main__':
     main()

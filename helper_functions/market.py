@@ -9,8 +9,8 @@
 # modules imported
 import pandas as pd
 
-from parameters import *
-from api import *
+from constants.parameters import *
+from helper_functions.api import *
 
 
 #----------------------------------functions-----------------------------------

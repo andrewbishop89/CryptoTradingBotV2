@@ -10,12 +10,12 @@ import threading
 import time
 import os
 
-from data_collection import *
-from market import *
-from trade import *
-from analysis import *
-from parameters import *
-from method_2_backtest import *
+from helper_functions.data_collection import *
+from helper_functions.market import *
+from helper_functions.trade import *
+from helper_functions.analysis import *
+from constants.parameters import *
+from methods.method_2.method_2_backtest import *
 
 #----------------------------------functions-----------------------------------
 

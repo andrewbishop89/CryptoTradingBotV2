@@ -9,17 +9,17 @@
 # modules imported
 import sys
 import threading
-from method_1 import trade_loop_1
+from methods.method_1.main_1 import trade_loop_1
 import pync
 import os
 from multiprocessing import Pool
 import multiprocessing
 from datetime import date
 
-from data_collection import *
-from market import *
-from trade import *
-from parameters import *
+from helper_functions.data_collection import *
+from helper_functions.market import *
+from helper_functions.trade import *
+from constants.parameters import *
 
 #----------------------------------functions-----------------------------------
 

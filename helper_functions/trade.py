@@ -13,10 +13,10 @@ import datetime
 import os
 import threading
 
-from parameters import *
-from api import *
-from setup import *
-from data_collection import *
+from constants.parameters import *
+from helper_functions.api import *
+from helper_functions.setup import *
+from helper_functions.data_collection import *
 
 
 #----------------------------------functions-----------------------------------
