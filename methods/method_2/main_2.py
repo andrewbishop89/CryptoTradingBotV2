@@ -29,11 +29,11 @@ from methods.method_2.method_2_func import *
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: add async websocket connection
+
 # TODO: add trades.csv and run similar to profits.csv so that if the program 
 # crashes you can still see if there was an existing trade and then continue 
 # with it
-
-# TODO: add async websocket connection
 
 # TODO: rewrite main so that multiple parameters for live trading can be run 
 # at once, need async websocket connection for data
