@@ -20,6 +20,8 @@ from helper_functions.data_collection import *
 
 #----------------------------------functions-----------------------------------
 
+# TODO add check so that websocket disconnects and reconnects after 24h
+
 def format_kline(kline):
     return pd.DataFrame(data={
         't': [float(kline['t'])],
