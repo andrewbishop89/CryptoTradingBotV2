@@ -39,7 +39,6 @@ def connect_websocket(symbol, interval):
     init_coin(symbol, interval)
     
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-    print("Downloading Candles.")
     
     download_recent_klines(symbol, interval).to_csv(data_path)
     
