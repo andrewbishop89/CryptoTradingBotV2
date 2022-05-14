@@ -220,3 +220,19 @@ def get_klines(symbol: str, limit: int, interval: str = '1m',
     elif offset != -1:
         return klines.iloc[-int(limit)-int(offset):-int(offset)]
     raise ValueError
+
+def delete_old_data():
+    """
+    Description:
+        Deletes all the (only) live data data because it takes up a lot of 
+        memory.
+    """
+    fp = os.path.join("data", "live_data")
+    interval_dirs = os.listdir(fp)
+    for interval_dir in interval_dirs:
+        dir_fp = os.path.join(fp, interval_dir)
+        if os.path.isdir(dir_fp):
+            data_files = os.listdir(dir_fp)
+            for data_file in data_files:
+                os.remove(os.path.join(dir_fp, data_file))
+    return
