@@ -119,10 +119,7 @@ def get_time(ts):
 #PARAM interval(str):
 #RETURN (none)
 def init_coin(symbol: str, interval: str):
-    file_path = os.path.join(
-        "data", "live_data",
-        f"{interval}",
-        f"{symbol.upper()}_{interval}.csv")
+    file_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
     if not os.path.isfile(file_path):
         with open(file_path, 'w') as f:
             f.write("")
