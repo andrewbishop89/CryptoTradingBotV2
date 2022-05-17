@@ -186,14 +186,15 @@ def live_method_2(
                     long_klines = download_recent_klines(
                         symbol=symbol,
                         interval="1h",
-                        limit=high_w).reset_index()
+                        limit=high_w)
+                    long_klines = long_klines.reset_index()
                 except requests.exceptions.ConnectionError:
                     print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
                     time.sleep(15)
                 else:
                     if len(long_klines) < high_w:
                         print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Klines: {len(long_klines)}, Need: {high_w}")
+                            f" Long Klines: {len(long_klines)}, Need: {high_w}")
                         sys.exit()
                     break
 
