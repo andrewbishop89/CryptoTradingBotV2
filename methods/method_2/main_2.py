@@ -58,12 +58,14 @@ from methods.method_2.method_2_func import *
 #----------------------------------functions-----------------------------------
 
 def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
-    
-    #print( \
-    #    f"Starting Live Symbols ({len(symbols)}) at " + \
-    #    f"{normalize_time(time.time()-8*3600)} with " + \
-    #    f"{trade_quote_qty if (not trade_quote_qty) else account_balance("USDT")}" + \
-    #    f"$ Trades.")
+    """
+    Description:
+        Starts all the threads for the main function of method 2.
+    Args:
+        symbols (list): symbols to trade in main.
+        trade_quote_qty (float, optional): amount of $ to risk on each trade. Defaults to None.
+        p_f (bool, optional): print flag, prints updates if true. Defaults to False.
+    """
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
