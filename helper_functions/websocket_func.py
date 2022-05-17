@@ -8,9 +8,10 @@
 
 # modules imported
 import json
-import websocket
+import websockets
 import sys
 import os
+import asyncio
 import threading
 
 from constants.parameters import *
@@ -22,7 +23,15 @@ from helper_functions.data_collection import *
 
 # TODO add check so that websocket disconnects and reconnects after 24h
 
-def format_kline(kline):
+def format_kline(kline: dict) -> pd.DataFrame:
+    """
+    Description:
+        Converts kline from dict to dataframe.
+    Args:
+        kline (dict): dictionary of kline to be formatted
+    Return:
+        (pd.DataFrame): formatted kline dataframe
+    """
     return pd.DataFrame(data={
         't': [float(kline['t'])],
         'o': [float(kline['o'])],
@@ -33,36 +42,46 @@ def format_kline(kline):
         'v': [float(kline['v'])],
     }).set_index("t")
 
-def connect_websocket(symbol, interval):
-    socket = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
-    
+async def connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+    """
+    Description:
+        Creates a connection to data stream websocket and updates candles in specified file within live_data directory.
+    Args:
+        symbol (str): symbol of klines
+        interval (str): interval of klines
+        file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+    """
     init_coin(symbol, interval)
-    
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-    
     download_recent_klines(symbol, interval).to_csv(data_path)
     
-    ws = websocket.WebSocketApp(socket, on_message=on_message)
-    print(f"Connecting {interval} {symbol} Websocket.")
-    
-    ws.run_forever()
-
-def on_message(ws, message):
-    json_message = json.loads(message)
-    current_kline = format_kline(json_message['k'])
-    symbol = json_message['s']    
-    interval = json_message['k']['i']
-
-    data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-
-    klines = pd.read_csv(data_path).set_index("t") # load existing klines
-    
-    if klines.index[-1] != current_kline.index[-1]: # if new candle has opened
-        klines = klines.iloc[1:, :] # remove first candle
-    else: # update existing candle
-        klines = klines.iloc[:-1, :] # remove last candle 
+    print(f"Connecting {symbol}/{interval} Socket.")
+    ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
+    async with websockets.connect(ws_path) as ws:
+        while True:
+            current_kline = format_kline(json.loads(await ws.recv())['k'])
+            
+            file_lock.acquire()
+            klines = pd.read_csv(data_path).set_index("t") # load existing klines
+            file_lock.release()
+            
+            if klines.index[-1] != current_kline.index[-1]: # if new candle has opened
+                klines = klines.iloc[1:, :] # remove first candle
+            else: # update existing candle
+                klines = klines.iloc[:-1, :] # remove last candle 
+            klines = klines.append(current_kline) # update with newest candle
+            
+            file_lock.acquire()
+            klines.to_csv(data_path)
+            file_lock.release()
         
-    klines = klines.append(current_kline) # update with newest candle
-    klines.to_csv(data_path)
-    
-    return 
+def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+    """
+    Description:
+        Calls the asynchronous function. This function is so that the asynchronous function can be called in separate threads.
+    Args:
+        symbol (str): symbol of klines
+        interval (str): interval of klines
+        file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+    """
+    asyncio.run(connect_async_websocket(symbol, interval, file_lock))
