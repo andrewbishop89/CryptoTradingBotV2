@@ -155,10 +155,8 @@ def live_method_2(
             
             # today's day for variable parameters
             today = int(datetime.utcfromtimestamp(time.time()).strftime('%d'))
-            
             # risk multiplier (float from 1 to 2.5 changing every day)
-            risk_multiplier = (today%4)*0.5 + 1
-            
+            risk_multiplier = 2#(today%4)*0.5 + 1
             # profit split ratio (float values range from 0 to 1)
             profit_split_ratio = 0#(today%5)/5
             
@@ -171,10 +169,10 @@ def live_method_2(
                 continue
                   
             if (not init_flag):
-                sleep_time = 60*2.5 if (not trade_flag) else 60*0.5
+                sleep_time = 30 #60*2.5 if (not trade_active) else 60*0.5
+                time.sleep(sleep_time)
             else:
-                init_flag = False
-                
+                init_flag = False #now continue to next line for first iteration
                 
             # download klines and calculate EMAs
             # ================================================================
