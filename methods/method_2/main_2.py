@@ -140,7 +140,7 @@ def live_method_2(
     
     # flags
     # indicates whether trade is active in the current thread (locally)
-    trade_flag = False 
+    trade_active = False 
     # indicates whether the program is just starting
     init_flag = True 
     
@@ -181,7 +181,7 @@ def live_method_2(
             
             # download 1h klines, only download 1h if no currently active trade
             # (dont need 1h for that)
-            while True and (not trade_flag):
+            while True and (not trade_active):
                 try:
                     long_klines = download_recent_klines(
                         symbol=symbol,
@@ -231,7 +231,7 @@ def live_method_2(
             current_price = current_kline['c'] # current price
             
             # only check buy in criteria if looking for buy in
-            if (not trade_flag):
+            if (not trade_active):
                 
                 # Criteria 1: 1h -> 8 EMA > 21 EMA)
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > \
@@ -296,7 +296,7 @@ def live_method_2(
                     buy_time = int(time.time()/1000)
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
-                trade_flag = True
+                trade_active = True
                 
                 # Criteria 7: stop loss at min(last 5 lows)
                 
@@ -334,12 +334,12 @@ def live_method_2(
             # after buying into trade
             # ================================================================
                 
-            if trade_flag:
+            if trade_active:
 
                 # --------- STOP LOSS ---------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
-                    trade_flag = False
+                    trade_active = False
 
                     if real_money:
                         sell_id = sell_trade(
@@ -383,7 +383,7 @@ def live_method_2(
                         if (split_profit > min_profit):
                             profit = split_profit
                         else:
-                            trade_flag = False
+                            trade_active = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
@@ -404,7 +404,7 @@ def live_method_2(
                         current_price, 
                         buy_time, 
                         int(time.time()/1000), 
-                        f"P_{profit_index}{'F' if (not trade_flag) else ''}", 
+                        f"P_{profit_index}{'F' if (not trade_active) else ''}", 
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
                         "{:.4f}".format(difference_1h), 
