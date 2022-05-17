@@ -204,11 +204,16 @@ def live_method_2(
                     short_klines = download_recent_klines(
                         symbol=symbol,
                         interval="5m",
-                        limit=high_w).reset_index()
+                        limit=high_w)
+                    short_klines = short_klines.reset_index()
                 except requests.exceptions.ConnectionError:
                     print(f"{RED}ERROR {WHITE}Could Not Download 5m {symbol}.")
                     time.sleep(15)
                 else:
+                    if len(short_klines) < high_w:
+                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
+                            f" Short Klines: {len(short_klines)}, Need: {high_w}")
+                        sys.exit()
                     break
             
             # calculate long EMA values
