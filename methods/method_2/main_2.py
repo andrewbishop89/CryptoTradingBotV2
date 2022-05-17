@@ -88,7 +88,8 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
-        time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
+        time.sleep(1)
+        #time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
     print()
         
     thread_count = len(threads_list)+1
@@ -134,7 +135,7 @@ def live_method_2(
     mid_w = 13
     high_w = 21
     
-    # minimum profit for trade
+    # minimum profit % for trade
     min_profit = 0.15
     
     # flags
@@ -164,8 +165,7 @@ def live_method_2(
             # sleep
             # ================================================================
                   
-            # continue if there is a trade currently running on different 
-            # thread
+            # continue if there is a trade currently running on different thread
             if locks["active_trade"].locked():
                 time.sleep(5)
                 continue
@@ -233,13 +233,13 @@ def live_method_2(
             # only check buy in criteria if looking for buy in
             if (not trade_flag):
                 
-                # 1: 1h -> 8 EMA > 21 EMA)
+                # Criteria 1: 1h -> 8 EMA > 21 EMA)
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > \
                     long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
                 
-                # 2: 5m -> 8 EMA > 13 EMA > 21 EMA
+                # Criteria 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > \
                     short_EMAs.loc[13, high_w-1]) and \
                     (short_EMAs.loc[13, high_w-1] > \
@@ -247,23 +247,23 @@ def live_method_2(
                 if not criteria_2:
                     continue
                 
-                # 3: 5m -> price > 8 EMA (last kline)
+                # Criteria 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
                 
-                # 4: 5m -> price < 8 EMA (current kline)
+                # Criteria 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
                 
-                # 5: 5m -> low > 21 EMA (current kline)
+                # Criteria 5: 5m -> low > 21 EMA (current kline)
                 criteria_5 = \
                     (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
                 
-                # 6: buy in
+                # Criteria 6: buy in
                 # difference of 1h EMA over buy price
                 buy_price = float(current_price_f(symbol)) if real_money \
                     else current_price
@@ -298,16 +298,16 @@ def live_method_2(
                     buy_time = short_klines.loc[high_w-1, 't']
                 trade_flag = True
                 
-                # 7: stop loss at min(last 5 lows)
+                # Criteria 7: stop loss at min(last 5 lows)
                 
                 
-                # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
+                # Criteria 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
                 # index for which take profits have been reached
                 profit_index = 1 
                 
-                # 9: record buy in values
+                # Criteria 9: record buy in values
                 # short closing values
                 short_closing = short_klines.loc[:, 'c']
                 # standard deviation of last 15 short values
@@ -331,7 +331,7 @@ def live_method_2(
                 continue
             
                 
-            # buy into trade
+            # after buying into trade
             # ================================================================
                 
             if trade_flag:
@@ -436,7 +436,8 @@ def live_method_2(
 #------------------------------------main--------------------------------------
 
 def main():
-    symbols = top_volume_gainers(10).index
+    symbols = top_volume_gainers(50).index
+    #symbols = top_gainers().index[-25:]
     run_all(symbols, p_f=False)
 
 if __name__ == '__main__':
