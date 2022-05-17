@@ -42,19 +42,32 @@ def format_kline(kline: dict) -> pd.DataFrame:
         'v': [float(kline['v'])],
     }).set_index("t")
 
-async def connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+def init_websocket_klines(symbol: str, interval: str, file_lock: threading.Lock, limit: int=500) -> None:
     """
     Description:
-        Creates a connection to data stream websocket and updates candles in specified file within live_data directory.
+        Initiates all the kline data necessary before connecting to the socket stream. Specifically downloads the last 500 candles
     Args:
         symbol (str): symbol of klines
         interval (str): interval of klines
         file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+        limit (int): Defaults to 500. number of klines to download in file
     """
     init_coin(symbol, interval)
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-    download_recent_klines(symbol, interval).to_csv(data_path)
+    download_recent_klines(symbol, interval, limit).to_csv(data_path)
+    asyncio.run(connect_async_websocket(symbol, interval, file_lock))
     
+async def connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+    """
+    Description:
+        Connects asynchronous main loop for data collection.
+    Args:
+        symbol (str): symbol of klines
+        interval (str): interval of klines
+        file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+        limit (int): Defaults to 500. number of klines to download in file
+    """
+    data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
     print(f"Connecting {symbol}/{interval} Socket.")
     ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
     async with websockets.connect(ws_path) as ws:
@@ -75,13 +88,19 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
             klines.to_csv(data_path)
             file_lock.release()
         
-def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, limit: int=500) -> threading.Thread:
     """
     Description:
-        Calls the asynchronous function. This function is so that the asynchronous function can be called in separate threads.
+        Creates a new thread for the websocket and creates connection.
     Args:
         symbol (str): symbol of klines
         interval (str): interval of klines
         file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+        limit (int): Defaults to 500. number of klines to download in file
+    Return:
+        (threading.Thread): thread that is used for websocket connection
     """
-    asyncio.run(connect_async_websocket(symbol, interval, file_lock))
+    websocket_thread = threading.Thread(target=init_websocket_klines, args=[symbol, interval, file_lock, limit])
+    websocket_thread.start()
+    websocket_thread.name = f"{symbol}/{interval}_Websocket_Thread"
+    return websocket_thread
