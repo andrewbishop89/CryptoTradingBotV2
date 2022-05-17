@@ -58,12 +58,14 @@ from methods.method_2.method_2_func import *
 #----------------------------------functions-----------------------------------
 
 def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
-    
-    #print( \
-    #    f"Starting Live Symbols ({len(symbols)}) at " + \
-    #    f"{normalize_time(time.time()-8*3600)} with " + \
-    #    f"{trade_quote_qty if (not trade_quote_qty) else account_balance("USDT")}" + \
-    #    f"$ Trades.")
+    """
+    Description:
+        Starts all the threads for the main function of method 2.
+    Args:
+        symbols (list): symbols to trade in main.
+        trade_quote_qty (float, optional): amount of $ to risk on each trade. Defaults to None.
+        p_f (bool, optional): print flag, prints updates if true. Defaults to False.
+    """
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
@@ -86,7 +88,8 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
-        time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
+        time.sleep(1)
+        #time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
     print()
         
     thread_count = len(threads_list)+1
@@ -132,12 +135,12 @@ def live_method_2(
     mid_w = 13
     high_w = 21
     
-    # minimum profit for trade
+    # minimum profit % for trade
     min_profit = 0.15
     
     # flags
     # indicates whether trade is active in the current thread (locally)
-    trade_flag = False 
+    trade_active = False 
     # indicates whether the program is just starting
     init_flag = True 
     
@@ -152,46 +155,44 @@ def live_method_2(
             
             # today's day for variable parameters
             today = int(datetime.utcfromtimestamp(time.time()).strftime('%d'))
-            
             # risk multiplier (float from 1 to 2.5 changing every day)
-            risk_multiplier = (today%4)*0.5 + 1
-            
+            risk_multiplier = 2#(today%4)*0.5 + 1
             # profit split ratio (float values range from 0 to 1)
             profit_split_ratio = 0#(today%5)/5
             
             # sleep
             # ================================================================
                   
-            # continue if there is a trade currently running on different 
-            # thread
+            # continue if there is a trade currently running on different thread
             if locks["active_trade"].locked():
                 time.sleep(5)
                 continue
                   
             if (not init_flag):
-                sleep_time = 60*2.5 if (not trade_flag) else 60*0.5
+                sleep_time = 30 #60*2.5 if (not trade_active) else 60*0.5
+                time.sleep(sleep_time)
             else:
-                init_flag = False
-                
+                init_flag = False #now continue to next line for first iteration
                 
             # download klines and calculate EMAs
             # ================================================================
             
             # download 1h klines, only download 1h if no currently active trade
             # (dont need 1h for that)
-            while True and (not trade_flag):
+            while True and (not trade_active):
                 try:
                     long_klines = download_recent_klines(
                         symbol=symbol,
                         interval="1h",
-                        limit=high_w).reset_index()
+                        limit=high_w)
+                    long_klines = long_klines.reset_index()
                 except requests.exceptions.ConnectionError:
                     print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
                     time.sleep(15)
                 else:
                     if len(long_klines) < high_w:
                         print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Klines: {len(long_klines)}, Need: {high_w}")
+                            f" Long Klines: {len(long_klines)}, Need: {high_w}")
                         sys.exit()
                     break
 
@@ -201,11 +202,16 @@ def live_method_2(
                     short_klines = download_recent_klines(
                         symbol=symbol,
                         interval="5m",
-                        limit=high_w).reset_index()
+                        limit=high_w)
+                    short_klines = short_klines.reset_index()
                 except requests.exceptions.ConnectionError:
                     print(f"{RED}ERROR {WHITE}Could Not Download 5m {symbol}.")
                     time.sleep(15)
                 else:
+                    if len(short_klines) < high_w:
+                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
+                            f" Short Klines: {len(short_klines)}, Need: {high_w}")
+                        sys.exit()
                     break
             
             # calculate long EMA values
@@ -229,15 +235,15 @@ def live_method_2(
             current_price = current_kline['c'] # current price
             
             # only check buy in criteria if looking for buy in
-            if (not trade_flag):
+            if (not trade_active):
                 
-                # 1: 1h -> 8 EMA > 21 EMA)
+                # Criteria 1: 1h -> 8 EMA > 21 EMA)
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > \
                     long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
                 
-                # 2: 5m -> 8 EMA > 13 EMA > 21 EMA
+                # Criteria 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > \
                     short_EMAs.loc[13, high_w-1]) and \
                     (short_EMAs.loc[13, high_w-1] > \
@@ -245,23 +251,23 @@ def live_method_2(
                 if not criteria_2:
                     continue
                 
-                # 3: 5m -> price > 8 EMA (last kline)
+                # Criteria 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
                 
-                # 4: 5m -> price < 8 EMA (current kline)
+                # Criteria 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
                 
-                # 5: 5m -> low > 21 EMA (current kline)
+                # Criteria 5: 5m -> low > 21 EMA (current kline)
                 criteria_5 = \
                     (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
                 
-                # 6: buy in
+                # Criteria 6: buy in
                 # difference of 1h EMA over buy price
                 buy_price = float(current_price_f(symbol)) if real_money \
                     else current_price
@@ -294,18 +300,18 @@ def live_method_2(
                     buy_time = int(time.time()/1000)
                 else:
                     buy_time = short_klines.loc[high_w-1, 't']
-                trade_flag = True
+                trade_active = True
                 
-                # 7: stop loss at min(last 5 lows)
+                # Criteria 7: stop loss at min(last 5 lows)
                 
                 
-                # 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
+                # Criteria 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
                 # stop loss to buy in if 1:1 reached)
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
                 # index for which take profits have been reached
                 profit_index = 1 
                 
-                # 9: record buy in values
+                # Criteria 9: record buy in values
                 # short closing values
                 short_closing = short_klines.loc[:, 'c']
                 # standard deviation of last 15 short values
@@ -329,15 +335,15 @@ def live_method_2(
                 continue
             
                 
-            # buy into trade
+            # after buying into trade
             # ================================================================
                 
-            if trade_flag:
+            if trade_active:
 
                 # --------- STOP LOSS ---------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
-                    trade_flag = False
+                    trade_active = False
 
                     if real_money:
                         sell_id = sell_trade(
@@ -381,7 +387,7 @@ def live_method_2(
                         if (split_profit > min_profit):
                             profit = split_profit
                         else:
-                            trade_flag = False
+                            trade_active = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
@@ -402,7 +408,7 @@ def live_method_2(
                         current_price, 
                         buy_time, 
                         int(time.time()/1000), 
-                        f"P_{profit_index}{'F' if (not trade_flag) else ''}", 
+                        f"P_{profit_index}{'F' if (not trade_active) else ''}", 
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
                         "{:.4f}".format(difference_1h), 
@@ -434,7 +440,8 @@ def live_method_2(
 #------------------------------------main--------------------------------------
 
 def main():
-    symbols = top_volume_gainers(10).index
+    symbols = top_volume_gainers(50).index
+    #symbols = top_gainers().index[-25:]
     run_all(symbols, p_f=False)
 
 if __name__ == '__main__':
