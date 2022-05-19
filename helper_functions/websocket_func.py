@@ -68,7 +68,7 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
         limit (int): Defaults to 500. number of klines to download in file
     """
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-    print(f"Connecting {symbol}/{interval} Socket.")
+    #print(f"Connecting {symbol}/{interval} Socket.")
     ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
     async with websockets.connect(ws_path) as ws:
         while True:
@@ -104,3 +104,20 @@ def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, lim
     websocket_thread.start()
     websocket_thread.name = f"{symbol}/{interval}_Websocket_Thread"
     return websocket_thread
+
+def update_klines(symbol: str, interval: str, file_lock: threading.Lock) -> pd.DataFrame:
+    """
+    Description:
+        Reads csv file for klines in thread safe manner.
+    Args:
+        symbol (str): symbol of kline data
+        interval (str): interval of kline data
+        file_lock (threading.Lock): thread safe lock of data file
+    Returns:
+        pd.DataFrame: dataframe with most recent updated klines
+    """
+    data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
+    file_lock.acquire()
+    klines = pd.read_csv(data_path)#.set_index("t")
+    file_lock.release()
+    return klines
