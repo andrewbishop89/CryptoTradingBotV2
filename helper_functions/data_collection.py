@@ -224,8 +224,7 @@ def get_klines(symbol: str, limit: int, interval: str = '1m',
 def delete_old_data():
     """
     Description:
-        Deletes all the (only) live data data because it takes up a lot of 
-        memory.
+        Deletes all the (only) live data to reduce storage.
     """
     fp = os.path.join("data", "live_data")
     interval_dirs = os.listdir(fp)
