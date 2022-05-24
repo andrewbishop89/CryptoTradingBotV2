@@ -99,11 +99,8 @@ def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
             ORDER ======== $\nProposed:\n{pformat(sell_payload)}\nActual: \
             \n{pformat(trade_receipt)}\n\n")
     if 'code' in list(trade_receipt.keys()):
-        print(
-            f"{RED}{trade_receipt['code']}{WHITE} {trade_receipt['msg']}")
-        pprint(sell_payload)
-        print(RED)
-        raise ValueError
+        logger.critical(f"{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(sell_payload)}")
+        sys.exit()
     while True:
         try:
             order_id = trade_receipt['orderId']
