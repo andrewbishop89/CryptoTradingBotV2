@@ -9,6 +9,7 @@
 import threading
 import time
 import os
+import logging
 
 from helper_functions.data_collection import *
 from helper_functions.market import *
@@ -16,6 +17,8 @@ from helper_functions.trade import *
 from helper_functions.analysis import *
 from constants.parameters import *
 from methods.method_2.method_2_backtest import *
+
+logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 

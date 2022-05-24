@@ -15,21 +15,30 @@ import threading
 import pync
 import time
 import os
+import logging
 from multiprocessing import Pool
-from pprint import pprint
+from pprint import pprint, pformat
 
 from helper_functions.data_collection import *
 from helper_functions.market import *
 from helper_functions.trade import *
 from helper_functions.analysis import *
+from helper_functions.websocket_func import *
 from constants.parameters import *
 from methods.method_2.method_2_backtest import *
 from methods.method_2.method_2_func import *
 
+#------------------------------------------------------------------------------
+
+logger = logging.getLogger("main")
+LOGGING_LEVEL = logging.INFO
+
+logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
-# TODO: add async websocket connection
+# TODO: convert setup functions so that different assets can be traded other 
+# than USDT. (ie. BNB, BTC, ETH, etc.)
 
 # TODO: add trades.csv and run similar to profits.csv so that if the program 
 # crashes you can still see if there was an existing trade and then continue 

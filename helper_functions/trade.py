@@ -12,12 +12,14 @@ from pprint import pprint, pformat
 import datetime
 import os
 import threading
+import logging
 
 from constants.parameters import *
 from helper_functions.api import *
 from helper_functions.setup import *
 from helper_functions.data_collection import *
 
+logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 

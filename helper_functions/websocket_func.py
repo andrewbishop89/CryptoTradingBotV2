@@ -12,12 +12,14 @@ import websockets
 import sys
 import os
 import asyncio
+import logging
 import threading
 
 from constants.parameters import *
 from helper_functions.setup import *
 from helper_functions.data_collection import *
 
+logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 
