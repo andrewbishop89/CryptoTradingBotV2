@@ -132,9 +132,24 @@ def log_profits(
         (defaults to False)
     """
     file_lock.acquire()
-    today = datetime.utcfromtimestamp(time.time()).strftime('%m_%d_%y')
-    fp = os.path.join("logs", "real_money" if real else "paper_money", \
-        f"{today}.csv")
+        
+    year = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%Y')
+    month = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%B')
+
+    today_filename = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%m_%d_%y')
+    if real:
+        fp = os.path.join("logs", "real_money", year, month, f"{today_filename}.csv")
+    else:
+        fp = os.path.join("logs", "paper_money", year, month, f"{today_filename}.csv")
+        
+    confirmed_fp = "logs"
+    walk = fp.split(fp[4])
+    for d in walk[1:-1]:
+        confirmed_fp = os.path.join(confirmed_fp, d)
+        if not os.path.isdir(confirmed_fp):
+            os.mkdir(confirmed_fp)
+
+    fp = os.path.join(confirmed_fp, walk[-1])
     if not os.path.isfile(fp):
         with open(fp, "w") as f:
             f.write("profit,symbol,buy_price,sell_price,buy_time," + \
