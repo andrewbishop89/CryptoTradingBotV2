@@ -125,10 +125,7 @@ def get_desired_quantity(
         price = float(current_price_f(symbol))
         minimum_cut = get_minimum_cut(symbol)
         if percentage_cut < minimum_cut:
-            print(f"{RED}ERROR {WHITE}{symbol} Percentage cut \
-                ({percentage_cut*100}%) is less than minimum \
-                ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
-            print(RED)
+            logger.error(f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
             raise ValueError
         payment_symbol = symbol[-4:]
         payment = float(account_info([payment_symbol])[payment_symbol])
@@ -179,9 +176,7 @@ def get_hardcoded_quantity(symbol, trade_quote_qty):
     payment_symbol = symbol[-4:]
     payment = float(account_info([payment_symbol])[payment_symbol])
     if trade_quote_qty > payment:
-        print(f"{RED}ERROR {WHITE}{symbol} Desired quote quantity \
-            (${trade_quote_qty}) is greater than current balance \
-            (${round(payment, 2)}).")
+        logger.error(f"ERROR {symbol} Desired quote quantity (${trade_quote_qty}) is greater than current balance (${round(payment, 2)}).")
         return -1
     else:
         return float(validate_quantity(symbol, float(trade_quote_qty/price)))
@@ -203,19 +198,17 @@ def validate_quantity(symbol, quantity):
     minNotional = get_minimum_notional(symbol)
     precision = int(trade_precision(symbol))
     if quantity > float(maxQty):
-        print(f"{BLUE}NOTE {WHITE}Using maximum quantity {maxQty}.")
+        logger.info(f"Using maximum quantity {maxQty}.")
         return maxQty
     if quantity < float(minQty):
-        print(f"{RED}ERROR {WHITE}Desired quantity is below minimum quantity.")
+        logger.error(f"ERROR Desired quantity is below minimum quantity.")
         return -1
     notional = float(quantity)*float(current_price)
     if notional < minNotional:
-        print(f"{RED}ERROR {WHITE}Order criteria is below the minimum \
-            notional.")
+        logger.error(f"ERROR Order criteria is below the minimum notional.")
         return -1
     if notional > float(account_balance('USDT')):
-        print(f"{RED}ERROR {WHITE}Account has insufficient balance.\n\tHave: \
-            {float(account_balance('USDT'))}\n\tNeed: {notional}")
+        logger.error(f"ERROR Account has insufficient balance.\n\tHave: {float(account_balance('USDT'))}\n\tNeed: {notional}")
         return -1
 
     return round(quantity, precision-1)
@@ -242,7 +235,7 @@ def last_order_quantity(symbol, orderId):
             quantity = float(get_order(symbol, orderId)['executedQty'])
             return quantity
         except KeyError:
-            print(f"{RED}ERROR {WHITE}Could not find last order quantity.")
+            logger.error(f"Could not find last order quantity.", exc_info=True)
 
 
 def account_info(specific_data=None):
@@ -295,7 +288,7 @@ def start_trade(thread: threading.Thread, symbol: str):
             count += 1
     thread_name = f"Thread-{symbol}-{count}"
     if thread_name in thread_names: #raise error if error in name
-        print(f"{RED}ERROR{WHITE} two threads have same name.")
+        logger.error(f"Two threads have same name.")
         raise ValueError
     thread.name = thread_name #assign name to thread
     thread.start() #start trade loop thread
