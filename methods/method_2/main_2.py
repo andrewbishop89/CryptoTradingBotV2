@@ -91,7 +91,7 @@ logger.setLevel(LOGGING_LEVEL)
 
 #----------------------------------functions-----------------------------------
 
-def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
+def run_all(symbols: list, trade_quote_qty: float=None):
     """
     Description:
         Starts all the threads for the main function of method 2.
