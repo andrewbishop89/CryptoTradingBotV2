@@ -9,10 +9,12 @@
 # modules imported
 from binance.client import Client
 import os
+import logging
 
 from constants.parameters import *
 from helper_functions.setup import *
 
+logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 
@@ -234,4 +236,5 @@ def delete_old_data():
             data_files = os.listdir(dir_fp)
             for data_file in data_files:
                 os.remove(os.path.join(dir_fp, data_file))
+    logger.debug("Deleted old live data.")
     return
