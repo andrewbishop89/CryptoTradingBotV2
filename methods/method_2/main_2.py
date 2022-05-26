@@ -31,14 +31,39 @@ from methods.method_2.method_2_func import *
 #------------------------------------------------------------------------------
 
 logger = logging.getLogger("main")
-LOGGING_LEVEL = logging.INFO
+LOGGING_LEVEL = logging.DEBUG
 
 logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: improve system to not trade when trade is active (fix criticals popping
+# up)
+
+# TODO: add daily email notifications with logs of profits, criticals, errors, 
+# warnings and other important informtaion
+
+# TODO: plot matplotlib graph when bought in and show updating candles with 
+# horizontal lines at stop, profit and buy points. Have it update as time goes 
+# on and close the window when the trade is done.
+
+# TODO: implement automated staking into program (probably need to use kraken)
+
+# TODO: replace all print statements with logger statements
+
+# TODO: implement dataclasses in
+
+# TODO: calculate S&P 500 for crypto coins and use historical data to see how 
+# the coin would have performed.
+
 # TODO: convert setup functions so that different assets can be traded other 
 # than USDT. (ie. BNB, BTC, ETH, etc.)
+
+# TODO: implement UI
+
+# TODO: implement multiple parameters can be traded at a time
+
+# TODO: implement database structure for data?
 
 # TODO: add trades.csv and run similar to profits.csv so that if the program 
 # crashes you can still see if there was an existing trade and then continue 
@@ -52,7 +77,7 @@ logger.setLevel(LOGGING_LEVEL)
 # TODO: create a Trade class that contains all trade information (to make it 
 # easier to pass the information around)
 
-# TODO: for log profits, send Trade (class) with all attributes instead of 10 
+# TODO: for log profits, send Trade (class/dataclass) with all attributes instead of 10 
 # arguments alone
 
 # TODO: add check to see if there are any new coins in top gainers that can 
