@@ -109,16 +109,17 @@ def run_all(symbols: list, trade_quote_qty: float=None):
     }
     
     symbols = list(symbols)
+    logger.info(f"Number of Coins Listed: {len(symbols)}")
     
     for symbol in symbols:
         if symbol[-4:] != "USDT":
-            print(f"\tSkipping {symbol}.") if p_f else None
+            logger.debug(f"Skipping {symbol}.")
             symbols.remove(symbol)
             continue
         threads_list += [threading.Thread(target=live_method_2, args=[symbol, trade_quote_qty, locks])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
-        print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
+        logger.debug(f"Starting {threads_list[-1].name}.")
         time.sleep(1)
     
     time.sleep(30)
@@ -128,8 +129,7 @@ def run_all(symbols: list, trade_quote_qty: float=None):
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
-                    print(f"{GREY}ERROR {WHITE}{t.name} Is Not Responding." + \
-                        f" Thread Count: {current_count}")
+                    logger.warning(f"{t.name} is not responding. Active Thread Count: {threading.active_count()}")
                     threads_list.remove(t)
                     break
                     
@@ -164,7 +164,19 @@ def live_method_2(
     # minimum profit % for trade
     min_profit = 0.15
     
-    # flags
+    # lock for accessing kline data files
+    data_lock_1h = threading.Lock()
+    data_lock_5m = threading.Lock()
+    
+    # connect 1h and 5m websockets
+    data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
+    data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
+    
+    time.sleep(5)
+    
+    while data_lock_1h.locked() or data_lock_5m.locked():
+        time.sleep(1)
+    
     # indicates whether trade is active in the current thread (locally)
     trade_active = False
     # indicates whether the program is just starting
@@ -198,10 +210,9 @@ def live_method_2(
                 continue
                   
             if (not init_flag):
-                sleep_time = 30 #60*2.5 if (not trade_active) else 60*0.5
-                time.sleep(sleep_time)
+                time.sleep(2)
             else:
-                init_flag = False #now continue to next line for first iteration
+                init_flag = False #continue to next line for first iteration
                 
             # ================================================================
             # ================================================================
@@ -215,13 +226,12 @@ def live_method_2(
                 try:
                     long_klines = update_klines(symbol, "1h", data_lock_1h)
                 except requests.exceptions.ConnectionError:
-                    print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
+                    logger.warning(f"Could Not Download 1h {symbol}.")
                     time.sleep(15)
                 else:
                     if len(long_klines) < high_w:
-                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Long Klines: {len(long_klines)}, Need: {high_w}")
-                        sys.exit()
+                        logger.error(f"ERROR Terminating Thread. Long Klines: {len(long_klines)}, Need: {high_w}", exc_info=True)
+                        raise IndexError
                     break
 
             # download 5m klines
@@ -229,13 +239,12 @@ def live_method_2(
                 try:
                     short_klines = update_klines(symbol, "5m", data_lock_5m)
                 except requests.exceptions.ConnectionError:
-                    print(f"{RED}ERROR {WHITE}Could Not Download 5m {symbol}.")
+                    logger.warning(f"Could Not Download 5m {symbol}.")
                     time.sleep(15)
                 else:
                     if len(short_klines) < high_w:
-                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Short Klines: {len(short_klines)}, Need: {high_w}")
-                        sys.exit()
+                        logger.error(f"ERROR Terminating Thread. Short Klines: {len(short_klines)}, Need: {high_w}", exc_info=True)
+                        raise IndexError
                     break
             
             # calculate long EMA values
@@ -268,27 +277,32 @@ def live_method_2(
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
+                logger.debug("Criteria Met (1/6)")
                 
                 # Criteria 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
                              (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
+                logger.debug("Criteria Met (2/6)")
                 
                 # Criteria 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
+                logger.debug("Criteria Met (3/6)")
                 
                 # Criteria 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
+                logger.debug("Criteria Met (4/6)")
                 
                 # Criteria 5: 5m -> low > 21 EMA (current kline)
                 criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
+                logger.debug("Criteria Met (5/6)")
                 
                 # Criteria 6: potential profit must be greater than min profit
                 # difference of 1h EMA over buy price
@@ -297,6 +311,7 @@ def live_method_2(
                 percent_profit = buy_price/stop_price-1
                 if not (percent_profit*100 > min_profit):
                     continue
+                logger.debug("Criteria Met (6/6)")
                 
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
@@ -310,7 +325,8 @@ def live_method_2(
                         trade_quote_qty = balance
                     # dont buy in if balance is too small for trade
                     if (balance < min_balance):
-                        time.sleep(60*1.5)
+                        logging.warning(f"Insufficient Balance for Buy-In. Have: {balance}, Need: {min_balance}")
+                        time.sleep(20)
                         continue
                     # if current active trade then dont buy in
                     if locks["active_trade"].locked():
@@ -355,6 +371,7 @@ def live_method_2(
 
             # SKIP SELLING STAGE IF HAVE NOT BOUGHT IN YET
             if trade_active:
+                logger.debug(f"{symbol} CURRENT PRICE: {current_price}, {round((profit_price/current_price-1)*100, 2)}, {round((stop_price/current_price-1)*100, 2)}")
 
                 # --------- STOP LOSS ---------
                 if (current_price < stop_price): # if stop loss is reached
@@ -365,10 +382,10 @@ def live_method_2(
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
-                        print(f"\tSELL ID: {sell_id}") if print_flag else None
+                        logger.info(f"SELL ID: {sell_id}")
                         locks["active_trade"].release()
 
-                    display_loss(symbol, profit_index, profit)
+                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if (profit_index < 2):
                         log_profits(
@@ -410,12 +427,13 @@ def live_method_2(
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
-                        print(f"\tSELL ID: {sell_id}")
+                        logger.info(f"SELL ID: {sell_id}")
                         # only unlock on take profit if 
                         locks["active_trade"].release() if \
                             (not profit_split_ratio) else None
 
-                    display_profit(symbol, profit_index, profit)
+                    #display_profit(symbol, profit_index, profit)
+                    logger.info(f"{symbol} PROFIT {profit_index}: {'{:.4f}'.format(profit*100)}%")
 
                     log_profits(
                         "{:.4f}".format(profit*100), 
@@ -447,9 +465,9 @@ def live_method_2(
                 
             # ================================================================
     except Exception as e:
-        print(f"{RED}ERROR{WHITE} In {symbol}-Thread.")
+        logger.error(f"ERROR In {threading.current_thread().name}.", exc_info=True)
         if real_money:
-            pync.notify("ERROR")
+            pync.notify(threading.current_thread().name, title="ERROR")
         raise e
 
 
