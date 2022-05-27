@@ -56,7 +56,9 @@ def init_websocket_klines(symbol: str, interval: str, file_lock: threading.Lock,
     """
     init_coin(symbol, interval)
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
+    file_lock.acquire()
     download_recent_klines(symbol, interval, limit).to_csv(data_path)
+    file_lock.release()
     asyncio.run(connect_async_websocket(symbol, interval, file_lock))
     
 async def connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
