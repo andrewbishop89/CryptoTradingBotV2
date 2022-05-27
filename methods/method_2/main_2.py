@@ -235,7 +235,7 @@ def live_method_2(
             # ================================================================
             
             # download 1h klines, only download 1h if no currently active trade
-            # (dont need 1h for that)
+            # (dont need 1h for active_trade)
             while True and (not trade_active):
                 try:
                     long_klines = update_klines(symbol, "1h", data_lock_1h)
