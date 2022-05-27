@@ -218,9 +218,9 @@ def live_method_2(
                 logger.debug(f"Restarting {symbol}/5m Websocket.")
                 data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
                   
-            # continue if there is a trade currently running on different thread
-            if locks["active_trade"].locked():
-                time.sleep(5)
+            # restart loop if there is a trade currently running on different thread
+            if locks["active_trade"].locked() and (not trade_active):
+                time.sleep(20)
                 continue
                   
             if (not init_flag):
