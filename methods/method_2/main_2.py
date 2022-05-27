@@ -477,11 +477,7 @@ def live_method_2(
                     if profit_split_ratio:
                         # new stop is original buy price
                         stop_price = buy_price 
-                    stop_price = buy_price 
-                        stop_price = buy_price 
                         # new buy is og profit price
-                        buy_price = profit_price 
-                    buy_price = profit_price 
                         buy_price = profit_price 
                         # new profit is new buy + percent profit
                         profit_price = buy_price*(1+percent_profit)
