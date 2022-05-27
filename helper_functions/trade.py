@@ -29,13 +29,9 @@ def request_order(payload={}):
     order_request = send_signed_request('POST', '/api/v3/order', payload)
     try:
         now = convert_time(time.time())
-        print(
-            f"Creating {payload['symbol'].upper()} \
-                {payload['type'].replace('_', ' ')} \
-                {payload['side'].upper()} order at \
-                {now} ({normalize_time(now)}).")
+        logger.info(f"Creating {payload['symbol'].upper()} {payload['type'].replace('_', ' ')} {payload['side'].upper()} order at {now} ({normalize_time(now)}).")
     except KeyError:
-        print("Creating purchase order.")
+        logger.info("Creating Purchase Order")
     return order_request
 
 
@@ -62,21 +58,16 @@ def buy_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
             ======== $\nProposed:\n{pformat(buy_payload)}\nActual:\n \
             {pformat(trade_receipt)}\n\n")
     if 'code' in list(trade_receipt.keys()):
-        print(
-            f"{RED}{trade_receipt['code']}{WHITE} {trade_receipt['msg']}")
-        pprint(buy_payload)
-        print(RED)
-        raise ValueError
-    while True:
-        try:
-            order_id = trade_receipt['orderId']
-            print(f"\tBuy Order ID:\t{order_id}")
-            break
-        except KeyError:
-            print(f"{RED}ERROR {WHITE}Could not find buy order ID.")
-        time.sleep(2)
-    return order_id, get_profit_quantity(symbol, desired_quantity)
-
+        logger.warning(f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(buy_payload)}\n{pformat(trade_receipt)}", exc_info=True)
+    profit_quantity = get_profit_quantity(symbol, desired_quantity)
+    try:
+        order_id = trade_receipt['orderId']
+        logger.info(f"Buy Order ID: {order_id}")
+    except KeyError:
+        logger.error(f"ERROR Could not find buy order ID.", exc_info=True)
+        return None, profit_quantity
+    else:
+        return order_id, profit_quantity
 #PARAM symbol(str): symbol of coin to sell
 #PARAM quote_quantity(float): quote quantity to sell
 #PARAM quantity(float): quantity to sell
@@ -99,17 +90,16 @@ def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
             ORDER ======== $\nProposed:\n{pformat(sell_payload)}\nActual: \
             \n{pformat(trade_receipt)}\n\n")
     if 'code' in list(trade_receipt.keys()):
-        logger.critical(f"{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(sell_payload)}")
-        sys.exit()
-    while True:
-        try:
-            order_id = trade_receipt['orderId']
-            print(f"\tSell Order ID:\t{order_id}")
-            break
-        except KeyError:
-            print(f"{RED}ERROR {WHITE}Could not find sell order ID.")
-        time.sleep(2)
-    return order_id, get_profit_quantity(symbol, desired_quantity)
+        logger.critical(f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(sell_payload)}\n{pformat(trade_receipt)}", exc_info=True)
+    profit_quantity = get_profit_quantity(symbol, desired_quantity)
+    try:
+        order_id = trade_receipt['orderId']
+        logger.info(f"Sell Order ID: {order_id}")
+    except KeyError:
+        logger.error(f"ERROR Could not find sell order ID.", exc_info=True)
+        return None, profit_quantity
+    else:
+        return order_id, profit_quantity
 
 
 #PARAM symbol(str): symbol of quantity to trade
