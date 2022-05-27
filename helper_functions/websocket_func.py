@@ -91,6 +91,12 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
             file_lock.acquire()
             klines.to_csv(data_path)
             file_lock.release()
+            
+            # reset stream after 24h
+            time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
+            if time_now == "11:59":
+                logger.info(f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
+                return
         
 def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, limit: int=500) -> threading.Thread:
     """
