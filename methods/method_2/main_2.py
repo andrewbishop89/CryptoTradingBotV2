@@ -210,8 +210,13 @@ def live_method_2(
             # profit split ratio (float values range from 0 to 1)
             profit_split_ratio = 0  #(today%5)/5
             
-            # sleep
-            # ================================================================
+            # if data threads die, restart them
+            if not data_thread_1h.is_alive():
+                logger.debug(f"Restarting {symbol}/1h Websocket.")
+                data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
+            if not data_thread_5m.is_alive():
+                logger.debug(f"Restarting {symbol}/5m Websocket.")
+                data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
                   
             # continue if there is a trade currently running on different thread
             if locks["active_trade"].locked():
