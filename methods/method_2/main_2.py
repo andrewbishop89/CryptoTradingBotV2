@@ -329,37 +329,41 @@ def live_method_2(
                 
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
+                # check for active trade in other thread
+                if locks["active_trade"].locked():
+                    continue
                 if real_money:
-                    if locks["active_trade"].locked():
-                        continue
                     balance = account_balance("USDT")
-                    
+                    # 12 is smallest possible trade if not specified
                     min_balance = 12 if (not trade_quote_qty) else trade_quote_qty
+                    # use full balance if quote quantity not specified
                     if (not trade_quote_qty):
                         trade_quote_qty = balance
-                    # dont buy in if balance is too small for trade
+                    # dont buy in if balance is too small for trade and continue
                     if (balance < min_balance):
                         logging.warning(f"Insufficient Balance for Buy-In. Have: {balance}, Need: {min_balance}")
                         time.sleep(20)
                         continue
-                    # if current active trade then dont buy in
-                    if locks["active_trade"].locked():
-                        continue
-                    locks["active_trade"].acquire()
-                    buy_id, profit_quantity = \
-                        buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
-                    buy_time = int(time.time()/1000)
-                else:
-                    buy_time = short_klines.loc[high_w-1, 't']
+                    
+                # recheck for active trade in other thread
+                if locks["active_trade"].locked():
+                    continue
+                # start active trade in this thread
+                locks["active_trade"].acquire()
+                # buy into trade
+                if real_money:
+                    buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
+                buy_time = int(time.time()/1000)
+                # activate flag because trade is active in this thread
                 trade_active = True
                 
                 # calcualte profit price
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
+                
+                # ------------------- RECORD ALL TRADE DATA ------------------
+                
                 # index for which take profits have been reached
                 profit_index = 1
-                
-                # ---- RECORD ALL TRADE DATA ----
-                
                 # short window closing candle values
                 short_closing = short_klines.loc[:, 'c']
                 # standard deviation of last 15 short values
@@ -374,7 +378,7 @@ def live_method_2(
                 # 24h price change percent
                 price_24h = float(ticker['priceChangePercent'])
                 # log data
-                logger.info(f"{symbol} - BUY: {round(buy_price,4)} - STOP: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
+                logger.info(f"BUY: {round(buy_price,4)} - STOP PRICE: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
                 continue
             
             # ================================================================
@@ -387,7 +391,7 @@ def live_method_2(
             if trade_active:
                 logger.debug(f"{symbol} CURRENT PRICE: {current_price}, {round((profit_price/current_price-1)*100, 2)}, {round((stop_price/current_price-1)*100, 2)}")
 
-                # --------- STOP LOSS ---------
+                # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
                     trade_active = False
@@ -421,7 +425,7 @@ def live_method_2(
                             real=real_money)
                     continue
 
-                # --------- TAKE PROFIT --------- 
+                # ------------------------ TAKE PROFIT -----------------------
                 elif (current_price > profit_price):
                     # divide by profit index because quantity decays each time
                     profit = (current_price / buy_price) - 1
@@ -438,13 +442,16 @@ def live_method_2(
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
+                        # sell out of trade
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
-                        # only unlock on take profit if 
-                        locks["active_trade"].release() if \
-                            (not profit_split_ratio) else None
+                        # if not profit split ratio then trade is done
+                        if not profit_split_ratio:
+                            # release lock and set local trade flag to false
+                            locks["active_trade"].release()
+                            trade_active = False
 
                     #display_profit(symbol, profit_index, profit)
                     logger.info(f"{symbol} PROFIT {profit_index}: {'{:.4f}'.format(profit*100)}%")
@@ -456,7 +463,7 @@ def live_method_2(
                         current_price, 
                         buy_time, 
                         int(time.time()/1000), 
-                        f"P_{profit_index}{'F' if (not trade_active) else ''}", 
+                        f"P{profit_index}",
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
                         "{:.4f}".format(difference_1h), 
@@ -467,14 +474,19 @@ def live_method_2(
                         locks["profit_file"], 
                         real=real_money)
 
-                    # new stop is og buy price
+                    if profit_split_ratio:
+                        # new stop is original buy price
+                        stop_price = buy_price 
                     stop_price = buy_price 
-                    # new buy is og profit price
+                        stop_price = buy_price 
+                        # new buy is og profit price
+                        buy_price = profit_price 
                     buy_price = profit_price 
-                    # new profit is new buy + percent profit
-                    profit_price = buy_price*(1+percent_profit)
-                    # increment profit index
-                    profit_index += 1
+                        buy_price = profit_price 
+                        # new profit is new buy + percent profit
+                        profit_price = buy_price*(1+percent_profit)
+                        # increment profit index
+                        profit_index += 1
                     
                 
             # ================================================================
