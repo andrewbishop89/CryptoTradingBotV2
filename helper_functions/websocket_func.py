@@ -128,6 +128,12 @@ def update_klines(symbol: str, interval: str, file_lock: threading.Lock) -> pd.D
     """
     data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
     file_lock.acquire()
-    klines = pd.read_csv(data_path)#.set_index("t")
+    while True:
+        try:
+            klines = pd.read_csv(data_path)#.set_index("t")
+            break
+        except OSError as e:
+            logger.debug(f"{symbol}/{interval} - Retrying in 20 Seconds...", exc_info=True)
+            time.sleep(20)
     file_lock.release()
     return klines
