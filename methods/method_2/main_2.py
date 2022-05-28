@@ -403,16 +403,14 @@ def live_method_2(
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
+                    locks["active_trade"].release()
                     trade_active = False
+                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if real_money:
-                        sell_id = sell_trade(
-                            symbol=symbol, 
-                            quantity=profit_quantity)[0]
+                        # sell out of trade (stop loss)
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
-                        locks["active_trade"].release()
-
-                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if (profit_index < 2):
                         log_profits(
@@ -448,13 +446,14 @@ def live_method_2(
                             profit = split_profit
                         else:
                             trade_active = False
+                    else:
+                        locks["active_trade"].release()
+                        trade_active = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
-                        # sell out of trade
-                        sell_id = sell_trade(
-                            symbol=symbol, 
-                            quantity=profit_quantity)[0]
+                        # sell out of trade (take profit)
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
                         # if not profit split ratio then trade is done
                         if not profit_split_ratio:
