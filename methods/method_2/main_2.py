@@ -154,7 +154,7 @@ def live_method_2(
     """
 
     # real money flag
-    real_money = False
+    real_money = ("real" in sys.argv)
 
     # EMA windows
     low_w = 8
