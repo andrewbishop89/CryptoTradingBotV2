@@ -479,6 +479,9 @@ def live_method_2(
                     
                 
             # ================================================================
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Connection Error. Sleeping for 20.", exc_info=True)
+        time.sleep(20)
     except Exception as e:
         logger.error(f"ERROR In {threading.current_thread().name}.", exc_info=True)
         if real_money:
