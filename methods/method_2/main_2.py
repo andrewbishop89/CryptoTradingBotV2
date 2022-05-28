@@ -37,6 +37,10 @@ logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: modify main so that multiple parameters can trade at the same time. To 
+# do this also need to add multiple profit files for each method. Perhaps name 
+# each method based on parameters.
+
 # TODO: improve system to not trade when trade is active (fix criticals popping
 # up)
 
@@ -48,6 +52,8 @@ logger.setLevel(LOGGING_LEVEL)
 # on and close the window when the trade is done.
 
 # TODO: implement automated staking into program (probably need to use kraken)
+
+# TODO: implement cli into program for more terminal options
 
 # TODO: replace all print statements with logger statements
 
@@ -126,12 +132,15 @@ def run_all(symbols: list, trade_quote_qty: float=None):
     thread_count = threading.active_count()
     while True:
         current_count = threading.active_count()
+        time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
                     logger.warning(f"{t.name} is not responding. Active Thread Count: {threading.active_count()}")
                     threads_list.remove(t)
                     break
+        elif "00" in time_now:
+            logger.info(f"Hourly Update. Thread Count: {threading.active_count()}")
                     
         time.sleep(2*60)
 
@@ -154,7 +163,7 @@ def live_method_2(
     """
 
     # real money flag
-    real_money = False
+    real_money = ("real" in sys.argv)
 
     # EMA windows
     low_w = 8
@@ -162,7 +171,7 @@ def live_method_2(
     high_w = 21
     
     # minimum profit % for trade
-    min_profit = 0.15
+    min_profit = 0.25
     
     # lock for accessing kline data files
     data_lock_1h = threading.Lock()
@@ -353,7 +362,7 @@ def live_method_2(
                 # buy into trade
                 if real_money:
                     buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
-                buy_time = int(time.time()/1000)
+                buy_time = int(time.time())
                 # activate flag because trade is active in this thread
                 trade_active = True
                 
@@ -394,25 +403,23 @@ def live_method_2(
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
+                    locks["active_trade"].release()
                     trade_active = False
+                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if real_money:
-                        sell_id = sell_trade(
-                            symbol=symbol, 
-                            quantity=profit_quantity)[0]
+                        # sell out of trade (stop loss)
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
-                        locks["active_trade"].release()
-
-                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if (profit_index < 2):
                         log_profits(
                             "{:.4f}".format(profit*100), 
                             symbol, 
                             buy_price, 
-                            current_price, 
+                            current_price,
                             buy_time, 
-                            int(time.time()/1000), 
+                            int(time.time()), 
                             "S", 
                             profit_split_ratio, 
                             "{:.4f}".format(std_5m), 
@@ -439,13 +446,14 @@ def live_method_2(
                             profit = split_profit
                         else:
                             trade_active = False
+                    else:
+                        locks["active_trade"].release()
+                        trade_active = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
-                        # sell out of trade
-                        sell_id = sell_trade(
-                            symbol=symbol, 
-                            quantity=profit_quantity)[0]
+                        # sell out of trade (take profit)
+                        sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
                         # if not profit split ratio then trade is done
                         if not profit_split_ratio:
@@ -462,7 +470,7 @@ def live_method_2(
                         buy_price, 
                         current_price, 
                         buy_time, 
-                        int(time.time()/1000), 
+                        int(time.time()), 
                         f"P{profit_index}",
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
