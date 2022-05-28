@@ -76,27 +76,33 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
     ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
     async with websockets.connect(ws_path) as ws:
         while True:
-            current_kline = format_kline(json.loads(await ws.recv())['k'])
-            
-            file_lock.acquire()
-            klines = pd.read_csv(data_path).set_index("t") # load existing klines
-            file_lock.release()
-            
-            if klines.index[-1] != current_kline.index[-1]: # if new candle has opened
-                klines = klines.iloc[1:, :] # remove first candle
-            else: # update existing candle
+            try:
+                current_kline = format_kline(json.loads(await ws.recv())['k'])
+                
+                file_lock.acquire()
+                klines = pd.read_csv(data_path).set_index("t") # load existing klines
+                file_lock.release()
+                
+                if klines.index[-1] != current_kline.index[-1]: # if new candle has opened
+                    klines = klines.iloc[1:, :] # remove first candle
+                else: # update existing candle
+                    klines = klines.iloc[:-1, :] # remove last candle 
                 klines = klines.iloc[:-1, :] # remove last candle 
-            klines = klines.append(current_kline) # update with newest candle
-            
-            file_lock.acquire()
-            klines.to_csv(data_path)
-            file_lock.release()
-            
-            # reset stream after 24h
-            time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
-            if time_now == "11:59":
-                logger.info(f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
-                return
+                    klines = klines.iloc[:-1, :] # remove last candle 
+                klines = klines.append(current_kline) # update with newest candle
+                
+                file_lock.acquire()
+                klines.to_csv(data_path)
+                file_lock.release()
+                
+                # reset stream after 24h
+                time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
+                if time_now == "11:59":
+                    logger.info(f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
+                    return
+            except requests.exceptions.ConnectionError as e:
+                logger.error("Could not connect to network. Waiting for 30s.", exc_info=True)
+                time.sleep(30)
         
 def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, limit: int=500) -> threading.Thread:
     """
