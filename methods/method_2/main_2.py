@@ -37,6 +37,10 @@ logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: modify main so that multiple parameters can trade at the same time. To 
+# do this also need to add multiple profit files for each method. Perhaps name 
+# each method based on parameters.
+
 # TODO: improve system to not trade when trade is active (fix criticals popping
 # up)
 
@@ -48,6 +52,8 @@ logger.setLevel(LOGGING_LEVEL)
 # on and close the window when the trade is done.
 
 # TODO: implement automated staking into program (probably need to use kraken)
+
+# TODO: implement cli into program for more terminal options
 
 # TODO: replace all print statements with logger statements
 
