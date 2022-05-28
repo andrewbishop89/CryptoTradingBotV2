@@ -5,6 +5,7 @@
 # Andrew Bishop
 
 import os
+import logging
 
 #------------------------------global-variables--------------------------------
 
@@ -27,3 +28,22 @@ with open(os.path.join('constants', 'keys.txt'), 'r') as f:
     API_KEY = lines[0][:-1] #first line should be API key
     API_SECRET = lines[1][:-1] #second line should be API secret
     BASE_URL = "https://api.binance.com" #binance API base url
+
+#------------------------------------------------------------------------------
+
+logger = logging.getLogger("main")
+
+# Logging Levels
+# - DEBUG
+# - INFO
+# - WARNING
+# - ERROR
+# - CRITICAL
+
+logger.setLevel(logging.INFO)
+log_fp = os.path.join("logs", "main.log")
+handler = logging.FileHandler(log_fp, mode="w")
+formatter = logging.Formatter('%(levelname)s @ %(asctime)s - %(threadName)s - %(filename)s - Line %(lineno)d - %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)

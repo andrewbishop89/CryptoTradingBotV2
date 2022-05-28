@@ -15,21 +15,55 @@ import threading
 import pync
 import time
 import os
+import logging
 from multiprocessing import Pool
-from pprint import pprint
+from pprint import pprint, pformat
 
 from helper_functions.data_collection import *
 from helper_functions.market import *
 from helper_functions.trade import *
 from helper_functions.analysis import *
+from helper_functions.websocket_func import *
 from constants.parameters import *
 from methods.method_2.method_2_backtest import *
 from methods.method_2.method_2_func import *
 
+#------------------------------------------------------------------------------
+
+logger = logging.getLogger("main")
+LOGGING_LEVEL = logging.DEBUG
+
+logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
-# TODO: add async websocket connection
+# TODO: improve system to not trade when trade is active (fix criticals popping
+# up)
+
+# TODO: add daily email notifications with logs of profits, criticals, errors, 
+# warnings and other important informtaion
+
+# TODO: plot matplotlib graph when bought in and show updating candles with 
+# horizontal lines at stop, profit and buy points. Have it update as time goes 
+# on and close the window when the trade is done.
+
+# TODO: implement automated staking into program (probably need to use kraken)
+
+# TODO: replace all print statements with logger statements
+
+# TODO: implement dataclasses in
+
+# TODO: calculate S&P 500 for crypto coins and use historical data to see how 
+# the coin would have performed.
+
+# TODO: convert setup functions so that different assets can be traded other 
+# than USDT. (ie. BNB, BTC, ETH, etc.)
+
+# TODO: implement UI
+
+# TODO: implement multiple parameters can be traded at a time
+
+# TODO: implement database structure for data?
 
 # TODO: add trades.csv and run similar to profits.csv so that if the program 
 # crashes you can still see if there was an existing trade and then continue 
@@ -43,7 +77,7 @@ from methods.method_2.method_2_func import *
 # TODO: create a Trade class that contains all trade information (to make it 
 # easier to pass the information around)
 
-# TODO: for log profits, send Trade (class) with all attributes instead of 10 
+# TODO: for log profits, send Trade (class/dataclass) with all attributes instead of 10 
 # arguments alone
 
 # TODO: add check to see if there are any new coins in top gainers that can 
@@ -57,14 +91,13 @@ from methods.method_2.method_2_func import *
 
 #----------------------------------functions-----------------------------------
 
-def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
+def run_all(symbols: list, trade_quote_qty: float=None):
     """
     Description:
         Starts all the threads for the main function of method 2.
     Args:
         symbols (list): symbols to trade in main.
-        trade_quote_qty (float, optional): amount of $ to risk on each trade. Defaults to None.
-        p_f (bool, optional): print flag, prints updates if true. Defaults to False.
+        trade_quote_qty (float, optional): amount of money (USD) to risk on each trade. Defaults to None.
     """
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
@@ -76,42 +109,36 @@ def run_all(symbols: list, trade_quote_qty: float=None, p_f: bool=False):
     }
     
     symbols = list(symbols)
+    logger.info(f"Number of Coins Listed: {len(symbols)}")
     
     for symbol in symbols:
         if symbol[-4:] != "USDT":
-            print(f"\tSkipping {symbol}.") if p_f else None
+            logger.debug(f"Skipping {symbol}.")
             symbols.remove(symbol)
             continue
-        threads_list += \
-            [threading.Thread(target=live_method_2, \
-                args=[symbol, trade_quote_qty, locks, p_f])]
+        threads_list += [threading.Thread(target=live_method_2, args=[symbol, trade_quote_qty, locks])]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
-        print(f"\tStarting {threads_list[-1].name}.")  if p_f else None
+        logger.debug(f"Starting {threads_list[-1].name}.")
         time.sleep(1)
-        #time.sleep(60*5/len(symbols) if len(symbols) > 125 else 0)
-    print()
-        
-    thread_count = len(threads_list)+1
+    
+    time.sleep(30)
+    thread_count = threading.active_count()
     while True:
         current_count = threading.active_count()
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
-                    print(f"{GREY}ERROR {WHITE}{t.name} Is Not Responding." + \
-                        f" Thread Count: {current_count}")
+                    logger.warning(f"{t.name} is not responding. Active Thread Count: {threading.active_count()}")
                     threads_list.remove(t)
                     break
                     
         time.sleep(2*60)
 
-
-
 def live_method_2(
         symbol: str, 
         trade_quote_qty: float, 
-        locks: list, 
-        print_flag: bool=False):
+        locks: list):
     """
     Description:
         Runs method 2 with live candles. To sell entire balance on each trade 
@@ -121,8 +148,7 @@ def live_method_2(
         symbol (str): coin to trade
         trade_quote_qty (float): amount of money to trade per trade
         locks (list): list of all threading locks
-        print_flag (bool, optional): True for prints to be displayed (defaults 
-        to False)
+        logger (logging.Logger): 
     Raises:
         e: any error during main event loop.
     """
@@ -138,80 +164,101 @@ def live_method_2(
     # minimum profit % for trade
     min_profit = 0.15
     
-    # flags
+    # lock for accessing kline data files
+    data_lock_1h = threading.Lock()
+    data_lock_5m = threading.Lock()
+    
+    # connect 1h and 5m websockets
+    data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
+    data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
+    
+    time.sleep(5)
+    
+    while data_lock_1h.locked() or data_lock_5m.locked():
+        time.sleep(1)
+    
     # indicates whether trade is active in the current thread (locally)
-    trade_active = False 
+    trade_active = False
     # indicates whether the program is just starting
     init_flag = True 
-    
-    print(f"Starting {symbol}.")
     
     # start backtest loop
     try:
         while True:
             
-            # update param if new day
             # ================================================================
+            # ================================================================
+            #                       INITIALIZATION STAGE
+            # ================================================================
+            # ================================================================
+        
+            # allow stream to reset after 24h
+            time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
+            if time_now == "11:59":
+                time.sleep(60)
+                # lock here to prevent all new websockets from being started at the same time
+                locks["profit_file"].acquire()
+                data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
+                data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)        
+                time.sleep(1)
+                locks["profit_file"].release()
             
             # today's day for variable parameters
-            today = int(datetime.utcfromtimestamp(time.time()).strftime('%d'))
+            today = int(datetime.utcfromtimestamp(time.time()-7*3600).strftime('%d'))
             # risk multiplier (float from 1 to 2.5 changing every day)
-            risk_multiplier = 2#(today%4)*0.5 + 1
+            risk_multiplier = 1   #(today%4)*0.5 + 1
             # profit split ratio (float values range from 0 to 1)
-            profit_split_ratio = 0#(today%5)/5
+            profit_split_ratio = 0  #(today%5)/5
             
-            # sleep
-            # ================================================================
+            # if data threads die, restart them
+            if not data_thread_1h.is_alive():
+                logger.debug(f"Restarting {symbol}/1h Websocket.")
+                data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
+            if not data_thread_5m.is_alive():
+                logger.debug(f"Restarting {symbol}/5m Websocket.")
+                data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
                   
-            # continue if there is a trade currently running on different thread
-            if locks["active_trade"].locked():
-                time.sleep(5)
+            # restart loop if there is a trade currently running on different thread
+            if locks["active_trade"].locked() and (not trade_active):
+                time.sleep(20)
                 continue
                   
             if (not init_flag):
-                sleep_time = 30 #60*2.5 if (not trade_active) else 60*0.5
-                time.sleep(sleep_time)
+                time.sleep(2)
             else:
-                init_flag = False #now continue to next line for first iteration
+                init_flag = False #continue to next line for first iteration
                 
-            # download klines and calculate EMAs
+            # ================================================================
+            # ================================================================
+            #                     DOWNLOADING DATA STAGE
+            # ================================================================
             # ================================================================
             
             # download 1h klines, only download 1h if no currently active trade
-            # (dont need 1h for that)
+            # (dont need 1h for active_trade)
             while True and (not trade_active):
                 try:
-                    long_klines = download_recent_klines(
-                        symbol=symbol,
-                        interval="1h",
-                        limit=high_w)
-                    long_klines = long_klines.reset_index()
+                    long_klines = update_klines(symbol, "1h", data_lock_1h)
                 except requests.exceptions.ConnectionError:
-                    print(f"{RED}ERROR {WHITE}Could Not Download 1h {symbol}.")
+                    logger.warning(f"Could Not Download 1h {symbol}.")
                     time.sleep(15)
                 else:
                     if len(long_klines) < high_w:
-                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Long Klines: {len(long_klines)}, Need: {high_w}")
-                        sys.exit()
+                        logger.error(f"ERROR Terminating Thread. Long Klines: {len(long_klines)}, Need: {high_w}", exc_info=True)
+                        raise IndexError
                     break
 
             # download 5m klines
             while True:
                 try:
-                    short_klines = download_recent_klines(
-                        symbol=symbol,
-                        interval="5m",
-                        limit=high_w)
-                    short_klines = short_klines.reset_index()
+                    short_klines = update_klines(symbol, "5m", data_lock_5m)
                 except requests.exceptions.ConnectionError:
-                    print(f"{RED}ERROR {WHITE}Could Not Download 5m {symbol}.")
+                    logger.warning(f"Could Not Download 5m {symbol}.")
                     time.sleep(15)
                 else:
                     if len(short_klines) < high_w:
-                        print(f"{GREY}ERROR {WHITE} Ending {symbol}-Thread." + \
-                            f" Short Klines: {len(short_klines)}, Need: {high_w}")
-                        sys.exit()
+                        logger.error(f"ERROR Terminating Thread. Short Klines: {len(short_klines)}, Need: {high_w}", exc_info=True)
+                        raise IndexError
                     break
             
             # calculate long EMA values
@@ -228,95 +275,100 @@ def live_method_2(
                 EMA(short_klines['c'], high_w)
                 ], index = [low_w, mid_w, high_w])
             
-            # check for trade criteria met
+            # ================================================================
+            # ================================================================
+            #                         BUYING STAGE
+            # ================================================================
             # ================================================================
             
             current_kline = short_klines.iloc[-1] # current candle
             current_price = current_kline['c'] # current price
             
-            # only check buy in criteria if looking for buy in
+            # SKIP BUYING STAGE IF ALREADY BOUGHT IN
             if (not trade_active):
                 
                 # Criteria 1: 1h -> 8 EMA > 21 EMA)
-                criteria_1 = (long_EMAs.loc[8, high_w-1] > \
-                    long_EMAs.loc[21, high_w-1])
+                criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
+                logger.debug("Criteria Met (1/6)")
                 
                 # Criteria 2: 5m -> 8 EMA > 13 EMA > 21 EMA
-                criteria_2 = (short_EMAs.loc[8, high_w-1] > \
-                    short_EMAs.loc[13, high_w-1]) and \
-                    (short_EMAs.loc[13, high_w-1] > \
-                    short_EMAs.loc[21, high_w-1])
+                criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
+                             (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
+                logger.debug("Criteria Met (2/6)")
                 
                 # Criteria 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
+                logger.debug("Criteria Met (3/6)")
                 
                 # Criteria 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
+                logger.debug("Criteria Met (4/6)")
                 
                 # Criteria 5: 5m -> low > 21 EMA (current kline)
-                criteria_5 = \
-                    (current_kline['l'] > short_EMAs.loc[21, high_w-1])
+                criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
+                logger.debug("Criteria Met (5/6)")
                 
-                # Criteria 6: buy in
+                # Criteria 6: potential profit must be greater than min profit
                 # difference of 1h EMA over buy price
-                buy_price = float(current_price_f(symbol)) if real_money \
-                    else current_price
+                buy_price = float(current_price_f(symbol))
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
                 if not (percent_profit*100 > min_profit):
                     continue
+                logger.debug("Criteria Met (6/6)")
                 
-                difference_1h = (long_EMAs.loc[low_w, high_w-1] - \
-                    long_EMAs.loc[high_w, high_w-1])/buy_price*100
+                difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
+                # check for active trade in other thread
+                if locks["active_trade"].locked():
+                    continue
                 if real_money:
-                    if locks["active_trade"].locked():
-                        continue
                     balance = account_balance("USDT")
-                    
+                    # 12 is smallest possible trade if not specified
                     min_balance = 12 if (not trade_quote_qty) else trade_quote_qty
+                    # use full balance if quote quantity not specified
                     if (not trade_quote_qty):
                         trade_quote_qty = balance
-                    # dont buy in if balance is too small for trade
+                    # dont buy in if balance is too small for trade and continue
                     if (balance < min_balance):
-                        time.sleep(60*1.5)
+                        logging.warning(f"Insufficient Balance for Buy-In. Have: {balance}, Need: {min_balance}")
+                        time.sleep(20)
                         continue
-                    # if current active trade then dont buy in
-                    if locks["active_trade"].locked():
-                        continue
-                    locks["active_trade"].acquire()
-                    buy_id, profit_quantity = \
-                        buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
-                    buy_time = int(time.time()/1000)
-                else:
-                    buy_time = short_klines.loc[high_w-1, 't']
+                    
+                # recheck for active trade in other thread
+                if locks["active_trade"].locked():
+                    continue
+                # start active trade in this thread
+                locks["active_trade"].acquire()
+                # buy into trade
+                if real_money:
+                    buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
+                buy_time = int(time.time()/1000)
+                # activate flag because trade is active in this thread
                 trade_active = True
                 
-                # Criteria 7: stop loss at min(last 5 lows)
-                
-                
-                # Criteria 8: 50% take profit at 1:1, 50% take profit at 1:2 (reset 
-                # stop loss to buy in if 1:1 reached)
+                # calcualte profit price
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
-                # index for which take profits have been reached
-                profit_index = 1 
                 
-                # Criteria 9: record buy in values
-                # short closing values
+                # ------------------- RECORD ALL TRADE DATA ------------------
+                
+                # index for which take profits have been reached
+                profit_index = 1
+                # short window closing candle values
                 short_closing = short_klines.loc[:, 'c']
                 # standard deviation of last 15 short values
                 std_5m = short_closing[high_w-15:high_w-1].std()
-                
+                # 24h daily ticker
                 ticker = daily_ticker_24hr(symbol)
                 # 24h volume
                 volume_24h = float(ticker['volume'])
@@ -325,22 +377,21 @@ def live_method_2(
                 volume_rel = round(volume_rel.sum()*48/volume_24h*100,2)
                 # 24h price change percent
                 price_24h = float(ticker['priceChangePercent'])
-                                
-                print(f"\tIN: {symbol}".ljust(20) + \
-                      f"@{int(buy_time)} for".ljust(15) + \
-                      f"{round(buy_price,4)} ".rjust(20) + \
-                      f"{round(stop_price,4)}".rjust(20) + \
-                      f"{round(profit_price,4)} ".rjust(20) + \
-                      f"{round(percent_profit*risk_multiplier*100,2)}%".rjust(20)) if print_flag else None
+                # log data
+                logger.info(f"BUY: {round(buy_price,4)} - STOP PRICE: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
                 continue
             
-                
-            # after buying into trade
             # ================================================================
-                
-            if trade_active:
+            # ================================================================
+            #                         SELLING STAGE
+            # ================================================================
+            # ================================================================
 
-                # --------- STOP LOSS ---------
+            # SKIP SELLING STAGE IF HAVE NOT BOUGHT IN YET
+            if trade_active:
+                logger.debug(f"{symbol} CURRENT PRICE: {current_price}, {round((profit_price/current_price-1)*100, 2)}, {round((stop_price/current_price-1)*100, 2)}")
+
+                # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
                     trade_active = False
@@ -349,10 +400,10 @@ def live_method_2(
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
-                        print(f"\tSELL ID: {sell_id}") if print_flag else None
+                        logger.info(f"SELL ID: {sell_id}")
                         locks["active_trade"].release()
 
-                    display_loss(symbol, profit_index, profit)
+                    logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if (profit_index < 2):
                         log_profits(
@@ -374,8 +425,8 @@ def live_method_2(
                             real=real_money)
                     continue
 
-                # --------- TAKE PROFIT --------- 
-                if (current_price > profit_price):
+                # ------------------------ TAKE PROFIT -----------------------
+                elif (current_price > profit_price):
                     # divide by profit index because quantity decays each time
                     profit = (current_price / buy_price) - 1
                     
@@ -391,15 +442,19 @@ def live_method_2(
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
+                        # sell out of trade
                         sell_id = sell_trade(
                             symbol=symbol, 
                             quantity=profit_quantity)[0]
-                        print(f"\tSELL ID: {sell_id}")
-                        # only unlock on take profit if 
-                        locks["active_trade"].release() if \
-                            (not profit_split_ratio) else None
+                        logger.info(f"SELL ID: {sell_id}")
+                        # if not profit split ratio then trade is done
+                        if not profit_split_ratio:
+                            # release lock and set local trade flag to false
+                            locks["active_trade"].release()
+                            trade_active = False
 
-                    display_profit(symbol, profit_index, profit)
+                    #display_profit(symbol, profit_index, profit)
+                    logger.info(f"{symbol} PROFIT {profit_index}: {'{:.4f}'.format(profit*100)}%")
 
                     log_profits(
                         "{:.4f}".format(profit*100), 
@@ -408,7 +463,7 @@ def live_method_2(
                         current_price, 
                         buy_time, 
                         int(time.time()/1000), 
-                        f"P_{profit_index}{'F' if (not trade_active) else ''}", 
+                        f"P{profit_index}",
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
                         "{:.4f}".format(difference_1h), 
@@ -419,21 +474,22 @@ def live_method_2(
                         locks["profit_file"], 
                         real=real_money)
 
-                    # new stop is og buy price
-                    stop_price = buy_price 
-                    # new buy is og profit price
-                    buy_price = profit_price 
-                    # new profit is new buy + percent profit
-                    profit_price = buy_price*(1+percent_profit)
-                    # increment profit index
-                    profit_index += 1
+                    if profit_split_ratio:
+                        # new stop is original buy price
+                        stop_price = buy_price 
+                        # new buy is og profit price
+                        buy_price = profit_price 
+                        # new profit is new buy + percent profit
+                        profit_price = buy_price*(1+percent_profit)
+                        # increment profit index
+                        profit_index += 1
                     
                 
             # ================================================================
     except Exception as e:
-        print(f"{RED}ERROR{WHITE} In {symbol}-Thread.")
+        logger.error(f"ERROR In {threading.current_thread().name}.", exc_info=True)
         if real_money:
-            pync.notify("ERROR")
+            pync.notify(threading.current_thread().name, title="ERROR")
         raise e
 
 
