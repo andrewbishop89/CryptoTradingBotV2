@@ -178,8 +178,8 @@ def download_recent_klines(symbol: str, interval:str,
             client = Client(API_KEY, API_SECRET)
             klines = client.get_klines(symbol=symbol, interval=interval, limit=limit)
         except requests.exceptions.ConnectionError as e:
-            logger.error("Could not connect to network. Waiting for 30s.", exc_info=True)
-            time.sleep(30)
+            logger.error(f"Connection Error. Sleeping for 20.", exc_info=True)
+            time.sleep(20)
         else:
             break
     return format_binance_klines(klines)
