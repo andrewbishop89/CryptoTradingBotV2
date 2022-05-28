@@ -445,6 +445,7 @@ def live_method_2(
                         if (split_profit > min_profit):
                             profit = split_profit
                         else:
+                            locks["active_trade"].release()
                             trade_active = False
                     else:
                         locks["active_trade"].release()
