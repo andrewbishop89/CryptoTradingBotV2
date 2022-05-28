@@ -132,12 +132,15 @@ def run_all(symbols: list, trade_quote_qty: float=None):
     thread_count = threading.active_count()
     while True:
         current_count = threading.active_count()
+        time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
         if current_count != thread_count:
             for t in threads_list:
                 if not t.is_alive():
                     logger.warning(f"{t.name} is not responding. Active Thread Count: {threading.active_count()}")
                     threads_list.remove(t)
                     break
+        elif "00" in time_now:
+            logger.info(f"Hourly Update. Thread Count: {threading.active_count()}")
                     
         time.sleep(2*60)
 
