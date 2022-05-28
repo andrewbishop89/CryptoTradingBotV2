@@ -37,19 +37,13 @@ logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
-# TODO: modify main so that multiple parameters can trade at the same time. To 
-# do this also need to add multiple profit files for each method. Perhaps name 
-# each method based on parameters.
+# TODO: modify main so that multiple parameters can trade at the same time. To do this also need to add multiple profit files for each method. Perhaps name each method based on parameters.
 
-# TODO: improve system to not trade when trade is active (fix criticals popping
-# up)
+# TODO: improve system to not trade when trade is active (fix criticals popping up)
 
-# TODO: add daily email notifications with logs of profits, criticals, errors, 
-# warnings and other important informtaion
+# TODO: add daily email notifications with logs of profits, criticals, errors, warnings and other important informtaion
 
-# TODO: plot matplotlib graph when bought in and show updating candles with 
-# horizontal lines at stop, profit and buy points. Have it update as time goes 
-# on and close the window when the trade is done.
+# TODO: plot matplotlib graph when bought in and show updating candles with horizontal lines at stop, profit and buy points. Have it update as time goes on and close the window when the trade is done.
 
 # TODO: implement automated staking into program (probably need to use kraken)
 
@@ -59,11 +53,9 @@ logger.setLevel(LOGGING_LEVEL)
 
 # TODO: implement dataclasses in
 
-# TODO: calculate S&P 500 for crypto coins and use historical data to see how 
-# the coin would have performed.
+# TODO: calculate S&P 500 for crypto coins and use historical data to see how the coin would have performed.
 
-# TODO: convert setup functions so that different assets can be traded other 
-# than USDT. (ie. BNB, BTC, ETH, etc.)
+# TODO: convert setup functions so that different assets can be traded other than USDT. (ie. BNB, BTC, ETH, etc.)
 
 # TODO: implement UI
 
@@ -71,29 +63,21 @@ logger.setLevel(LOGGING_LEVEL)
 
 # TODO: implement database structure for data?
 
-# TODO: add trades.csv and run similar to profits.csv so that if the program 
-# crashes you can still see if there was an existing trade and then continue 
-# with it
+# TODO: add trades.csv and run similar to profits.csv so that if the program crashes you can still see if there was an existing trade and then continue with it
 
-# TODO: rewrite main so that multiple parameters for live trading can be run 
-# at once, need async websocket connection for data
+# TODO: rewrite main so that multiple parameters for live trading can be run at once, need async websocket connection for data
 
 # TODO: change threading lock to dictionary full of all threading locks
 
-# TODO: create a Trade class that contains all trade information (to make it 
-# easier to pass the information around)
+# TODO: create a Trade class that contains all trade information (to make it easier to pass the information around)
 
-# TODO: for log profits, send Trade (class/dataclass) with all attributes instead of 10 
-# arguments alone
+# TODO: for log profits, send Trade (class/dataclass) with all attributes instead of 10 arguments alone
 
-# TODO: add check to see if there are any new coins in top gainers that can 
-# have new threads created for them
+# TODO: add check to see if there are any new coins in top gainers that can have new threads created for them
 
-# TODO: add stop loss check to see if it is outside one standard deviation of 
-# the last hour, if so, make that the stop loss
+# TODO: add stop loss check to see if it is outside one standard deviation of the last hour, if so, make that the stop loss
 
-# TODO: add dynamic stop loss that changes to maximum - stop loss percent and 
-# changes as price changes
+# TODO: add dynamic stop loss that changes to maximum - stop loss percent and changes as price changes
 
 #----------------------------------functions-----------------------------------
 
