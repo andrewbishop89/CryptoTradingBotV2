@@ -87,8 +87,6 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
                     klines = klines.iloc[1:, :] # remove first candle
                 else: # update existing candle
                     klines = klines.iloc[:-1, :] # remove last candle 
-                klines = klines.iloc[:-1, :] # remove last candle 
-                    klines = klines.iloc[:-1, :] # remove last candle 
                 klines = klines.append(current_kline) # update with newest candle
                 
                 file_lock.acquire()
