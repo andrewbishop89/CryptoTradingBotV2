@@ -96,6 +96,8 @@ def main(symbols: list, trade_quote_qty: float=None):
     }
     
     symbols = list(symbols)
+    if "real" in sys.argv:
+        logger.critical("Starting REAL trading program.")
     logger.info(f"Number of Coins Listed: {len(symbols)}")
     
     for symbol in symbols:
