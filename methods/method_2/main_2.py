@@ -5,9 +5,6 @@
 # Andrew Bishop
 # 2022/02/28
 #
-# Crontab: 
-# @reboot sleep 60 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/method_2.py >> ~/CryptoTradingBotV2/cron_logs.txt 2>&1
-# 
 
 # modules imported
 import sys
