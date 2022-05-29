@@ -28,12 +28,7 @@ from constants.parameters import *
 from methods.method_2.method_2_backtest import *
 from methods.method_2.method_2_func import *
 
-#------------------------------------------------------------------------------
-
 logger = logging.getLogger("main")
-LOGGING_LEVEL = logging.DEBUG
-
-logger.setLevel(LOGGING_LEVEL)
 
 #------------------------------------TODOs-------------------------------------
 
@@ -81,7 +76,7 @@ logger.setLevel(LOGGING_LEVEL)
 
 #----------------------------------functions-----------------------------------
 
-def run_all(symbols: list, trade_quote_qty: float=None):
+def main(symbols: list, trade_quote_qty: float=None):
     """
     Description:
         Starts all the threads for the main function of method 2.
@@ -92,6 +87,8 @@ def run_all(symbols: list, trade_quote_qty: float=None):
     threading.current_thread.name = "MAIN-Thread"
     threads_list = []
     
+    # delete old live data
+    delete_old_data()
     # dictionary of all locks
     locks = {
         "active_trade": threading.Lock(),
@@ -477,8 +474,6 @@ def live_method_2(
                         # increment profit index
                         profit_index += 1
                     
-                
-            # ================================================================
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection Error. Sleeping for 20.", exc_info=True)
         time.sleep(20)
@@ -487,14 +482,3 @@ def live_method_2(
         if real_money:
             pync.notify(threading.current_thread().name, title="ERROR")
         raise e
-
-
-#------------------------------------main--------------------------------------
-
-def main():
-    symbols = top_volume_gainers(50).index
-    #symbols = top_gainers().index[-25:]
-    run_all(symbols, p_f=False)
-
-if __name__ == '__main__':
-    main()
