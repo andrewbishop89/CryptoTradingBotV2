@@ -252,11 +252,28 @@ def get_order(symbol, orderId):
 
 
 def my_trades(symbol: str) -> list:
+    """
+    Description:
+        Returns list of trades for that symbol.
+    Args:
+        symbol (str): symbol of trades to list
+    Returns:
+        list: list of trades for that symbol.
+    """
     payload = { 'symbol': symbol }
     return send_signed_request('GET', '/api/v3/myTrades', payload)
 
 
 def get_cummulative_quote_quantity(symbol: str, trade_id) -> float:
+    """
+    Description:
+        Returns cummulative quote quantity of the trade specified by the trade id
+    Args:
+        symbol (str): symbol of trade
+        trade_id: trade id of trade to parse
+    Returns:
+        float: cummulative quote quantity of trade specified by trade id
+    """
     return float(get_order(symbol, str(trade_id))["cummulativeQuoteQty"])
 
 
