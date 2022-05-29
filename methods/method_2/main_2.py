@@ -283,32 +283,27 @@ def live_method_2(
                 criteria_1 = (long_EMAs.loc[8, high_w-1] > long_EMAs.loc[21, high_w-1])
                 if not criteria_1:
                     continue
-                logger.debug("Criteria Met (1/6)")
                 
                 # Criteria 2: 5m -> 8 EMA > 13 EMA > 21 EMA
                 criteria_2 = (short_EMAs.loc[8, high_w-1] > short_EMAs.loc[13, high_w-1]) and \
                              (short_EMAs.loc[13, high_w-1] > short_EMAs.loc[21, high_w-1])
                 if not criteria_2:
                     continue
-                logger.debug("Criteria Met (2/6)")
                 
                 # Criteria 3: 5m -> price > 8 EMA (last kline)
                 criteria_3 = (current_kline['h'] > short_EMAs.loc[8, high_w-2])
                 if not criteria_3:
                     continue
-                logger.debug("Criteria Met (3/6)")
                 
                 # Criteria 4: 5m -> price < 8 EMA (current kline)
                 criteria_4 = (current_kline['l'] < short_EMAs.loc[8, high_w-1])
                 if not criteria_4:
                     continue
-                logger.debug("Criteria Met (4/6)")
                 
                 # Criteria 5: 5m -> low > 21 EMA (current kline)
                 criteria_5 = (current_kline['l'] > short_EMAs.loc[21, high_w-1])
                 if not criteria_5:
                     continue
-                logger.debug("Criteria Met (5/6)")
                 
                 # Criteria 6: potential profit must be greater than min profit
                 # difference of 1h EMA over buy price
@@ -317,7 +312,6 @@ def live_method_2(
                 percent_profit = buy_price/stop_price-1
                 if not (percent_profit*100 > min_profit):
                     continue
-                logger.debug("Criteria Met (6/6)")
                 
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1])/buy_price*100
                 
