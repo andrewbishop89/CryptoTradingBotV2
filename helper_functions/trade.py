@@ -251,6 +251,10 @@ def get_order(symbol, orderId):
     return send_signed_request('GET', '/api/v3/order', payload)
 
 
+def my_trades(symbol: str) -> list:
+    payload = { 'symbol': symbol }
+    return send_signed_request('GET', '/api/v3/myTrades', payload)
+
 def account_balance(symbol):
     try:
         return float(account_info([symbol])[symbol])
