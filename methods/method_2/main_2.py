@@ -107,7 +107,7 @@ def main(symbols: list, trade_quote_qty: float=None):
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         logger.debug(f"Starting {threads_list[-1].name}.")
-        time.sleep(1)
+        time.sleep(2)
     
     time.sleep(30)
     thread_count = threading.active_count()
