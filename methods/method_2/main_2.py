@@ -315,11 +315,13 @@ def live_method_2(
                 if not (percent_profit*100 > min_profit):
                     continue
                 
+                # save 1h difference
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1])/buy_price*100
-                
                 # check for active trade in other thread
                 if locks["active_trade"].locked():
                     continue
+                
+                # if using real money for trade
                 if real_money:
                     balance = account_balance("USDT")
                     # 12 is smallest possible trade if not specified
