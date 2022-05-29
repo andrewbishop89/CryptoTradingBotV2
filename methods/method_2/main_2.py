@@ -204,10 +204,10 @@ def live_method_2(
             
             # if data threads die, restart them
             if not data_thread_1h.is_alive():
-                logger.debug(f"Restarting {symbol}/1h Websocket.")
+                logger.info(f"Restarting {symbol}/1h Websocket.")
                 data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
             if not data_thread_5m.is_alive():
-                logger.debug(f"Restarting {symbol}/5m Websocket.")
+                logger.info(f"Restarting {symbol}/5m Websocket.")
                 data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
                   
             # restart loop if there is a trade currently running on different thread
