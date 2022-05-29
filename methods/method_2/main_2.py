@@ -334,7 +334,7 @@ def live_method_2(
                         logging.warning(f"Insufficient Balance for Buy-In. Have: {balance}, Need: {min_balance}")
                         time.sleep(20)
                         continue
-                    
+
                 # recheck for active trade in other thread
                 if locks["active_trade"].locked():
                     continue
