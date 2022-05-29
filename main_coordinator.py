@@ -6,6 +6,9 @@
 # Andrew Bishop
 # 2022/05/11
 #
+# Crontab:
+# @reboot sleep 60 && cd ~/CryptoTradingBotV2 && /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 ~/CryptoTradingBotV2/main_coordinatory.py >> ~/CryptoTradingBotV2/logs/cron_logs.log 2>&1
+#
 
 import sys
 import logging
@@ -14,7 +17,7 @@ from helper_functions.market import *
 
 if __name__ == "__main__":
     logger = logging.getLogger("main")
-    LOGGING_LEVEL = logging.DEBUG
+    LOGGING_LEVEL = logging.INFO
 
     logger.setLevel(LOGGING_LEVEL)
 
