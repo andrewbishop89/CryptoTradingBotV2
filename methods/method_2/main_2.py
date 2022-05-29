@@ -343,7 +343,7 @@ def live_method_2(
                 # buy into trade
                 if real_money:
                     buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
-                buy_time = int(time.time())
+                buy_time = int(time.time()-7*3600)
                 # activate flag because trade is active in this thread
                 trade_active = True
                 
@@ -400,7 +400,7 @@ def live_method_2(
                             buy_price, 
                             current_price,
                             buy_time, 
-                            int(time.time()), 
+                            int(time.time()-7*3600), 
                             "S", 
                             profit_split_ratio, 
                             "{:.4f}".format(std_5m), 
@@ -452,7 +452,7 @@ def live_method_2(
                         buy_price, 
                         current_price, 
                         buy_time, 
-                        int(time.time()), 
+                        int(time.time()-7*3600), 
                         f"P{profit_index}",
                         profit_split_ratio, 
                         "{:.4f}".format(std_5m), 
