@@ -93,7 +93,6 @@ def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
     profit_quantity = get_profit_quantity(symbol, desired_quantity)
     try:
         order_id = trade_receipt['orderId']
-        logger.info(f"Sell Order ID: {order_id}")
     except KeyError:
         logger.error(f"ERROR Could not find sell order ID.", exc_info=True)
         return None, profit_quantity
