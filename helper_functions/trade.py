@@ -255,6 +255,11 @@ def my_trades(symbol: str) -> list:
     payload = { 'symbol': symbol }
     return send_signed_request('GET', '/api/v3/myTrades', payload)
 
+
+def get_cummulative_quote_quantity(symbol: str, trade_id) -> float:
+    return float(get_order(symbol, str(trade_id))["cummulativeQuoteQty"])
+
+
 def account_balance(symbol):
     try:
         return float(account_info([symbol])[symbol])
