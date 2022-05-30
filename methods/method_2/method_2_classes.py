@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import sys
 
 @dataclass(frozen=True)
-class TradeParameters: # containing all the trade information for the whole program on all threads
+class Parameters: # containing all the trade information for the whole program on all threads
     symbols: list # list of symbols to trade
     locks: list # list of locks to use in program
     risk_multiplier: float # risk factor for take profit on each trade
@@ -16,7 +16,7 @@ class TradeParameters: # containing all the trade information for the whole prog
     trade_quote_qty: float = None # amount of money traded per trade
 
 @dataclass
-class TradeData: # containing the trade data for each live trade
+class Data: # containing the trade data for each live trade
     # Pre Trade Data
     symbol: str
     
@@ -37,8 +37,13 @@ class TradeData: # containing the trade data for each live trade
     side: str
     real: bool
     
+@dataclass
+class Trade:
+    data: Data
+    parameters: Parameters
     
-
+    def buy(self):
+        return
     
-
-    
+    def sell(self):
+        return
