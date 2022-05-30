@@ -356,7 +356,9 @@ def live_method_2(
                 # 24h price change percent
                 price_24h = float(ticker['priceChangePercent'])
                 # log data
-                logger.info(f"BUY: {round(buy_price,4)} - STOP PRICE: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
+                if real_money:
+                    logger.info(f"BUY ID: {buy_id}")
+                logger.info(f"PRICE: {round(buy_price,4)} - STOP PRICE: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
                 continue
             
             # ================================================================
