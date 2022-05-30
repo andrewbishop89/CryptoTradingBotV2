@@ -194,12 +194,10 @@ def live_method_2(
                 time.sleep(2)
                 locks["profit_file"].release()
             
-            # today's day for variable parameters
-            today = int(datetime.utcfromtimestamp(time.time()-7*3600).strftime('%d'))
-            # risk multiplier (float from 1 to 2.5 changing every day)
-            risk_multiplier = 1   #(today%4)*0.5 + 1
-            # profit split ratio (float values range from 0 to 1)
-            profit_split_ratio = 0  #(today%5)/5
+            # risk multiplier
+            risk_multiplier = 1
+            # profit split ratio
+            profit_split_ratio = 0
             
             # if data threads die, restart them
             if not data_thread_1h.is_alive():
