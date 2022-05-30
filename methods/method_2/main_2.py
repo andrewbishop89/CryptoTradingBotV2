@@ -29,6 +29,8 @@ logger = logging.getLogger("main")
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: minimize requests to API by saving to file and use locks
+
 # TODO: FIX MAJOR BUG: if there is an error in buy trade and the transaction does not go through, trade locks will be held in locked mode forever
 
 # TODO: modify main so that multiple parameters can trade at the same time. To do this also need to add multiple profit files for each method. Perhaps name each method based on parameters.
