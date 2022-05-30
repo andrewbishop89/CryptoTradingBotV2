@@ -97,7 +97,7 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
                 time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
                 if time_now == "11:59":
                     logger.info(f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
-                    return
+                    return # end function loop if it is time for daily reset
             except requests.exceptions.ConnectionError as e:
                 logger.error("Could not connect to network. Waiting for 30s.", exc_info=True)
                 time.sleep(30)
