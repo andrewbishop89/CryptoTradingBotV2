@@ -369,6 +369,7 @@ def live_method_2(
 
             # SKIP SELLING STAGE IF HAVE NOT BOUGHT IN YET
             if trade_active:
+                
                 logger.debug(f"{symbol} CURRENT PRICE: {current_price}, {round((profit_price/current_price-1)*100, 2)}, {round((stop_price/current_price-1)*100, 2)}")
 
                 # ------------------------- STOP LOSS ------------------------
