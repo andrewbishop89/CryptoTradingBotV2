@@ -171,11 +171,8 @@ def get_hardcoded_quantity(symbol, trade_quote_qty):
 
 
 def current_price_f(symbol):
-    response = send_public_request('/api/v3/ticker/price')
-    for item in response:
-        if item['symbol'] == symbol:
-            return item['price']
-    return float(get_klines(symbol=symbol, limit='1').iloc[-1]['c'])
+    response = send_public_request('/api/v3/ticker/price', {"symbol": symbol})
+    return float(response["price"])
 
 
 def validate_quantity(symbol, quantity):
