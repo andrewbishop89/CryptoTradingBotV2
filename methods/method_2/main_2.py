@@ -461,9 +461,10 @@ def live_method_2(
                         # new buy is og profit price
                         buy_price = profit_price 
                         # new profit is new buy + percent profit
-                        profit_price = buy_price*(1+percent_profit)
+                        profit_price = buy_price * (1 + percent_profit)
                         # increment profit index
                         profit_index += 1
+                        
     except RuntimeError as e:
         logger.error(f"Runtime Error. Need to unlock lock. Sleeping for 20.", exc_info=True)
         time.sleep(20)
