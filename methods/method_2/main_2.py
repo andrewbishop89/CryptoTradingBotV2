@@ -361,6 +361,10 @@ def live_method_2(
                 max_price = current_price
                 # min price
                 min_price = current_price
+                # max profit
+                max_profit = None
+                # max stop
+                max_stop = None
                 # log data
                 if real_money:
                     logger.info(f"BUY ID: {buy_id}")
@@ -388,7 +392,7 @@ def live_method_2(
                     # update max profit percent
                     max_profit = round((max_price/buy_price-1)*100,4)
                     # update max stop percent
-                    max_stop = round((buy_price/min_price-1)*100, 4)
+                    max_stop = round(abs(min_price/buy_price-1)*100, 4)
 
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached

@@ -109,6 +109,8 @@ def log_profits(
         risk_multiplier,
         min_price,
         max_price,
+        max_profit,
+        max_stop,
         file_lock: threading.Lock, 
         real: bool=False):
     """
