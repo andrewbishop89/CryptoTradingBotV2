@@ -381,6 +381,13 @@ def live_method_2(
                 max_price = max(max_price, float(current_kline['h']))
                 # update min price
                 min_price = min(min_price, float(current_kline['l']))
+                
+                # only when new candle after buy is opened
+                if now() > (int(current_kline['t']) + 5*60):
+                    # update max profit percent
+                    max_profit = round((max_price/buy_price-1)*100,4)
+                    # update max stop percent
+                    max_stop = round((buy_price/min_price-1)*100, 4)
 
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
@@ -412,6 +419,9 @@ def live_method_2(
                             risk_multiplier,
                             min_price,
                             max_price,
+                            max_profit,
+                            max_stop,
+                            round(percent_profit*100,4),
                             locks["profit_file"], 
                             real=real_money)
                     continue
@@ -466,6 +476,9 @@ def live_method_2(
                         risk_multiplier,
                         min_price,
                         max_price,
+                        max_profit,
+                        max_stop,
+                        round(percent_profit*100, 4),
                         locks["profit_file"], 
                         real=real_money)
 
