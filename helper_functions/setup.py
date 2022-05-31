@@ -85,7 +85,7 @@ def format_binance_klines(klines):
     formatted_klines = []
     for kline in klines:
         formatted_klines.append({})
-        formatted_klines[-1]['t'] = float(kline[0])
+        formatted_klines[-1]['t'] = int(kline[0]/1000)
         formatted_klines[-1]['o'] = float(kline[1])
         formatted_klines[-1]['h'] = float(kline[2])
         formatted_klines[-1]['l'] = float(kline[3])
