@@ -383,7 +383,8 @@ def live_method_2(
                 min_price = min(min_price, float(current_kline['l']))
                 
                 # only when new candle after buy is opened
-                if now() > (int(current_kline['t']) + 5*60):
+                time_now = int(time.time() - 7*3600)
+                if time_now > (int(current_kline['t']) + 5*60):
                     # update max profit percent
                     max_profit = round((max_price/buy_price-1)*100,4)
                     # update max stop percent
