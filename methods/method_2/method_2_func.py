@@ -107,6 +107,8 @@ def log_profits(
         volume_24h,
         volume_rel,
         risk_multiplier,
+        min_price,
+        max_price,
         file_lock: threading.Lock, 
         real: bool=False):
     """
@@ -155,10 +157,10 @@ def log_profits(
             f.write("profit,symbol,buy_price,sell_price,buy_time," + \
                 "sell_time,side,profit_split_ratio,std_5m," + \
                 "difference_1h,price_24h,volume_24h,volume_rel," + \
-                "risk_multiplier,\n")
+                "risk_multiplier,min_price,max_price\n")
     with open(fp, "a") as f:
         f.write(f"{profit},{symbol},{buy_price},{sell_price}," + \
             f"{buy_time},{sell_time},{side},{profit_split_ratio}," + \
             f"{std_5m},{difference_1h},{price_24h},{volume_24h}," + \
-            f"{volume_rel},{risk_multiplier},\n")
+            f"{volume_rel},{risk_multiplier},{min_price},{max_price}\n")
     file_lock.release()

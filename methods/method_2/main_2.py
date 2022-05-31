@@ -357,6 +357,10 @@ def live_method_2(
                 volume_rel = round(volume_rel.sum()*48/volume_24h*100,2)
                 # 24h price change percent
                 price_24h = float(ticker['priceChangePercent'])
+                # max price
+                max_price = current_price
+                # min price
+                min_price = current_price
                 # log data
                 if real_money:
                     logger.info(f"BUY ID: {buy_id}")
@@ -373,6 +377,10 @@ def live_method_2(
             if trade_active:
                 
                 logger.debug(f"{symbol} CURRENT PRICE: {current_price}, {round((profit_price/current_price-1)*100, 2)}, {round((stop_price/current_price-1)*100, 2)}")
+                # update max price
+                max_price = max(max_price, float(current_kline['h']))
+                # update min price
+                min_price = min(min_price, float(current_kline['l']))
 
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
@@ -402,6 +410,8 @@ def live_method_2(
                             volume_24h,
                             volume_rel,
                             risk_multiplier,
+                            min_price,
+                            max_price,
                             locks["profit_file"], 
                             real=real_money)
                     continue
@@ -454,6 +464,8 @@ def live_method_2(
                         volume_24h,
                         volume_rel,
                         risk_multiplier,
+                        min_price,
+                        max_price,
                         locks["profit_file"], 
                         real=real_money)
 
