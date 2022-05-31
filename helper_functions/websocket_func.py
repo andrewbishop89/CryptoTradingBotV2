@@ -35,7 +35,7 @@ def format_kline(kline: dict) -> pd.DataFrame:
         (pd.DataFrame): formatted kline dataframe
     """
     return pd.DataFrame(data={
-        't': [float(kline['t'])],
+        't': [int(kline['t']/1000)],
         'o': [float(kline['o'])],
         'c': [float(kline['c'])],
         'h': [float(kline['h'])],
