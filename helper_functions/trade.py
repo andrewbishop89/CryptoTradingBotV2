@@ -110,7 +110,7 @@ def get_desired_quantity(
     
     if set_price == -1:
         
-        price = float(current_price_f(symbol))
+        price = float(get_current_price(symbol))
         minimum_cut = get_minimum_cut(symbol)
         if percentage_cut < minimum_cut:
             logger.error(f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
@@ -160,7 +160,7 @@ def exchange_information(symbol=-1):
 
 
 def get_hardcoded_quantity(symbol, trade_quote_qty):
-    price = float(current_price_f(symbol=symbol))
+    price = float(get_current_price(symbol=symbol))
     payment_symbol = symbol[-4:]
     payment = float(account_info([payment_symbol])[payment_symbol])
     if trade_quote_qty > payment:
@@ -179,7 +179,7 @@ def validate_quantity(symbol, quantity):
     minQty, maxQty = trade_min_max_quantity(symbol)
     step = trade_step_size(symbol)
     quantity -= quantity % float(step)
-    current_price = current_price_f(symbol)
+    current_price = get_current_price(symbol)
     minNotional = get_minimum_notional(symbol)
     precision = int(trade_precision(symbol))
     if quantity > float(maxQty):

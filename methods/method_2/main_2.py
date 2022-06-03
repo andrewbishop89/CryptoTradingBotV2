@@ -301,7 +301,7 @@ def live_method_2(
                 if not criteria_5:
                     continue
                 # Criteria 6: potential profit must be greater than min profit difference of 1h EMA over buy price
-                buy_price = float(current_price_f(symbol))
+                buy_price = float(get_current_price(symbol))
                 stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 percent_profit = buy_price/stop_price-1
                 if not (percent_profit*100 > min_profit):
@@ -363,10 +363,6 @@ def live_method_2(
                 max_price = current_price
                 # min price
                 min_price = current_price
-                # max profit
-                max_profit = None
-                # max stop
-                max_stop = None
                 # log data
                 if real_money:
                     logger.info(f"BUY ID: {buy_id}")
@@ -387,14 +383,6 @@ def live_method_2(
                 max_price = max(max_price, float(current_kline['h']))
                 # update min price
                 min_price = min(min_price, float(current_kline['l']))
-                
-                # only when new candle after buy is opened
-                time_now = int(time.time() - 7*3600)
-                if time_now > (int(current_kline['t']) + 5*60):
-                    # update max profit percent
-                    max_profit = round((max_price/buy_price-1)*100,4)
-                    # update max stop percent
-                    max_stop = round(abs(min_price/buy_price-1)*100, 4)
 
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached

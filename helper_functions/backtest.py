@@ -28,7 +28,7 @@ def backtest_trade_loop_1(
     klines,
     stop_loss):
     
-    buy_price = current_price_f(klines[0]['c'])
+    buy_price = get_current_price(klines[0]['c'])
     start_time = klines[0]['t']
 
     max_price = buy_price
