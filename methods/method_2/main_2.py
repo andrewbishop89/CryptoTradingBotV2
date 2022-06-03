@@ -237,8 +237,8 @@ def live_method_2(
                     time.sleep(15)
                 else:
                     if len(long_klines) < high_w:
-                        logger.error(f"ERROR Terminating Thread. Long Klines: {len(long_klines)}, Need: {high_w}", exc_info=True)
-                        raise IndexError
+                        logger.error(f"Not Enough 1h Klines. Terminating Thread. Short Klines: {len(short_klines)}, Need: {high_w}", exc_info=True)
+                        return
                     break
 
             # download 5m klines
@@ -250,8 +250,8 @@ def live_method_2(
                     time.sleep(15)
                 else:
                     if len(short_klines) < high_w:
-                        logger.error(f"ERROR Terminating Thread. Short Klines: {len(short_klines)}, Need: {high_w}", exc_info=True)
-                        raise IndexError
+                        logger.error(f"Not Enough 5m Klines. Terminating Thread. Short Klines: {len(short_klines)}, Need: {high_w}", exc_info=True)
+                        return
                     break
             
             # calculate long EMA values
