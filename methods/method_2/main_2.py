@@ -488,13 +488,13 @@ def live_method_2(
                         profit_index += 1
                         
     except RuntimeError as e:
-        logger.error(f"Runtime Error. Need to unlock lock. Sleeping for 20.", exc_info=True)
+        logger.warning(f"Runtime Error. Need to unlock lock. Retrying in 20s.", exc_info=True)
         time.sleep(20)
     except requests.exceptions.ConnectionError as e:
-        logger.error(f"Connection Error. Sleeping for 20.", exc_info=True)
+        logger.warning(f"Connection Error. Retrying in 20s.", exc_info=True)
         time.sleep(20)
     except Exception as e:
-        logger.error(f"ERROR In {threading.current_thread().name}.", exc_info=True)
+        logger.error(f"Exception raised in thread. Thread Count: {threading.active_count()}", exc_info=True)
         if real_money:
             pync.notify(threading.current_thread().name, title="ERROR")
         raise e
