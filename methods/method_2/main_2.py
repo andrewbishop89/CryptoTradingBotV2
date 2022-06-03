@@ -125,7 +125,7 @@ def main(symbols: list, trade_quote_qty: float=None):
                     logger.warning(f"{t.name} is not responding. Active Thread Count: {threading.active_count()}")
                     threads_list.remove(t)
                     break
-        elif ("00" in time_now) or ("01" in time_now):
+        elif (":00" in time_now) or (":01" in time_now):
             logger.info(f"Hourly Update. Thread Count: {threading.active_count()}")
                     
         time.sleep(2*60)
