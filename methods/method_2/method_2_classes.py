@@ -11,7 +11,7 @@ class MethodLock:
     
 @dataclass(frozen=True)
 class FakeLock:
-    """Lock that doesn't do anything when no lock is required."""
+    """Lock that doesn't do anything when referenced."""
     def locked(self):
         return False
     def acquire(self):
