@@ -27,4 +27,11 @@ if __name__ == "__main__":
     symbols = top_volume_gainers(num_symbols).index
     #symbols = symbols.drop_duplicates()
 
-    main(symbols, 12)
+    try:
+        main(symbols, 12)
+    except KeyboardInterrupt as e:
+        logger.error(f"Keyboard Interrupt raised in main. Thread Count: {threading.active_count()}", exc_info=True)
+        print("\Finishing Program.")
+        sys.exit()
+        
+        
