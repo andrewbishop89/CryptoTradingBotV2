@@ -11,6 +11,8 @@ import json
 import websockets
 import sys
 import os
+import socket
+import urllib3
 import asyncio
 import logging
 import threading
