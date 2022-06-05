@@ -97,12 +97,15 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
                 
                 # reset stream after 24h
                 time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
-                if time_now == "11:59":
+                if time_now == "11:29":
                     logger.info(f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
                     return # end function loop if it is time for daily reset
-            except requests.exceptions.ConnectionError as e:
-                logger.error("Could not connect to network. Waiting for 30s.", exc_info=True)
+            except ( requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError ):
+                logger.warning("Could not connect to network. Waiting for 30s.", exc_info=True)
                 time.sleep(30)
+            except socket.gaierror as e:
+                logger.warning("Websocket error has been raised. Waiting for 20s.", exc_info=True)
+                time.sleep(20)
         
 def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, limit: int=500) -> threading.Thread:
     """
