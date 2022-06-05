@@ -189,8 +189,7 @@ def live_method_2(
         
             # allow stream to reset after 24h
             time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
-            if time_now == "11:59":
-                time.sleep(60)
+            if time_now == "11:30":
                 # lock here to prevent all new websockets from being started at the same time
                 locks["profit_file"].acquire()
                 data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
