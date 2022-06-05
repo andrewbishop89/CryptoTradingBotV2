@@ -1,6 +1,24 @@
 from dataclasses import dataclass
+import threading
 import sys
 
+
+@dataclass(frozen=True)
+class MethodLock:
+    """Contains all locks for a method thread."""
+    file_lock = threading.Thread()
+    active_trade = threading.Thread()
+    
+@dataclass(frozen=True)
+class FakeLock:
+    """Lock that doesn't do anything when no lock is required."""
+    def locked(self):
+        return False
+    def acquire(self):
+        return
+    def release(self):
+        return
+    
 @dataclass(frozen=True)
 class Parameters: # containing all the trade information for the whole program on all threads
     symbols: list # list of symbols to trade
