@@ -30,10 +30,6 @@ logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 
-@dataclass
-class MethodLock:
-    """Contains all locks for a method."""
-    file_lock = threading.Thread()
 
 @dataclass
 class Parameters:
