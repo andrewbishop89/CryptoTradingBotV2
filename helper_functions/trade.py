@@ -170,9 +170,16 @@ def get_hardcoded_quantity(symbol, trade_quote_qty):
         return float(validate_quantity(symbol, float(trade_quote_qty/price)))
 
 
-def current_price_f(symbol):
+def get_current_price(symbol):
     response = send_public_request('/api/v3/ticker/price', {"symbol": symbol})
-    return float(response["price"])
+    try:
+        current_price = float(response["price"])
+    except KeyError:
+        logger.warning("Could not retrieve current price. Retrying in 60s.", exc_info=True)
+        time.sleep(60)
+        return get_current_price(symbol)
+    else:
+        return current_price
 
 
 def validate_quantity(symbol, quantity):
