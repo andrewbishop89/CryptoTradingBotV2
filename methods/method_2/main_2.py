@@ -23,6 +23,7 @@ from helper_functions.analysis import *
 from helper_functions.websocket_func import *
 from constants.parameters import *
 from methods.method_2.method_2_backtest import *
+from methods.method_2.method_2_classes import *
 from methods.method_2.method_2_func import *
 
 logger = logging.getLogger("main")
