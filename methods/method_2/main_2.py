@@ -413,8 +413,8 @@ def live_method_2(
                             risk_multiplier,
                             min_price,
                             max_price,
-                            max_profit,
-                            max_stop,
+                            round((max_price/buy_price-1)*100, 4),
+                            round(abs(min_price/buy_price-1)*100, 4),
                             round(percent_profit*100,4),
                             locks["profit_file"], 
                             real=real_money)
@@ -470,8 +470,8 @@ def live_method_2(
                         risk_multiplier,
                         min_price,
                         max_price,
-                        max_profit,
-                        max_stop,
+                        round((max_price/buy_price-1)*100, 4),
+                        round(abs(min_price/buy_price-1)*100, 4),
                         round(percent_profit*100, 4),
                         locks["profit_file"], 
                         real=real_money)
