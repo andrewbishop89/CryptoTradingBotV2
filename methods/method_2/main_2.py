@@ -328,11 +328,10 @@ def live_method_2(
                         time.sleep(20)
                         continue
 
-                # recheck for active trade in other thread
-                if method_lock.active_trade.locked():
+                # wait for 30 if cannot acquire lock then continue
+                if not method_lock.active_trade.acquire(timeout=30):
                     continue
-                # start active trade in this thread
-                method_lock.active_trade.acquire()
+                
                 # buy into trade
                 if real_money:
                     buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
