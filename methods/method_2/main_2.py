@@ -395,6 +395,10 @@ def live_method_2(
                         # sell out of trade (stop loss)
                         sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
+                        time.sleep(5)
+                        
+                    method_lock.active_trade.release()
+                    trade_active = False
 
                     if (profit_index < 2):
                         log_profits(
