@@ -57,7 +57,7 @@ def top_price_gainers(min_percent: float = 0, max_percent: float = 0, limit: int
         df = df[df < max_percent]
     return df.iloc[-limit:] if limit else df
 
-def top_volume_gainers(amount: int=None) -> pd.DataFrame:
+def top_volume_gainers(limit: int=None) -> pd.DataFrame:
     """
     Description:
         Returns a list of the top volume gainer currencies in the last 24 
@@ -68,6 +68,7 @@ def top_volume_gainers(amount: int=None) -> pd.DataFrame:
         pd.DataFrame: all coins that have the highest daily volume.
     """
     df = daily_ticker_24hr()
-    df = df.loc[:, "volume"].astype(float)
+    df = df['volume'].astype(float)
     df = df.sort_values()
-    return df.iloc[-amount:] if amount else df
+    return df.iloc[-limit:] if limit else df
+
