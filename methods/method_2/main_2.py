@@ -96,7 +96,7 @@ def main(symbols: list, trade_quote_qty: float=None):
     # delete old live data
     delete_old_data()
     # dictionary of all locks
-    method_lock = MethodLock()
+    method_lock = MethodLock(fake=(("fake" in sys.argv) and not ("real" in sys.argv)))
     
     symbols = list(symbols)
     if "real" in sys.argv:
