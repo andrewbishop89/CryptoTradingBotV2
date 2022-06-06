@@ -34,8 +34,7 @@ def daily_ticker_24hr(symbol: str=None) -> pd.DataFrame:
     df = df.set_index('symbol')
     return df
 
-def top_gainers(min_percent: float = 0, 
-    max_percent: float = 0) -> pd.DataFrame:
+def top_price_gainers(min_percent: float = 0, max_percent: float = 0, limit: int=None) -> pd.DataFrame:
     """
     Description:
         Returns a list of the top gainer currencies in the last 24 hours.
@@ -49,14 +48,14 @@ def top_gainers(min_percent: float = 0,
         min and max percentages
     """
     df = daily_ticker_24hr()
-    if min_percent:
-        df = df[df['priceChangePercent'].astype(float) > min_percent]
-    if max_percent:
-        df = df[df['priceChangePercent'].astype(float) < max_percent]
     df = df['priceChangePercent'].astype(float)
     df = df.sort_values()
-    return df
-
+    
+    if min_percent:
+        df = df[df > min_percent]
+    if max_percent:
+        df = df[df < max_percent]
+    return df.iloc[-limit:] if limit else df
 
 def top_volume_gainers(amount: int=None) -> pd.DataFrame:
     """
