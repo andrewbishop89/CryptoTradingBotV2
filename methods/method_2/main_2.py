@@ -94,10 +94,8 @@ def main(symbols: list, trade_quote_qty: float=None):
     # delete old live data
     delete_old_data()
     # dictionary of all locks
-    locks = {
-        "active_trade": threading.Lock(),
-        "profit_file": threading.Lock()
-    }
+    # method_lock = MethodLock()
+    method_lock = FakeMethodLock()
     
     symbols = list(symbols)
     if "real" in sys.argv:
@@ -134,7 +132,7 @@ def main(symbols: list, trade_quote_qty: float=None):
 def live_method_2(
         symbol: str, 
         trade_quote_qty: float, 
-        locks: list):
+        method_lock: MethodLock):
     """
     Description:
         Runs method 2 with live candles. To sell entire balance on each trade 
@@ -192,14 +190,14 @@ def live_method_2(
             time_now = datetime.utcfromtimestamp(time.time()-7*3600).strftime('%H:%M')
             if time_now == "11:30":
                 # lock here to prevent all new websockets from being started at the same time
-                locks["profit_file"].acquire()
+                method_lock.profit_file.acquire()
                 data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
                 data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)        
                 time.sleep(2)
-                locks["profit_file"].release()
+                method_lock.profit_file.release()
             
             # risk multiplier
-            risk_multiplier = 1
+            risk_multiplier = 2.5
             # profit split ratio
             profit_split_ratio = 0
             
@@ -212,7 +210,7 @@ def live_method_2(
                 data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
                   
             # restart loop if there is a trade currently running on different thread
-            if locks["active_trade"].locked() and (not trade_active):
+            if method_lock.active_trade.locked() and (not trade_active):
                 time.sleep(20)
                 continue
                   
@@ -310,7 +308,7 @@ def live_method_2(
                 # save 1h difference
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1]) / buy_price * 100
                 # check for active trade in other thread
-                if locks["active_trade"].locked():
+                if method_lock.active_trade.locked():
                     continue
                 
                 # if using real money for trade
@@ -328,10 +326,10 @@ def live_method_2(
                         continue
 
                 # recheck for active trade in other thread
-                if locks["active_trade"].locked():
+                if method_lock.active_trade.locked():
                     continue
                 # start active trade in this thread
-                locks["active_trade"].acquire()
+                method_lock.active_trade.acquire()
                 # buy into trade
                 if real_money:
                     buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
@@ -387,7 +385,7 @@ def live_method_2(
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
                     profit = (-percent_profit) if (profit_index < 2) else 0
-                    locks["active_trade"].release()
+                    method_lock.active_trade.release()
                     trade_active = False
                     logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
@@ -417,7 +415,7 @@ def live_method_2(
                             round((max_price/buy_price-1)*100, 4),
                             round(abs(min_price/buy_price-1)*100, 4),
                             round(percent_profit*100,4),
-                            locks["profit_file"], 
+                            method_lock.profit_file, 
                             real=real_money)
                     continue
 
@@ -434,10 +432,10 @@ def live_method_2(
                         if (split_profit > min_profit):
                             profit = split_profit
                         else:
-                            locks["active_trade"].release()
+                            method_lock.active_trade.release()
                             trade_active = False
                     else:
-                        locks["active_trade"].release()
+                        method_lock.active_trade.release()
                         trade_active = False
 
                     if real_money:
@@ -448,7 +446,7 @@ def live_method_2(
                         # if not profit split ratio then trade is done
                         if not profit_split_ratio:
                             # release lock and set local trade flag to false
-                            locks["active_trade"].release()
+                            method_lock.active_trade.release()
                             trade_active = False
 
                     #display_profit(symbol, profit_index, profit)
@@ -474,7 +472,7 @@ def live_method_2(
                         round((max_price/buy_price-1)*100, 4),
                         round(abs(min_price/buy_price-1)*100, 4),
                         round(percent_profit*100, 4),
-                        locks["profit_file"], 
+                        method_lock.profit_file, 
                         real=real_money)
 
                     if profit_split_ratio:
