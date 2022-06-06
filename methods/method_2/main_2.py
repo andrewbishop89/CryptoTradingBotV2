@@ -30,6 +30,8 @@ logger = logging.getLogger("main")
 
 #------------------------------------TODOs-------------------------------------
 
+# NOTE: the best git command -> $ git reset HEAD~
+
 # TODO: add end of trade check to see if trade criterias are still met, then don't sell if they are
 
 # TODO: minimize requests to API by saving to file and use locks
