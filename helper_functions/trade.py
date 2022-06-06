@@ -34,7 +34,6 @@ def request_order(payload={}):
         logger.info("Creating Purchase Order")
     return order_request
 
-
 #PARAM symbol(str): symbol of coin to buy
 #PARAM quote_quantity(float): quote quantity to buy
 #PARAM quantity(float): quantity to buy
