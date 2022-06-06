@@ -303,10 +303,18 @@ def live_method_2(
                     continue
                 # Criteria 6: potential profit must be greater than min profit difference of 1h EMA over buy price
                 buy_price = float(get_current_price(symbol))
-                stop_price = min(short_klines.loc[high_w-5:high_w-1,'l'])
-                percent_profit = buy_price/stop_price-1
-                if not (percent_profit*100 > min_profit):
+                lowest_low = min(short_klines.loc[high_w-5:high_w-1,'l'])
+                rough_percent_profit = buy_price/lowest_low-1
+                if not (rough_percent_profit*100 > min_profit):
                     continue
+                
+                # run percent_profit through shaper function
+                if rough_percent_profit > 5:
+                    percent_profit = 2 / 100
+                elif rough_percent_profit > 2:
+                    percent_profit = 1 / 100
+                else:
+                    percent_profit = min_profit / 100
                 
                 # save 1h difference
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1]) / buy_price * 100
