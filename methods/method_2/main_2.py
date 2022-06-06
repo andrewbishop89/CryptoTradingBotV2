@@ -320,7 +320,7 @@ def live_method_2(
                         trade_quote_qty = balance
                     # dont buy in if balance is too small for trade and continue
                     if (balance < min_balance):
-                        logging.warning(f"Insufficient Balance for Buy-In. Have: {balance}, Need: {min_balance}")
+                        logging.warning(f"Insufficient Balance for Buy-In. Have: {round(balance, 4)}, Need: {min_balance}. Waiting for 20s.")
                         time.sleep(20)
                         continue
 
