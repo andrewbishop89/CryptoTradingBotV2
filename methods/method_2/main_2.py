@@ -196,7 +196,7 @@ def live_method_2(
                 method_lock.profit_file.release()
             
             # risk multiplier
-            risk_multiplier = 2.5
+            risk_multiplier = 1
             # profit split ratio
             profit_split_ratio = 0
             
