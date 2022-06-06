@@ -159,7 +159,7 @@ def live_method_2(
     high_w = 21
     
     # minimum profit % for trade
-    min_profit = 0.60
+    min_profit = 0.65
     
     # lock for accessing kline data files
     data_lock_1h = threading.Lock()
