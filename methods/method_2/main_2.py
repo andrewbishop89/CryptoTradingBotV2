@@ -421,6 +421,7 @@ def live_method_2(
                             round((max_price/buy_price-1)*100, 4),
                             round(abs(min_price/buy_price-1)*100, 4),
                             round(percent_profit*100,4),
+                            rough_percent_profit,
                             method_lock.profit_file, 
                             real=real_money)
                     continue
@@ -474,18 +475,19 @@ def live_method_2(
                         round((max_price/buy_price-1)*100, 4),
                         round(abs(min_price/buy_price-1)*100, 4),
                         round(percent_profit*100, 4),
+                        rough_percent_profit,
                         method_lock.profit_file, 
                         real=real_money)
 
-                    if profit_split_ratio:
-                        # new stop is original buy price
-                        stop_price = buy_price 
-                        # new buy is og profit price
-                        buy_price = profit_price 
-                        # new profit is new buy + percent profit
-                        profit_price = buy_price * (1 + percent_profit)
-                        # increment profit index
-                        profit_index += 1
+                    # if profit_split_ratio:
+                    #     # new stop is original buy price
+                    #     stop_price = buy_price 
+                    #     # new buy is og profit price
+                    #     buy_price = profit_price 
+                    #     # new profit is new buy + percent profit
+                    #     profit_price = buy_price * (1 + percent_profit)
+                    #     # increment profit index
+                    #     profit_index += 1
                         
     except RuntimeError as e:
         logger.warning(f"Runtime Error. Need to unlock lock. Retrying in 20s.", exc_info=True)
