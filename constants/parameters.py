@@ -5,6 +5,8 @@
 # Andrew Bishop
 
 import os
+import json
+from pprint import pprint, pformat
 import logging
 
 #------------------------------global-variables--------------------------------
@@ -23,11 +25,11 @@ SECONDARY_COLOR = GREY
 
 global API_KEY, API_SECRET, BASE_URL #global so they are accessible everywhere
 
-with open(os.path.join('constants', 'keys.txt'), 'r') as f:
-    lines = f.readlines() #read from keys.txt file
-    API_KEY = lines[0][:-1] #first line should be API key
-    API_SECRET = lines[1][:-1] #second line should be API secret
-    BASE_URL = "https://api.binance.com" #binance API base url
+with open(os.path.join('constants', 'keys.json'), 'r') as f:
+    keys = json.load(f)
+    API_KEY = keys['binance_real']['key']  # first line should be API key
+    API_SECRET = keys['binance_real']['secret']  # second line should be API secret
+    BASE_URL = "https://api.binance.com"  # binance API base url
 
 #------------------------------------------------------------------------------
 
