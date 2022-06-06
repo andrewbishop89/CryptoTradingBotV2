@@ -109,7 +109,7 @@ def main(symbols: list, trade_quote_qty: float=None):
             logger.debug(f"Skipping {symbol}.")
             symbols.remove(symbol)
             continue
-        threads_list += [threading.Thread(target=live_method_2, args=[symbol, trade_quote_qty, locks])]
+        threads_list += [threading.Thread(target=live_method_2, args=[symbol, trade_quote_qty, method_lock], daemon=True)]
         threads_list[-1].name = f"{symbol}-Thread"
         threads_list[-1].start()
         logger.debug(f"Starting {threads_list[-1].name}.")

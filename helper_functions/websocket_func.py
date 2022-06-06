@@ -119,7 +119,7 @@ def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, lim
     Return:
         (threading.Thread): thread that is used for websocket connection
     """
-    websocket_thread = threading.Thread(target=init_websocket_klines, args=[symbol, interval, file_lock, limit])
+    websocket_thread = threading.Thread(target=init_websocket_klines, args=[symbol, interval, file_lock, limit], daemon=True)
     websocket_thread.start()
     websocket_thread.name = f"{symbol}/{interval}_Websocket_Thread"
     return websocket_thread
