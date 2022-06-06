@@ -388,9 +388,7 @@ def live_method_2(
 
                 # ------------------------- STOP LOSS ------------------------
                 if (current_price < stop_price): # if stop loss is reached
-                    profit = (-percent_profit) if (profit_index < 2) else 0
-                    method_lock.active_trade.release()
-                    trade_active = False
+                    profit = ((current_price / buy_price) - 1) if (profit_index < 2) else 0
                     logger.info(f"{symbol} LOSS: {'{:.4f}'.format(profit*100)}%")
 
                     if real_money:
