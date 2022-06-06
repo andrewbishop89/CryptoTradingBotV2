@@ -28,7 +28,7 @@ if __name__ == "__main__":
     #symbols = symbols.drop_duplicates()
 
     try:
-        main(symbols, 12)
+        main(symbols)
     except KeyboardInterrupt as e:
         logger.error(f"Keyboard Interrupt raised in main. Thread Count: {threading.active_count()}", exc_info=True)
         print("\nFinishing Program.")
