@@ -429,35 +429,31 @@ def live_method_2(
                 elif (current_price > profit_price):
                     # divide by profit index because quantity decays each time
                     profit = (current_price / buy_price) - 1
+                    logger.info(f"{symbol} PROFIT {profit_index}: {'{:.4f}'.format(profit*100)}%")
                     
-                    # divide new profit by ratio and index
-                    if profit_split_ratio:    
-                        # if proposed profit for profit split is lower than 
-                        # min, sell all quantity
-                        split_profit = profit*((1 - profit_split_ratio) / profit_index)
-                        if (split_profit > min_profit):
-                            profit = split_profit
-                        else:
-                            method_lock.active_trade.release()
-                            trade_active = False
-                    else:
-                        method_lock.active_trade.release()
-                        trade_active = False
+                    # # divide new profit by ratio and index
+                    # if profit_split_ratio:    
+                    #     # if proposed profit for profit split is lower than 
+                    #     # min, sell all quantity
+                    #     split_profit = profit*((1 - profit_split_ratio) / profit_index)
+                    #     if (split_profit > min_profit):
+                    #         profit = split_profit
+                    #     else:
+                            # method_lock.active_trade.release()
+                            # trade_active = False
+                    # else:
+                    #     method_lock.active_trade.release()
+                    #     trade_active = False
 
                     if real_money:
                         profit_quantity *= (1 - profit_split_ratio)
                         # sell out of trade (take profit)
                         sell_id = sell_trade(symbol=symbol, quantity=profit_quantity)[0]
                         logger.info(f"SELL ID: {sell_id}")
-                        # if not profit split ratio then trade is done
-                        if not profit_split_ratio:
-                            # release lock and set local trade flag to false
-                            method_lock.active_trade.release()
-                            trade_active = False
 
-                    #display_profit(symbol, profit_index, profit)
-                    logger.info(f"{symbol} PROFIT {profit_index}: {'{:.4f}'.format(profit*100)}%")
-
+                    method_lock.active_trade.release()
+                    trade_active = False
+                    
                     log_profits(
                         "{:.4f}".format(profit*100), 
                         symbol, 
