@@ -5,9 +5,8 @@ import sys
 
 class MethodLock:
     """Contains all locks for a method thread."""
-    
     def __init__(self, fake=False):
-        self.profit_file = threading.Lock() if (not fake) else FakeLock()
+        self.profit_file = threading.Lock()
         self.active_trade = threading.Lock() if (not fake) else FakeLock()
     
 @dataclass
