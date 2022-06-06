@@ -3,11 +3,12 @@ import threading
 import sys
 
 
-@dataclass(frozen=True)
 class MethodLock:
     """Contains all locks for a method thread."""
-    file_lock = threading.Lock()
-    active_trade = threading.Lock()
+    
+    def __init__(self, fake=False):
+        self.profit_file = threading.Lock() if (not fake) else FakeLock()
+        self.active_trade = threading.Lock() if (not fake) else FakeLock()
     
 @dataclass
 class FakeLock:
@@ -18,12 +19,6 @@ class FakeLock:
         return
     def release(self):
         return
-
-@dataclass(frozen=True)
-class FakeMethodLock:
-    file_lock = FakeLock()
-    active_trade = FakeLock()
-    
     
 @dataclass(frozen=True)
 class Parameters: # containing all the trade information for the whole program on all threads
