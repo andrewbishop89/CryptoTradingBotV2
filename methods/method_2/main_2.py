@@ -30,6 +30,8 @@ logger = logging.getLogger("main")
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: add end of trade check to see if trade criterias are still met, then don't sell if they are
+
 # TODO: minimize requests to API by saving to file and use locks
 
 # TODO: FIX MAJOR BUG: if there is an error in buy trade and the transaction does not go through, trade locks will be held in locked mode forever
