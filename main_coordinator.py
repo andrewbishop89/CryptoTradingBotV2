@@ -31,7 +31,7 @@ if __name__ == "__main__":
         main(symbols, 12)
     except KeyboardInterrupt as e:
         logger.error(f"Keyboard Interrupt raised in main. Thread Count: {threading.active_count()}", exc_info=True)
-        print("\Finishing Program.")
+        print("\nFinishing Program.")
         sys.exit()
         
         
