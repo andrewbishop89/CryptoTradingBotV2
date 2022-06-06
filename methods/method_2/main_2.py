@@ -341,6 +341,8 @@ def live_method_2(
                 
                 # calcualte profit price
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
+                # calculate stop price
+                stop_price = buy_price*(1-percent_profit)
                 
                 # ------------------- RECORD ALL TRADE DATA ------------------
                 
