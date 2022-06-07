@@ -13,6 +13,7 @@ import datetime
 import os
 import threading
 import logging
+from random import randint
 
 from constants.parameters import *
 from helper_functions.api import *
@@ -175,8 +176,8 @@ def get_current_price(symbol):
     try:
         current_price = float(response["price"])
     except KeyError:
-        logger.warning("Could not retrieve current price. Retrying in 60s.", exc_info=True)
-        time.sleep(60)
+        logger.warning(f"Key Error: Could not retrieve current price. Retrying in 60s.\n{pformat(response)}")
+        time.sleep(randint(30, 90))
         return get_current_price(symbol)
     else:
         return current_price
