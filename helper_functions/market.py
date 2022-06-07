@@ -12,7 +12,6 @@ import pandas as pd
 from constants.parameters import *
 from helper_functions.api import *
 
-
 #----------------------------------functions-----------------------------------
 
 def daily_ticker_24hr(symbol: str=None) -> pd.DataFrame:
