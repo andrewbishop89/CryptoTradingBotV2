@@ -374,8 +374,6 @@ def live_method_2(
                 # min price
                 min_price = current_price
                 # log data
-                if real_money:
-                    logger.info(f"BUY ID: {buy_id}")
                 logger.info(f"PRICE: {round(buy_price,4)} - STOP PRICE: {round(stop_price,4)} - PROFIT PRICE: {round(profit_price,4)} - PROFIT %: {round(percent_profit*risk_multiplier*100,2)}%")
                 continue
             
