@@ -66,6 +66,7 @@ def buy_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
         return None, profit_quantity
     else:
         return order_id, profit_quantity
+    
 #PARAM symbol(str): symbol of coin to sell
 #PARAM quote_quantity(float): quote quantity to sell
 #PARAM quantity(float): quantity to sell
