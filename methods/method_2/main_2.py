@@ -501,10 +501,10 @@ def live_method_2(
                     #     # increment profit index
                     #     profit_index += 1
                         
-    except RuntimeError as e:
+    except RuntimeError:
         logger.warning(f"Runtime Error. Need to unlock lock. Retrying in 20s.", exc_info=True)
         time.sleep(20)
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.ConnectionError:
         logger.warning(f"Connection Error. Retrying in 20s.", exc_info=True)
         time.sleep(20)
     except Exception as e:
