@@ -320,8 +320,9 @@ def live_method_2(
                 
                 # save 1h difference
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1]) / buy_price * 100
-                # check for active trade in other thread before starting trade in this thread
-                if method_lock.active_trade.locked():
+                
+                # wait for 30 if cannot acquire lock then continue
+                if not method_lock.active_trade.acquire(timeout=30):
                     continue
                 
                 # if using real money for trade
