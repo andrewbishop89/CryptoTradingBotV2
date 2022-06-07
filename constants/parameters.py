@@ -6,6 +6,7 @@
 
 import os
 import json
+import sys
 from pprint import pprint, pformat
 import logging
 
@@ -27,8 +28,12 @@ global API_KEY, API_SECRET, BASE_URL #global so they are accessible everywhere
 
 with open(os.path.join('constants', 'keys.json'), 'r') as f:
     keys = json.load(f)
-    API_KEY = keys['binance_real']['key']  # first line should be API key
-    API_SECRET = keys['binance_real']['secret']  # second line should be API secret
+    if "paper" in sys.argv:
+        API_KEY = keys['binance_paper']['key']  # first line should be API key
+        API_SECRET = keys['binance_paper']['secret']  # second line should be API secret    
+    else:
+        API_KEY = keys['binance_real']['key']  # first line should be API key
+        API_SECRET = keys['binance_real']['secret']  # second line should be API secret
     BASE_URL = "https://api.binance.com"  # binance API base url
 
 #------------------------------------------------------------------------------
