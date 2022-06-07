@@ -203,7 +203,7 @@ def live_method_2(
                 method_lock.profit_file.acquire()
                 data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
                 data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)        
-                time.sleep(2)
+                time.sleep(10)
                 method_lock.profit_file.release()
             
             # risk multiplier
