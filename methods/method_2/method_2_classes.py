@@ -5,16 +5,16 @@ import sys
 
 class MethodLock:
     """Contains all locks for a method thread."""
-    def __init__(self, fake=False):
+    def __init__(self, unlimited=False):
         self.profit_file = threading.Lock()
-        self.active_trade = threading.Lock() if (not fake) else FakeLock()
+        self.active_trade = threading.Lock() if (not unlimited) else FakeLock()
     
 @dataclass
 class FakeLock:
     """Lock that doesn't do anything when referenced."""
     def locked(self):
         return False
-    def acquire(self):
+    def acquire(self, timeout=None):
         return
     def release(self):
         return
