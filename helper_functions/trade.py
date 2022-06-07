@@ -125,7 +125,7 @@ def get_desired_quantity(
 
 
 def get_profit_quantity(symbol, buy_quantity):
-    # NOTE need to do this because there is 0.1% fee on trade
+    # need to do this because there is 0.1% fee on trade
     profit_quantity = buy_quantity*(1 - (0.1/100))
     profit_quantity -= profit_quantity % trade_step_size(symbol)
     precision = int(trade_precision(symbol))
