@@ -30,6 +30,8 @@ logger = logging.getLogger("main")
 
 #------------------------------------TODOs-------------------------------------
 
+# TODO: FIX GLOBAL VARIABLE PROBLEM WITH API KEY AND SECRET
+
 # NOTE: the best git command -> $ git reset HEAD~
 
 # TODO: add end of trade check to see if trade criterias are still met, then don't sell if they are
