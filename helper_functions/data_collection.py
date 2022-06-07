@@ -8,9 +8,11 @@
 
 # modules imported
 from binance.client import Client
+import binance
 import os
 import requests
 import logging
+from random import randint
 
 from constants.parameters import *
 from helper_functions.setup import *
@@ -177,7 +179,11 @@ def download_recent_klines(symbol: str, interval:str,
                 return historical_klines(symbol, interval, limit)
             client = Client(API_KEY, API_SECRET)
             klines = client.get_klines(symbol=symbol, interval=interval, limit=limit)
-        except requests.exceptions.ConnectionError as e:
+        except binance.exceptions.BinanceAPIException:
+            wait_time = randint(30,90) # use random to stagger incase multiple api errors are raised simultaneously
+            logger.warning(f"Binance API Error. Retrying in {wait_time}s.", exc_info=True)
+            time.sleep(wait_time)
+        except requests.exceptions.ConnectionError:
             logger.warning(f"Connection Error. Retrying in 20s.", exc_info=True)
             time.sleep(20)
         else:
