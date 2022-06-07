@@ -336,16 +336,13 @@ def live_method_2(
                     # dont buy in if balance is too small for trade and continue
                     if (balance < min_balance):
                         logging.warning(f"Insufficient Balance for Buy-In. Have: {round(balance, 4)}, Need: {min_balance}. Waiting for 20s.")
+                        method_lock.active_trade.release()
                         time.sleep(20)
                         continue
-
-                # wait for 30 if cannot acquire lock then continue
-                if not method_lock.active_trade.acquire(timeout=30):
-                    continue
-                
-                # buy into trade
-                if real_money:
+                    # buy into trade
                     buy_id, profit_quantity = buy_trade(symbol=symbol, quote_quantity=trade_quote_qty)
+                    logger.info(f"BUY ID: {buy_id}")
+                    
                 buy_time = int(time.time()-7*3600)
                 # activate flag because trade is active in this thread
                 trade_active = True
