@@ -162,7 +162,7 @@ def exchange_information(symbol=-1):
 
 def get_hardcoded_quantity(symbol, trade_quote_qty):
     price = float(get_current_price(symbol=symbol))
-    payment_symbol = symbol[-4:]
+    payment_symbol = get_payment_symbol(symbol)
     payment = float(account_info([payment_symbol])[payment_symbol])
     if trade_quote_qty > payment:
         logger.error(f"ERROR {symbol} Desired quote quantity (${trade_quote_qty}) is greater than current balance (${round(payment, 2)}).")
@@ -182,6 +182,14 @@ def get_current_price(symbol):
     else:
         return current_price
 
+def get_payment_symbol(symbol):
+    if symbol.endswith("USDT"):
+        return "USDT"
+    elif symbol.endswith("BNB"):
+        return "BNB"
+    else:
+        logger.error(f"{symbol} is invalid. Need 'USDT' or 'BNB' as payment.")
+        raise ValueError
 
 def validate_quantity(symbol, quantity):
     minQty, maxQty = trade_min_max_quantity(symbol)
