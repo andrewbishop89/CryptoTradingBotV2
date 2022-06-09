@@ -116,7 +116,7 @@ def get_desired_quantity(
         if percentage_cut < minimum_cut:
             logger.error(f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
             raise ValueError
-        payment_symbol = symbol[-4:]
+        payment_symbol = get_payment_symbol(symbol)
         payment = float(account_info([payment_symbol])[payment_symbol])
         quantity = round(percentage_cut*payment/price, trade_precision(symbol))
         validated_quantity = validate_quantity(symbol, quantity)
@@ -208,8 +208,9 @@ def validate_quantity(symbol, quantity):
     if notional < minNotional:
         logger.error(f"ERROR Order criteria is below the minimum notional.")
         return -1
-    if notional > float(account_balance('USDT')):
-        logger.error(f"ERROR Account has insufficient balance.\n\tHave: {float(account_balance('USDT'))}\n\tNeed: {notional}")
+    payment_symbol = get_payment_symbol(symbol)
+    if notional > float(account_balance(payment_symbol)):
+        logger.error(f"ERROR Account has insufficient balance.\n\tHave: {float(account_balance(payment_symbol))}\n\tNeed: {notional}")
         return -1
 
     return round(quantity, precision-1)
@@ -224,7 +225,8 @@ def get_minimum_notional(symbol):
 
 
 def get_minimum_cut(symbol):
-    balance = float(account_balance('USDT'))
+    payment_symbol = get_payment_symbol(symbol)
+    balance = float(account_balance(payment_symbol))
     minimum_notional = get_minimum_notional(symbol)
     minimum_cut = minimum_notional/balance
     return minimum_cut
