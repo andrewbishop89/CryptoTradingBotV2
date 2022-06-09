@@ -23,6 +23,45 @@ class FakeLock:
     def release(self):
         return
     
+@dataclass
+class DataThread:
+    """Local data thread for a single token."""
+    symbol: str #symbol of token to trade
+    intervals: list #list of intervals of websocket streams to start
+    limit: int #amount of klines per kline stream
+    locks: dict=None #list of all locks for each interval websocket stream, keys are interval, values are thread locks
+    streams: dict=None #list of all websocket stream threads for each interval websocket stream, keys are interval, values are websocket threads
+    
+    def create_locks(self):
+        """Initiate all thread locks for websocket threads."""
+        for interval in self.intervals:
+            self.locks[interval] = threading.Lock()
+    
+    def reset_websockets(self):
+        """Start all websocket threads."""
+        for interval in self.intervals:
+            self.streams[interval] = connect_websocket(self.symbol, interval, self.locks[interval], self.limit)
+    
+    def connect_websockets(self):
+        """Initializes all locks and websocket threads to start program."""
+        self.create_locks()
+        self.reset_websockets()
+    
+    def wait_for_start(self):
+        """Waits until all websocket threads have begun."""
+        while True:
+            for lock in self.locks:
+                if not lock.locked():
+                    break
+            time.sleep(1)
+            
+    def check_stream_status(self):
+        """Checks websocket streams and restarts if died.""" #TODO during daily timer, thread could break resulting in double threads going at same time
+        for interval in self.intervals:
+            if not self.streams[interval].is_alive():
+                logger.info(f"Restarting {self.symbol}/{interval} Websocket.")
+                self.streams[interval] = connect_websocket(self.symbol, "1h", self.locks[interval], self.limit)
+            
 @dataclass(frozen=True)
 class Parameters: # containing all the trade information for the whole program on all threads
     symbols: list # list of symbols to trade
