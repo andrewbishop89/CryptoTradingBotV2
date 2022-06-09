@@ -163,7 +163,7 @@ def live_method_2(
     high_w = 21
     
     # trade fee
-    fee = 0 if "real" in sys.argv else 0.35
+    fee = 0 if real_money else 0.35
     
     # minimum profit % for trade
     min_profit = 0.65
