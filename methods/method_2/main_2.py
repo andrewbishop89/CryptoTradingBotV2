@@ -86,7 +86,7 @@ logger = logging.getLogger("main")
 
 #----------------------------------functions-----------------------------------
 
-def main(symbols: list, trade_quote_qty: float=None):
+def main(symbols, trade_quote_qty: float=None):
     """
     Description:
         Starts all the threads for the main function of method 2.
