@@ -112,7 +112,7 @@ def main(symbols, trade_quote_qty: float=None):
     logger.info(f"Number of Coins Listed: {len(symbols)}")
     
     for symbol in symbols:
-        if symbol[-4:] != "USDT":
+        if not (symbol.endswith("USDT") or symbol.endswith("BNB")):
             logger.debug(f"Skipping {symbol}.")
             symbols.remove(symbol)
             continue
@@ -168,7 +168,7 @@ def live_method_2(
     fee = 0 if real_money else 0.35
     
     # minimum profit % for trade
-    min_profit = 0.65
+    min_profit = 0.6
     
     # lock for accessing kline data files
     data_lock_1h = threading.Lock()
@@ -177,6 +177,9 @@ def live_method_2(
     # connect 1h and 5m websockets
     data_thread_1h = connect_websocket(symbol, "1h", data_lock_1h, limit=high_w)
     data_thread_5m = connect_websocket(symbol, "5m", data_lock_5m, limit=high_w)
+    
+    # init payment symbol
+    payment_symbol = get_payment_symbol(symbol)
     
     time.sleep(5)
     
@@ -315,6 +318,7 @@ def live_method_2(
                 lowest_low = min(short_klines.loc[high_w-5:high_w-1,'l'])
                 rough_percent_profit = buy_price/lowest_low-1
                 if not (rough_percent_profit*100 > min_profit):
+                    logger.debug(f"Recieved: {round(rough_percent_profit*100, 4)} is not greater than Required: {min_profit}. Stopped at Criteria 5.")
                     continue
                 
                 # run percent_profit through shaper function
@@ -334,7 +338,7 @@ def live_method_2(
                 
                 # if using real money for trade
                 if real_money:
-                    balance = account_balance("USDT")
+                    balance = account_balance(payment_symbol)
                     # 12 is smallest possible trade if not specified
                     min_balance = 12 if (not trade_quote_qty) else trade_quote_qty
                     # use full balance if quote quantity not specified
@@ -342,7 +346,7 @@ def live_method_2(
                         trade_quote_qty = balance
                     # dont buy in if balance is too small for trade and continue
                     if (balance < min_balance):
-                        logging.warning(f"Insufficient Balance for Buy-In. Have: {round(balance, 4)}, Need: {min_balance}. Waiting for 20s.")
+                        logging.warning(f"Insufficient Balance of '{payment_symbol}' for Buy-In. Have: {round(balance, 4)}, Need: {min_balance}. Waiting for 20s.")
                         method_lock.active_trade.release()
                         time.sleep(20)
                         continue
