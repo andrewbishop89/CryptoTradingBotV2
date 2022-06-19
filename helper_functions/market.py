@@ -14,7 +14,7 @@ from helper_functions.api import *
 
 #----------------------------------functions-----------------------------------
 
-def daily_ticker_24hr(symbol: str=None) -> pd.DataFrame:
+def daily_ticker_24hr(symbol: str=None, payment_symbol: str=None) -> pd.DataFrame:
     """
     Description:
         Returns DataFrame of symbol(s) of 24h price data.
@@ -29,7 +29,10 @@ def daily_ticker_24hr(symbol: str=None) -> pd.DataFrame:
     else:
         tickers = send_public_request('/api/v3/ticker/24hr')
         df = pd.DataFrame(tickers)
-    df = df[df['symbol'].str.contains('USDT')]
+    if payment_symbol:
+        df = df[df['symbol'].str.endswith(payment_symbol)]
+    else:
+        df = df[df['symbol'].str.endswith('USDT')]
     df = df.set_index('symbol')
     return df
 
