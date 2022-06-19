@@ -322,12 +322,7 @@ def live_method_2(
                     continue
                 
                 # run percent_profit through shaper function
-                if rough_percent_profit > 5:
-                    percent_profit = 2 / 100
-                elif rough_percent_profit > 2:
-                    percent_profit = 1 / 100
-                else:
-                    percent_profit = min_profit / 100
+                percent_profit = 0.5 / 100
                 
                 # save 1h difference
                 difference_1h = (long_EMAs.loc[low_w, high_w-1] - long_EMAs.loc[high_w, high_w-1]) / buy_price * 100
@@ -361,7 +356,8 @@ def live_method_2(
                 # calcualte profit price
                 profit_price = buy_price*(1+percent_profit*risk_multiplier)
                 # calculate stop price
-                stop_price = buy_price*(1-percent_profit)
+                # stop_price = buy_price*(1-percent_profit)
+                stop_price = buy_price*(1-1/100)
                 
                 # ------------------- RECORD ALL TRADE DATA ------------------
                 
