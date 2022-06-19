@@ -36,7 +36,7 @@ def daily_ticker_24hr(symbol: str=None, payment_symbol: str=None) -> pd.DataFram
     df = df.set_index('symbol')
     return df
 
-def top_price_gainers(min_percent: float = 0, max_percent: float = 0, limit: int=None) -> pd.DataFrame:
+def top_price_gainers(min_percent: float=0, max_percent: float=0, limit: int=None, payment_symbol: str=None) -> pd.DataFrame:
     """
     Description:
         Returns a list of the top gainer currencies in the last 24 hours.
@@ -49,7 +49,7 @@ def top_price_gainers(min_percent: float = 0, max_percent: float = 0, limit: int
         pd.DataFrame: all coins that have a daily price change inbetween the 
         min and max percentages
     """
-    df = daily_ticker_24hr()
+    df = daily_ticker_24hr(payment_symbol=payment_symbol)
     df = df['priceChangePercent'].astype(float)
     df = df.sort_values()
     
