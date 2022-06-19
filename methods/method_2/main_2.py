@@ -32,6 +32,10 @@ logger = logging.getLogger("main")
 
 # TODO: FIX GLOBAL VARIABLE PROBLEM WITH API KEY AND SECRET
 
+# TODO: BUG take out all except blocks and reorganize in organized manner
+
+# TODO: reroute old log function (orders.txt) to print to logger or csv file
+
 # NOTE: the best git command -> $ git reset HEAD~
 
 # TODO: add end of trade check to see if trade criterias are still met, then don't sell if they are
@@ -41,8 +45,6 @@ logger = logging.getLogger("main")
 # TODO: FIX MAJOR BUG: if there is an error in buy trade and the transaction does not go through, trade locks will be held in locked mode forever
 
 # TODO: modify main so that multiple parameters can trade at the same time. To do this also need to add multiple profit files for each method. Perhaps name each method based on parameters.
-
-# TODO: make orders log file write to csv file
 
 # TODO: improve system to not trade when trade is active (fix criticals popping up)
 
