@@ -20,15 +20,22 @@ if __name__ == "__main__":
     LOGGING_LEVEL = logging.INFO
 
     logger.setLevel(LOGGING_LEVEL)
+    
+    BNB_amount = 20
 
     #symbols = ["BTCUSDT", "ADAUSDT", "ETHUSDT", "TRXUSDT", "SOLUSDT", "LTCUSDT", "XRPUSDT", "XMRUSDT", "DOTUSDT"]
     #symbols = top_gainers(2).index#[-25:]
-    num_symbols = int(sys.argv[1]) if (len(sys.argv) > 1) else 50
-    symbols = top_volume_gainers(num_symbols).index
+    # num_symbols = int(sys.argv[1]) if (len(sys.argv) > 1) else 50
+    #symbols = top_volume_gainers(limit=(num_symbols-BNB_amount))
+    symbols = top_volume_gainers(limit=200).index
+    #symbols = symbols.append(top_volume_gainers(limit=BNB_amount, payment_symbol="BNB")).index
     #symbols = symbols.drop_duplicates()
 
+    # symbols = top_volume_gainers(min_volume=5_000_000, limit=1_000).index
+    #symbols = ["BTCUSDT", "BNBUSDT", "SOLUSDT", "ADAUSDT", "XRPUSDT", "XLMUSDT", "XMRUSDT", "LTCUSDT", "TRXUSDT"]
+    
     try:
-        main(symbols)
+        main(symbols, 12)
     except KeyboardInterrupt as e:
         logger.error(f"Keyboard Interrupt raised in main. Thread Count: {threading.active_count()}", exc_info=True)
         print("\nFinishing Program.")
