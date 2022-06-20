@@ -91,9 +91,15 @@ class OrderCondition:
 
 @dataclass
 class TradeConditions:
+    """
+    Description:
+
+    Returns:
+        bool: _description_
+    """
     order_conditions: List[OrderCondition]
 
-    def check_conditions(self):
+    def check_conditions(self) -> bool:
         return all([condition() for condition in self.order_conditions])
 
 
@@ -143,8 +149,9 @@ class Method:
 
 @dataclass
 class TradeCycle:
-    symbol: str
-    trade_parameters: List[TradeParameter]
+    symbol: str # symbol of coin to trade in this cycle
+    status: bool # true if working, false if error has been raised
+    trade_parameters: List[TradeParameter] # trade parameters for buy in and sell out
 
     # UPDATE AND DOWNLOAD DATA
     def update_trade_data(self) -> pd.DataFrame:
