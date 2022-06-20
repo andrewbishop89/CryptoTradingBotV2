@@ -10,7 +10,7 @@
 from dataclasses import dataclass
 import sys
 import threading
-from typing import Tuple
+from typing import Callable, Tuple
 import pync
 import time
 import os
@@ -31,6 +31,8 @@ logger = logging.getLogger("main")
 
 # ----------------------------------functions-----------------------------------
 
+
+# TODO tweak prettier autoformatter for no wrap text
 
 @dataclass
 class FakeLock:
