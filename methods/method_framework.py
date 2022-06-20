@@ -86,10 +86,30 @@ class TradeParameter:
 
 
 class Method:
+    # list of symbols to run with method
+    symbols: List[str]
+    # list of parameters for trading
+    trade_parameters: List[TradeParameter]
+    # tuple of conditions (buy, sell)
+    trade_conditions: Tuple[TradeConditions, TradeConditions]
+    # object containing all locks
+    method_lock: MethodLock = MethodLock()
+    # list of symbols used as payment
+    payment_symbols: List[str] = ["USDT", "BNB"]
+
     # PARAMETERS AND INITIALIZATION
     def __init__(self):
 
+        # delete old data to clear up memory
         delete_old_data()
+
+        # filter out invalid symbols if they exist
+        self.symbols = filter(lambda x: x.endswith(
+            tuple(self.payment_symbols)), self.symbols)
+
+        # start all trade cycles
+        for symbol in self.symbols:
+            TradeCycle(symbol, self.trade_parameters)
 
         return
 
