@@ -63,13 +63,15 @@ class OrderCondition:
 
 
 @dataclass
-class BuyCriteria:
-    criteria: List[Criteria]
+class TradeConditions:
+    order_conditions: List[OrderCondition]
 
-
-@dataclass
-class SellCriteria:
-    criteria: List[Criteria]
+    def check_conditions(self):
+        for condition in self.order_conditions:
+            if not condition():
+                return False
+        else:
+            return True
 
 
 @dataclass
