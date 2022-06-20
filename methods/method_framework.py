@@ -97,11 +97,11 @@ class Method:
         return
 
     # PRE TRADE STAGE
-    def check_buy_criteria_met(self, buy_criteria: BuyCriteria) -> TradeReceipt:
+    def check_buy_condition_met(self, buy_Condition: TradeConditions) -> TradeReceipt:
         return
 
     # POST TRADE STAGE
-    def check_sell_criteria_met(self, sell_criteria: SellCriteria) -> TradeReceipt:
+    def check_sell_condition_met(self, sell_Condition: TradeConditions) -> TradeReceipt:
         return
 
     # RESET AND LOG STAGE
