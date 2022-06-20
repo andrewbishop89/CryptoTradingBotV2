@@ -54,9 +54,12 @@ class MethodLock:
 
 
 @dataclass
-class Criteria:
+class OrderCondition:
     func: function
     args: List
+
+    def __call__(self):
+        return self.func(*self.args)
 
 
 @dataclass
