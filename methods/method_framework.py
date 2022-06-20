@@ -50,8 +50,7 @@ class FakeLock:
 class MethodLock:
     api_keys: threading.Lock = threading.Lock()
     profit_file: threading.Lock = threading.Lock()
-    active_trade: threading.Lock = threading.Lock(
-    ) if "unlimited" not in sys.argv else FakeLock()
+    active_trade: threading.Lock = threading.Lock() if ("unlimited" not in sys.argv) else FakeLock()
 
 
 @dataclass
