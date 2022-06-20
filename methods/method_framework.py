@@ -50,6 +50,15 @@ class FakeLock:
 
 @dataclass
 class MethodLock:
+    """
+    Description:
+        An object that contains all the threading locks for one method being run on separate threads.
+        There is multiple trade cycle threads running the same method, thus this object holds the locks to avoid the thread collisions.
+    Args:
+        api_keys (threading.Lock):
+        profit_file (threading.Lock):
+        active_trade (threading.Lock):
+    """
     api_keys: threading.Lock = threading.Lock()
     profit_file: threading.Lock = threading.Lock()
     active_trade: threading.Lock = threading.Lock() if ("unlimited" not in sys.argv) else FakeLock()
