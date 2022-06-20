@@ -79,7 +79,13 @@ class OrderCondition:
     func: Callable
     args: List
 
-    def __call__(self):
+    def __call__(self) -> bool:
+        """
+        Description:
+
+        Returns:
+            bool: 
+        """
         return self.func(*self.args)
 
 
