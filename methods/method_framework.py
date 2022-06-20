@@ -66,6 +66,16 @@ class MethodLock:
 
 @dataclass
 class OrderCondition:
+    """
+    Description:
+        Contains a Callable and it's arguments as a list.
+        This is one piece of criteria that is used for the program to determine whether it is currently the right time to buy in or sell out of a trade.
+    Args:
+        func (Callable): a function returning a boolean for the trade condition check
+        args (List): a list of arguments for the above function to be called
+    Returns:
+        bool: returns true if the condition is met and false otherwise.
+    """
     func: Callable
     args: List
 
