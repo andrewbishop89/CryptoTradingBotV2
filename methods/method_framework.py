@@ -67,11 +67,7 @@ class TradeConditions:
     order_conditions: List[OrderCondition]
 
     def check_conditions(self):
-        for condition in self.order_conditions:
-            if not condition():
-                return False
-        else:
-            return True
+        return all([condition() for condition in self.order_conditions])
 
 
 @dataclass
