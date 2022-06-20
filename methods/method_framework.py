@@ -55,7 +55,7 @@ class MethodLock:
 
 @dataclass
 class OrderCondition:
-    func: function
+    func: Callable
     args: List
 
     def __call__(self):
