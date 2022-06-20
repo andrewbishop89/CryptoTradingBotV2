@@ -80,6 +80,11 @@ class TradeReceipt:
     def __init__(): return
 
 
+@dataclass
+class TradeParameter:
+    def __init__(): return
+
+
 class Method:
     # PARAMETERS AND INITIALIZATION
     def __init__(self):
