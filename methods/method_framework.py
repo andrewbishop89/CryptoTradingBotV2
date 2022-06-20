@@ -116,6 +116,35 @@ class TradeReceipt:
 @dataclass
 class TradeParameter:
     def __init__(): return
+    
+    
+@dataclass
+class DataThreads:
+    """
+    Description:
+        Contains all data threads for a certain symbol and trade cycle.
+    """
+    symbol: str
+    intervals: List[str]
+    limit: int
+    data_lock: MethodLock
+
+    def start(self) -> None:
+        self.streams = list(map(lambda interval: threading.Thread(
+            target=connect_websocket, 
+            args=[self.symbol, interval, self.data_lock[interval], self.limit], 
+            daemon=True
+        ), self.intervals))
+        
+        for stream in self.streams:
+            stream.start()
+
+@dataclass
+class MethodThread:
+    trade_cycle: threading.Thread
+    data_threads: DataThreads
+
+    
 
 
 class Method:
