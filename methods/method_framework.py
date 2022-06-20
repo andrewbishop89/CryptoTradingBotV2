@@ -113,18 +113,46 @@ class Method:
 
         return
 
+
+@dataclass
+class TradeCycle:
+    symbol: str
+    trade_parameters: List[TradeParameter]
+
     # UPDATE AND DOWNLOAD DATA
     def update_trade_data(self) -> pd.DataFrame:
         return
 
     # PRE TRADE STAGE
-    def check_buy_condition_met(self, buy_Condition: TradeConditions) -> TradeReceipt:
-        return
+    def check_buy_condition_met(self, buy_conditions: TradeConditions) -> TradeReceipt:
+        return buy_conditions.check_conditions()
 
     # POST TRADE STAGE
-    def check_sell_condition_met(self, sell_Condition: TradeConditions) -> TradeReceipt:
-        return
+    def check_sell_condition_met(self, sell_conditions: TradeConditions) -> TradeReceipt:
+        return sell_conditions.check_conditions()
 
     # RESET AND LOG STAGE
     def log_trade_data(self, trade_data: TradeData):
         return
+
+    # main trade cycle
+    def __call__(self):
+
+        trade_active = False
+        while True:
+
+            # update candle data and make sure streams are still alive
+            self.update_trade_data()
+
+            # if buy conditions ARE met and trade is NOT active then buy into trade
+            if (not trade_active) and self.check_buy_condition_met():
+                # TODO buy trade
+                pass  
+
+            # if sell conditions ARE met and trade IS active then sell out of trade
+            if (trade_active) and self.check_sell_condition_met():
+                # TODO sell trade
+                pass  
+
+                # log trade data
+                self.log_trade_data()
