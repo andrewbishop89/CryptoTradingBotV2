@@ -166,8 +166,7 @@ class Method:
         delete_old_data()
 
         # filter out invalid symbols if they exist
-        self.symbols = filter(lambda x: x.endswith(
-            tuple(self.payment_symbols)), self.symbols)
+        self.symbols = filter(lambda x: x.endswith(tuple(self.payment_symbols)), self.symbols)
 
         # start all trade cycles
         for symbol in self.symbols:
