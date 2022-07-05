@@ -1,4 +1,4 @@
-## CryptoTradingBotV2 Notes
+# CryptoTradingBotV2 Notes
 
 The most recent model for this program is Method 2. This model uses 1 hour and 5 minute interval candles and exponential moving averages for it's criteria to buy into a trade.
 
@@ -16,5 +16,12 @@ Optimizations for the future can be seen in the method_2.py TODOs list at the st
 
 The cryptocurrency exchange is Binance. The program communicates with Binance through public and signed API requests where the signed requests are encrypted using SHA256. A WebSocket subscription is used for the data collection through Binance.
 
-<br>
+
+
+***
+
+### Side Notes
+- `git reset HEAD~` undoes last commit AND does not delete but adds it back to unstaged changes
+- `source venv/bin/activate` activates the virtual environment
+
 Andrew Bishop
