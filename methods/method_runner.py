@@ -7,6 +7,7 @@
 #
 
 from typing import Callable, Tuple, List, Any
+from multiprocessing import Pool
 from dataclasses import dataclass
 from enum import Enum
 
@@ -39,17 +40,66 @@ class TestConditions:
             return True
 
 
+@dataclass
+class BuyParameters:
+    """
+    
+    """
+    quote_quantity: float
+    risk_multiplier: float
+    symbol: str
+    
 
-class MethodState(Enum):
-    data = 0
-    buy = 1
-    sell = 2
-    log = 3
+class MethodType(Enum):
+    """
 
-
-def run_method():
+    """
+    real = 0
+    paper = 1
+    backtest = 2
     
     
+class MethodParameters:
+    """
+    
+    """
+
+    
+class TradeState(Enum):
+    """Contains the current state of the trade cycle."""
+    data = 0        # data collection stage
+    buy = 1         # no active trade, looking to buy in
+    sell = 2        # active trade, looking to sell out
+    log = 3         # logging data after selling
+
+
+@dataclass
+class TradeCycle:
+    """
+    Contains all information for a single trade cycle.
+    """
+    _symbol: str
+    _trade_state: TradeState
+    _buy_parameters: BuyParameters
+    
+    _buy_conditions: TestConditions
+    _sell_conditions: TestConditions        
+
+
+def main(
+        method_index: int,
+        quote_quantity: float,
+        symbols: list
+    ):
+
+    method_active = True
+    
+    while method_active:
+        
+        trade_cycles = list(map())
+        
+        with Pool() as p:
+            p.map()
     
     
     
