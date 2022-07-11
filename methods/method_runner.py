@@ -7,6 +7,7 @@
 #
 
 from typing import Callable, Tuple, List, Any
+from helper_functions.trade import buy_trade, sell_trade
 from multiprocessing import Pool
 from dataclasses import dataclass
 from enum import Enum
@@ -89,30 +90,61 @@ class TradeCycle:
     """
     Contains all information for a single trade cycle.
     """
-    _symbol: str
-    _trade_state: TradeState
-    _buy_parameters: BuyParameters
+    symbol: str
+    trade_info: TradeInfo
     
-    _buy_conditions: TestConditions
-    _sell_conditions: TestConditions        
-
-
-def main(
-        method_index: int,
-        quote_quantity: float,
-        symbols: list
-    ):
-
-    method_active = True
-    
-    while method_active:
+    def __postinit__(self):
+        self.trade_state = TradeState.buy
+        self.method_type = self.trade_info.method_type
         
-        trade_cycles = list(map())
+        self.buy_parameters = self.trade_info.buy_parameters
+        self.sell_parameters = self.trade_info.sell_parameters
         
-        with Pool() as p:
-            p.map()
+        self.buy_conditions = self.trade_info.buy_conditions
+        self.sell_conditions = self.trade_info.sell_conditions
     
     
+    def run(self):
+        
+        # TODO download klines
+        klines = []
+        
+        # Check for buy-in
+        if self.trade_state == TradeState.buy:
+            if self.buy_conditions.check_all(klines):
+                # TODO rewrite buy_trade function so it takes buy parameters object as argument
+                buy_id, profit_quantity = buy_trade(self.buy_parameters)
+                self.trade_state == TradeState.seldl
+            
+        # Check for sell-out
+        if self.trade_state == TradeState.sell:
+            if self.sell_conditions.check_all(klines):
+                # TODO rewrite sell_trade function so it takes buy parameters object as argument
+                sell_id, _ = sell_trade(self.sell_parameters)            
+                self.trade_state == TradeState.buy    
+                
+                # TODO implement logging here
+
+
+if __name__ == "__main__":
+    
+    # MAIN PARAMETERS
+    method_index = 3
+    buy_parameters = ""
+    sell_parameters = ""
+    symbols = []
+    
+    # ---------------
+    
+    
+    
+    
+    trade_cycles = list(map(lambda symbol: TradeCycle(
+        symbol=symbol,
+        buy_info=buy_info,
+        sell_info=sell_info
+        
+        ), ))
     
     
     
