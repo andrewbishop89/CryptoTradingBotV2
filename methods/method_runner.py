@@ -59,10 +59,16 @@ class MethodType(Enum):
     backtest = 2
     
     
-class MethodParameters:
+@dataclass
+class TradeInfo:
     """
     
     """
+    method_type: MethodType
+    buy_parameters: BuyParameters
+    sell_parameters: SellParameters
+    buy_conditions: TestConditions
+    sell_conditions: TestConditions
 
     
 class TradeState(Enum):
