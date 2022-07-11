@@ -116,7 +116,7 @@ class TradeCycle:
             if self.buy_conditions.check_all(klines):
                 # TODO rewrite buy_trade function so it takes buy parameters object as argument
                 buy_id, profit_quantity = buy_trade(self.buy_parameters)
-                self.trade_state == TradeState.seldl
+                self.trade_state == TradeState.sell
             
         # Check for sell-out
         if self.trade_state == TradeState.sell:
