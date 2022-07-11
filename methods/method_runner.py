@@ -49,6 +49,12 @@ class BuyParameters:
     risk_multiplier: float
     symbol: str
     
+@dataclass
+class SellParameters:
+    """
+    
+    """
+
 
 class MethodType(Enum):
     """
