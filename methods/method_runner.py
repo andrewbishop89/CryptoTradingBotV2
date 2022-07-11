@@ -67,10 +67,9 @@ class MethodParameters:
     
 class TradeState(Enum):
     """Contains the current state of the trade cycle."""
-    data = 0        # data collection stage
-    buy = 1         # no active trade, looking to buy in
-    sell = 2        # active trade, looking to sell out
-    log = 3         # logging data after selling
+    buy = 0         # no active trade, looking to buy in
+    sell = 1        # active trade, looking to sell out
+    wait = 2        # if other trades are active, wait
 
 
 @dataclass
