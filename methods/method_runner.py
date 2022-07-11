@@ -10,6 +10,8 @@ from typing import Callable, Tuple, List, Any
 from helper_functions.trade import buy_trade, sell_trade
 from multiprocessing import Pool
 from dataclasses import dataclass
+import logging
+import os
 from enum import Enum
 
 @dataclass
