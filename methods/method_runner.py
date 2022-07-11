@@ -125,6 +125,18 @@ class TradeCycle:
                 
                 # TODO implement logging here
 
+def get_logger(logging_level=logging.INFO):
+    logger = logging.getLogger(__name__)
+    
+    logger.setLevel(logging_level)
+    log_fp = os.path.join("logs", f"{__name__}.log")
+    handler = logging.FileHandler(log_fp, mode="a")
+    formatter = logging.Formatter('%(levelname)s @ %(asctime)s - %(threadName)s - %(filename)s - Line %(lineno)d - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
+    return logger
+
 
 if __name__ == "__main__":
     
