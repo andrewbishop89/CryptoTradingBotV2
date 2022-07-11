@@ -144,24 +144,40 @@ if __name__ == "__main__":
     
     # MAIN PARAMETERS
     method_index = 3
+    method_type = MethodType.paper
     buy_parameters = ""
     sell_parameters = ""
-    symbols = []
+    symbols = [ "BTCUSDT" ]
     
     # ---------------
     
+    method_file_path = os.path.join("methods", f"method_{method_index}")
+    method_file = __import__(method_file_path)
     
-    
+    logger = get_logger()
+        
+    trade_info = TradeInfo(
+        method_type=method_type,
+        buy_parameters=buy_parameters,
+        sell_parameters=sell_parameters,
+        buy_conditions=method_file.buy_conditions,
+        sell_conditions=method_file.sell_conditions
+    )
     
     trade_cycles = list(map(lambda symbol: TradeCycle(
         symbol=symbol,
-        buy_info=buy_info,
-        sell_info=sell_info
+        trade_info=trade_info
+        ), symbols))
+    
+    
+    cpu_count = os.cpu_count()
+    logger.info(f"Initializing Pool with {cpu_count} processes.")
+    with Pool(cpu_count) as p:
+        while True:
+            p.map(lambda trade_cycle: trade_cycle.run(), trade_cycles)
         
-        ), ))
-    
-    
-    
+        
+        
     
     
     
