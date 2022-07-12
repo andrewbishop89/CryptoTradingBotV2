@@ -6,7 +6,6 @@
 # 2022/07/10
 #
 
-from methods.method_runner import TestConditions
 from helper_functions import analysis
 
 def buy_conditions(klines) -> bool:
