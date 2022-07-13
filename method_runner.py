@@ -13,6 +13,7 @@ from multiprocessing import Pool
 from dataclasses import dataclass
 import logging
 import time
+import json
 import websockets
 from websockets.client import WebSocketClientProtocol
 import asyncio
@@ -119,6 +120,27 @@ class TradeCycle:
                 self.trade_state == TradeState.buy
                 
                 # TODO implement logging here
+                
+        return self.trade_state
+                
+                
+def format_kline(kline: dict) -> pd.DataFrame:
+    """
+    Converts kline from dict to dataframe.
+
+    :param dict kline: dictionary of kline to be formatted
+    :return pd.DataFrame: formatted kline dataframe
+    """
+    return pd.DataFrame(data={
+        't': [int(kline['t']/1000)],
+        'o': [float(kline['o'])],
+        'c': [float(kline['c'])],
+        'h': [float(kline['h'])],
+        'l': [float(kline['l'])],
+        'n': [float(kline['n'])],
+        'v': [float(kline['v'])],
+    }).set_index("t")
+
 
 def get_logger(logging_level=logging.INFO):
     logger = logging.getLogger(__name__)
