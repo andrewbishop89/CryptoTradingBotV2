@@ -197,22 +197,16 @@ class TradeProcess:
         
         # INITIALIZE STREAMS
         
-        #TODO add `limit` amount of klines to beginning of stream kline from download recent klines 
-        #TODO change for loop to a map
+        streams = {}
+        
+        # connect stream for each symbol and interval pair
         for interval in self.intervals:
             for symbol in self.symbols:
                 ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
+                print(f'Connecting "{symbol} {interval}" data stream...')
                 streams[(symbol, interval)] = await websockets.connect(ws_path)
-        
-        for stream in streams.values():
-            time.sleep(1)
-            print(stream, stream.open, "\n", await stream.recv(), "\n")
-            
+
         trade_cycles = list(map(TradeCycle, self.symbols))
-        
-        pprint(trade_cycles)
-        
-        exit(1)
         
         while True:
             
