@@ -157,19 +157,17 @@ def get_logger(logging_level=logging.INFO):
 
 def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> Dict[Tuple[str, str], pd.DataFrame]:
     """
+    Generates a dictionary containing the klines with keys as Tuple[str, str] where the strings are the symbol and interval respectively.
 
-    Args:
-        symbols (List[str]): _description_
-        intervals (List[str]): _description_
-        limit (int, optional): _description_. Defaults to 50.
-
-    Returns:
-        Dict[Tuple[str, str], pd.DataFrame]: _description_
+    :param List[str] symbols: list of symbols to download data for
+    :param List[str] intervals: list of intervals to download data for
+    :param int limit: amount of klines to download, defaults to 50
+    :return Dict[Tuple[str, str], pd.DataFrame]: a set of downloaded klines sorted in dictionary form
     """
     kline_sets = {}
     for interval in intervals:
         for symbol in symbols:
-            kline_sets[(interval, symbol)] = download_recent_klines(
+            kline_sets[(symbol, interval)] = download_recent_klines(
                 symbol=symbol,
                 interval=interval,
                 limit=limit)
@@ -195,9 +193,7 @@ class TradeProcess:
         buy_conditions = self.trade_info.buy_conditions
         sell_conditions = self.trade_info.sell_conditions
         
-        klines = generate_kline_set(self.symbols, self.intervals, trade_info.limit)
-        
-        streams = {}
+        klines = generate_kline_set(self.symbols, self.intervals, trade_info.kline_limit)
         
         # INITIALIZE STREAMS
         
