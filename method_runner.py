@@ -99,24 +99,21 @@ class TradeCycle:
     """
     symbol: str
     
-    def __postinit__(self):
+    def __post_init__(self):
         self.trade_state = TradeState.buy
-            
-    def __call__(self, klines):
-        return self.run(klines)
     
-    def run(self, klines):
+    def run(self, klines: Dict[str, pd.DataFrame], buy_conditions: TestConditions, sell_conditions: TestConditions) -> TradeState:
         
         # Check for buy-in
         if self.trade_state == TradeState.buy:
-            if self.buy_conditions.check_all(klines):
+            if buy_conditions.check_all(klines):
                 # TODO rewrite buy_trade function so it takes buy parameters object as argument
                 buy_id, profit_quantity = buy_trade(self.buy_parameters)
                 self.trade_state == TradeState.sell
             
         # Check for sell-out
         if self.trade_state == TradeState.sell:
-            if self.sell_conditions.check_all(klines):
+            if sell_conditions.check_all(klines):
                 # TODO rewrite sell_trade function so it takes buy parameters object as argument
                 sell_id, _ = sell_trade(self.sell_parameters)            
                 self.trade_state == TradeState.buy
