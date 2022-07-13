@@ -55,23 +55,6 @@ class TestConditions:
             return True
 
 
-@dataclass
-class BuyParameters:
-    """
-    
-    """
-    quote_quantity: float
-    risk_multiplier: float
-    symbol: str
-    
-    
-@dataclass
-class SellParameters:
-    """
-    
-    """
-
-
 class MethodType(Enum):
     """
 
@@ -151,12 +134,6 @@ def get_logger(logging_level=logging.INFO):
     logger.addHandler(handler)
     
     return logger
-
-
-@dataclass
-class SymbolStream:
-    symbol: str
-    stream: WebSocketClientProtocol
 
 
 def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> Dict[Tuple[str, str], pd.DataFrame]:
