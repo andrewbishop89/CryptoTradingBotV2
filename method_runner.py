@@ -213,13 +213,34 @@ class TradeProcess:
             #TODO cycle through each coin and perform tests
             for trade_cycle in trade_cycles:
                 
-                #TODO download klines during each cycle (perhaps create dataclass for klines, need to sort by intervals)
-                    #TODO check stream status when downloading data
+                # -------- DOWNLOAD DATA --------
+                #TODO check stream status when downloading data
                 
+                # get iteration keys (symbol, interval) for stream and klines access
+                current_keys = list(map(lambda interval: (trade_cycle.symbol, interval), self.intervals))
+                
+                # cycle through all keys
+                for key in current_keys:
+                    # from stream get latest kline
+                    current_kline = format_kline(json.loads(await streams[key].recv())['k'])
+                    # if last candles have equal time, update last candle of dataframe to latest kline from stream
+                    if klines[key].iloc[-1].name == current_kline.iloc[-1].name:
+                        klines[key] =  pd.concat([klines[key].iloc[:-1, :], current_kline])
+                                        
+                current_klines = {}
+                for key in klines.keys():
+                    if trade_cycle.symbol in key:
+                        current_klines[key[1]] = klines[key]
+                
+                # -------- ANALYSIS --------
                 #TODO should return trade state on function call, if sell then only focus on that coin (if not unlimited)
-                    #TODO perhaps make function call async so we can download klines in the meantime
                 
-                return
+                # trade_cycle.run(current_klines, buy_conditions, sell_conditions) # not implemented yet
+                
+                
+                #TODO perhaps make function call async so we can download klines in the meantime
+                
+            return
                 
             
     
@@ -234,22 +255,21 @@ if __name__ == "__main__":
     # MAIN PARAMETERS
     method_index = 3
     method_type = MethodType.paper
-    buy_parameters = ""
-    sell_parameters = ""
     symbols = [ "BTCUSDT", "ADAUSDT", "TRXUSDT", "ETHUSDT" ]
+    intervals = ["5m", "1m"]
     
     # ---------------
     
     method_file_path = ".".join(["methods", f"method_{method_index}"])
     method_file = __import__(method_file_path, fromlist=["buy_conditions", "sell_conditions"])
-    # method_file = importlib.import_module(method_file_path)
     
-    logger = get_logger()
         
     trade_info = TradeInfo(
         method_type=method_type,
-        buy_parameters=buy_parameters,
-        sell_parameters=sell_parameters,
+        kline_limit=21,
+        trade_quote_quantity=10,
+        min_profit=0.6,
+        risk_multiplier=1.5,
         buy_conditions=method_file.buy_conditions,
         sell_conditions=method_file.sell_conditions
     )
@@ -273,7 +293,7 @@ if __name__ == "__main__":
     #     print("Sleeping for 2.")
     #     time.sleep(2)
     
-trade_process = TradeProcess(symbols, ["5m", "1h"], trade_info)
+trade_process = TradeProcess(symbols, intervals, trade_info)
 trade_process.begin()
 
                 
