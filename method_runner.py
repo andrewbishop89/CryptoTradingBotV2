@@ -6,7 +6,7 @@
 # 2022/07/08
 #
 
-from typing import Callable, Tuple, List, Any
+from typing import Callable, Tuple, List, Any, Dict
 from helper_functions.data_collection import download_recent_klines
 from helper_functions.trade import buy_trade, sell_trade
 from multiprocessing import Pool
@@ -25,25 +25,6 @@ from rich.console import Console
 
 print = Console().print
 
-class Interval(Enum):
-    m1 = 0
-    m5 = 1
-    m15 = 2
-    m30 = 3
-    h1 = 4
-    h4 = 5
-    
-@dataclass
-class IntervalDTO:
-    #TODO finish
-    interval: str
-    
-@dataclass
-class SymbolDTO:
-    #TODO finish
-    symbol: str
-
-    
 
 @dataclass
 class TestCondition:
@@ -83,6 +64,7 @@ class BuyParameters:
     risk_multiplier: float
     symbol: str
     
+    
 @dataclass
 class SellParameters:
     """
@@ -104,9 +86,18 @@ class TradeInfo:
     """
     
     """
-    method_type: MethodType
-    buy_parameters: BuyParameters
-    sell_parameters: SellParameters
+    # METHOD PARAMETERS
+    method_type: MethodType #real/paper/backtest
+    kline_limit: int
+    
+    # BUY PARAMETERS
+    trade_quote_quantity: float
+    min_profit: float
+    
+    # SELL PARAMETERS
+    risk_multiplier: float
+    
+    # TRADE CONDITIONS
     buy_conditions: TestConditions
     sell_conditions: TestConditions
 
@@ -117,7 +108,6 @@ class TradeState(Enum):
     sell = 1        # active trade, looking to sell out
     wait = 2        # if other trades are active, wait
         
-        
 
 @dataclass
 class TradeCycle:
@@ -125,15 +115,12 @@ class TradeCycle:
     Contains all information for a single trade cycle.
     """
     symbol: str
-    trade_info: TradeInfo
     
     def __postinit__(self):
         self.trade_state = TradeState.buy
-        
-        
+            
     def __call__(self, klines):
         return self.run(klines)
-    
     
     def run(self, klines):
         
@@ -149,7 +136,7 @@ class TradeCycle:
             if self.sell_conditions.check_all(klines):
                 # TODO rewrite sell_trade function so it takes buy parameters object as argument
                 sell_id, _ = sell_trade(self.sell_parameters)            
-                self.trade_state == TradeState.buy    
+                self.trade_state == TradeState.buy
                 
                 # TODO implement logging here
 
@@ -164,12 +151,6 @@ def get_logger(logging_level=logging.INFO):
     logger.addHandler(handler)
     
     return logger
-
-class Symbol(Enum):
-    BTCUSDT = 0
-    ETHUSDT = 1
-    ADAUSDT = 2
-    BNBUSDT = 3
 
 
 @dataclass
@@ -266,8 +247,8 @@ if __name__ == "__main__":
     #     print("Sleeping for 2.")
     #     time.sleep(2)
     
-    trade_process = TradeProcess(symbols, ["5m", "1h"], trade_info)
-    trade_process.begin()
+trade_process = TradeProcess(symbols, ["5m", "1h"], trade_info)
+trade_process.begin()
 
                 
         
