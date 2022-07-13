@@ -159,42 +159,82 @@ class SymbolStream:
     stream: WebSocketClientProtocol
 
 
+def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> Dict[Tuple[str, str], pd.DataFrame]:
+    """
+
+    Args:
+        symbols (List[str]): _description_
+        intervals (List[str]): _description_
+        limit (int, optional): _description_. Defaults to 50.
+
+    Returns:
+        Dict[Tuple[str, str], pd.DataFrame]: _description_
+    """
+    kline_sets = {}
+    for interval in intervals:
+        for symbol in symbols:
+            kline_sets[(interval, symbol)] = download_recent_klines(
+                symbol=symbol,
+                interval=interval,
+                limit=limit)
+            
+    return kline_sets
+    
+    
 @dataclass
 class TradeProcess:
     
-    symbols: List[Symbol]
-    intervals: List[Interval]
+    symbols: List[str]
+    intervals: List[str]
     trade_info: TradeInfo
         
     def begin(self):
         return asyncio.run(self.async_begin())
-        
         
     async def async_begin(self):
         
         # INITIALIZE TRADE INFORMATION
         method_type = self.trade_info.method_type
         
-        buy_parameters = self.trade_info.buy_parameters
-        sell_parameters = self.trade_info.sell_parameters
-        
         buy_conditions = self.trade_info.buy_conditions
         sell_conditions = self.trade_info.sell_conditions
         
-        streams = []
+        klines = generate_kline_set(self.symbols, self.intervals, trade_info.limit)
+        
+        streams = {}
         
         # INITIALIZE STREAMS
+        
+        #TODO add `limit` amount of klines to beginning of stream kline from download recent klines 
         #TODO change for loop to a map
         for interval in self.intervals:
             for symbol in self.symbols:
                 ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
-                streams.append(await websockets.connect(ws_path))
+                streams[(symbol, interval)] = await websockets.connect(ws_path)
         
-        for stream in streams:
+        for stream in streams.values():
             time.sleep(1)
             print(stream, stream.open, "\n", await stream.recv(), "\n")
             
+        trade_cycles = list(map(TradeCycle, self.symbols))
+        
+        pprint(trade_cycles)
+        
         exit(1)
+        
+        while True:
+            
+            #TODO cycle through each coin and perform tests
+            for trade_cycle in trade_cycles:
+                
+                #TODO download klines during each cycle (perhaps create dataclass for klines, need to sort by intervals)
+                    #TODO check stream status when downloading data
+                
+                #TODO should return trade state on function call, if sell then only focus on that coin (if not unlimited)
+                    #TODO perhaps make function call async so we can download klines in the meantime
+                
+                return
+                
             
     
             
