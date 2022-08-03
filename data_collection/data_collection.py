@@ -192,7 +192,7 @@ def download_recent_klines(symbol: str, interval: str,
             time.sleep(20)
         else:
             break
-    return format_historical_klines(klines)
+    return format_binance_klines(klines)
 
 
 def get_klines(symbol: str, limit: int, interval: str = '1m',
