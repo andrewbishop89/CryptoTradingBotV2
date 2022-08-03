@@ -132,14 +132,13 @@ def format_kline(kline: dict) -> pd.DataFrame:
 	:return pd.DataFrame: formatted kline dataframe
 	"""
 	df = pd.DataFrame(data={
-		't': [kline['t']],
+		't': [int(kline['t']/1000)],
 		'o': [float(kline['o'])],
 		'c': [float(kline['c'])],
 		'h': [float(kline['h'])],
 		'l': [float(kline['l'])],
 		'n': [float(kline['n'])],
 		'v': [float(kline['v'])]})
-	df['t'] = pd.to_datetime(df['t'], unit='ms')
 	return df.set_index('t')	
 
 # def get_logger(logging_level=logging.INFO):
@@ -155,24 +154,26 @@ def format_kline(kline: dict) -> pd.DataFrame:
 #	  return logger
 
 
-def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> Dict[Tuple[str, str], pd.DataFrame]:
+def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> pd.DataFrame:
+	#TODO finsish doctstring
 	"""
 	Generates a dictionary containing the klines with keys as Tuple[str, str] where the strings are the symbol and interval respectively.
 
 	:param List[str] symbols: list of symbols to download data for
 	:param List[str] intervals: list of intervals to download data for
 	:param int limit: amount of klines to download, defaults to 50
-	:return Dict[Tuple[str, str], pd.DataFrame]: a set of downloaded klines sorted in dictionary form
+	
 	"""
 	kline_sets = {}
 	for interval in intervals:
+		kline_sets[interval] = {}
 		for symbol in symbols:
-			kline_sets[(symbol, interval)] = download_recent_klines(
+			kline_sets[interval][symbol] = download_recent_klines(
 				symbol=symbol,
 				interval=interval,
 				limit=limit)
 			
-	return kline_sets
+	return pd.DataFrame(kline_sets) 
 	
 	
 @dataclass
@@ -200,11 +201,12 @@ class TradeProcess:
 		streams = {}
 		
 		# connect stream for each symbol and interval pair
-		for interval in self.intervals:
-			for symbol in self.symbols:
+		for symbol in self.symbols:
+			streams[symbol] = {}
+			for interval in self.intervals:
 				ws_path = f"wss://stream.binance.com:9443/ws/{symbol.lower()}@kline_{interval}"
 				print(f'Connecting "{symbol} {interval}" data stream...')
-				streams[(symbol, interval)] = await websockets.connect(ws_path)
+				streams[symbol][interval] = await websockets.connect(ws_path)
 
 		trade_cycles = list(map(TradeCycle, self.symbols))
 		
@@ -212,27 +214,24 @@ class TradeProcess:
 			
 			#TODO cycle through each coin and perform tests
 			for trade_cycle in trade_cycles:
-				
+					
 				# -------- DOWNLOAD DATA --------
 				#TODO check stream status when downloading data
-				
-				# get iteration keys (symbol, interval) for stream and klines access
-				current_keys = list(map(lambda interval: (trade_cycle.symbol, interval), self.intervals))
 
-				# cycle through all keys
-				for key in current_keys:
+				symbol = trade_cycle.symbol
+
+				# cycle through all intervals 
+				for interval in self.intervals:
 					# from stream get latest kline
-					current_kline = format_kline(json.loads(await streams[key].recv())['k'])
+					current_kline = format_kline(json.loads(await streams[symbol][interval].recv())['k'])
+					
 					# if last candles have equal time, update last candle of dataframe to latest kline from stream
-					if klines[key].iloc[-1].name == current_kline.iloc[-1].name:
-						klines[key] =  pd.concat([klines[key].iloc[:-1, :], current_kline])
+					current_kline_time = current_kline.iloc[-1].name
+					previous_kline_time = klines.loc[symbol, interval].iloc[-1].name
+					
+					if current_kline_time != previous_kline_time: 
+						klines.loc[symbol, interval] = pd.concat([klines.loc[symbol, interval].iloc[:-1, :], current_kline])
 
-				current_klines = {}
-				for key in klines.keys():
-					if trade_cycle.symbol == key[0]:
-						current_klines[key[1]] = klines[key]
-				
-				pprint(current_klines)
 				# -------- ANALYSIS --------
 				#TODO should return trade state on function call, if sell then only focus on that coin (if not unlimited)
 				
@@ -250,8 +249,8 @@ if __name__ == "__main__":
 	# MAIN PARAMETERS
 	method_index = 3
 	run_type = RunType.paper
-	symbols = [ "BTCUSDT" ]
-	intervals = [ "1m" ]
+	symbols = [ "BTCUSDT", "ETHUSDT" ]
+	intervals = [ "1m", "5m" ]
 	
 	# ---------------
 	
@@ -260,7 +259,7 @@ if __name__ == "__main__":
 	
 	trade_info = TradeInfo(
 		run_type=run_type,
-		kline_limit=21,
+		kline_limit=4,
 		trade_quote_quantity=10,
 		min_profit=0.6,
 		risk_multiplier=1.5,
