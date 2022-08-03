@@ -123,7 +123,35 @@ class TradeCycle:
 				
 		return self.trade_state
 				
+	
+@dataclass
+class Data:
+	klines: pd.DataFrame
 				
+	def __getitem__(self, symbol): #TODO add return type
+		return self.klines.loc[symbol]
+
+	def display(self, symbol, interval) -> None:
+		print(f"{symbol} {interval}")
+		pprint(self[symbol][interval])
+		print()
+
+	def display_all(self) -> None:
+		symbols = self.klines.index
+		intervals = self.klines.columns
+
+		for symbol in symbols:
+			for interval in intervals:
+				print(f"{symbol} {interval}")
+				pprint(self[symbol][interval])
+				print()
+
+
+@dataclass
+class Streams:
+	streams: Dict[str, Dict[str, WebSocketClientProtocol]]
+
+
 def format_kline(kline: dict) -> pd.DataFrame:
 	"""
 	Converts kline from dict to dataframe.
@@ -141,6 +169,7 @@ def format_kline(kline: dict) -> pd.DataFrame:
 		'v': [float(kline['v'])]})
 	return df.set_index('t')	
 
+
 # def get_logger(logging_level=logging.INFO):
 #	  logger = logging.getLogger(__name__)
 	
@@ -154,7 +183,19 @@ def format_kline(kline: dict) -> pd.DataFrame:
 #	  return logger
 
 
-def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> pd.DataFrame:
+def display_kline_set(klines: Data) -> None:
+	
+	tokens = klines.klines.index
+	intervals = klines.klines.columns
+
+	for token in tokens:
+		for interval in intervals:
+			print(f"{token} {interval}:")
+			pprint(klines[token][interval])
+			print()
+
+
+def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) -> Data:
 	#TODO finsish doctstring
 	"""
 	Generates a dictionary containing the klines with keys as Tuple[str, str] where the strings are the symbol and interval respectively.
@@ -172,8 +213,8 @@ def generate_kline_set(symbols: List[str], intervals: List[str], limit: int=50) 
 				symbol=symbol,
 				interval=interval,
 				limit=limit)
-			
-	return pd.DataFrame(kline_sets) 
+	
+	return Data(pd.DataFrame(kline_sets)) 
 	
 	
 @dataclass
@@ -227,10 +268,10 @@ class TradeProcess:
 					
 					# if last candles have equal time, update last candle of dataframe to latest kline from stream
 					current_kline_time = current_kline.iloc[-1].name
-					previous_kline_time = klines.loc[symbol, interval].iloc[-1].name
+					previous_kline_time = klines[symbol][interval].iloc[-1].name
 					
 					if current_kline_time != previous_kline_time: 
-						klines.loc[symbol, interval] = pd.concat([klines.loc[symbol, interval].iloc[:-1, :], current_kline])
+						klines[symbol][interval] = pd.concat([klines[symbol][interval].iloc[:-1, :], current_kline])
 
 				# -------- ANALYSIS --------
 				#TODO should return trade state on function call, if sell then only focus on that coin (if not unlimited)
@@ -239,7 +280,6 @@ class TradeProcess:
 				
 				
 				#TODO perhaps make function call async so we can download klines in the meantime
-				
 			
    
 	
