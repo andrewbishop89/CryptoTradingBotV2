@@ -24,6 +24,9 @@ import pandas as pd
 from rich.pretty import pprint
 from rich.console import Console
 
+from ta.trend import ema_indicator
+from ta.trend import sma_indicator
+
 print = Console().print
 
 
@@ -146,6 +149,17 @@ class Data:
 				pprint(self[symbol][interval])
 				print()
 
+	def EMA(self, symbol: str, interval: str, window: int) -> float:
+		ema_klines = self[symbol][interval]
+		assert len(ema_klines) >= window, f"ERROR Only have {len(ema_klines)} klines stored, need {window} for EMA calculation."
+		ema_value = ema_indicator(ema_klines.iloc[-window:]["close"], window=window).values[-1]
+		return ema_value
+
+	def SMA(self, symbol: str, interval: str, window: int) -> float:
+		sma_klines = self[symbol][interval]
+		assert len(sma_klines) >= window, f"ERROR Only have {len(sma_klines)} klines stored, need {window} for SMA calculation."
+		sma_value = sma_indicator(sma_klines.iloc[-window:]["close"], window=window).values[-1]
+		return sma_value
 
 @dataclass
 class Streams:
