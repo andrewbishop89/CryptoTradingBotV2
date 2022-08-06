@@ -139,7 +139,7 @@ class Data:
 		pprint(self[symbol][interval])
 		print()
 
-	def display_all(self) -> None:
+	def __repr__(self) -> None:
 		symbols = self.klines.index
 		intervals = self.klines.columns
 
@@ -161,9 +161,6 @@ class Data:
 		sma_value = sma_indicator(sma_klines.iloc[-window:]["close"], window=window).values[-1]
 		return sma_value
 
-@dataclass
-class Streams:
-	streams: Dict[str, Dict[str, WebSocketClientProtocol]]
 
 
 def format_kline(kline: dict) -> pd.DataFrame:
@@ -174,27 +171,14 @@ def format_kline(kline: dict) -> pd.DataFrame:
 	:return pd.DataFrame: formatted kline dataframe
 	"""
 	df = pd.DataFrame(data={
-		't': [int(kline['t']/1000)],
-		'o': [float(kline['o'])],
-		'c': [float(kline['c'])],
-		'h': [float(kline['h'])],
-		'l': [float(kline['l'])],
-		'n': [float(kline['n'])],
-		'v': [float(kline['v'])]})
-	return df.set_index('t')	
-
-
-# def get_logger(logging_level=logging.INFO):
-#	  logger = logging.getLogger(__name__)
-	
-#	  logger.setLevel(logging_level)
-#	  log_fp = os.path.join("logs", f"{__name__}.log")
-#	  handler = logging.FileHandler(log_fp, mode="a")
-#	  formatter = logging.Formatter('%(levelname)s @ %(asctime)s - %(threadName)s - %(filename)s - Line %(lineno)d - %(message)s')
-#	  handler.setFormatter(formatter)
-#	  logger.addHandler(handler)
-	
-#	  return logger
+		'time': [int(kline['t']/1000)],
+		'open': [float(kline['o'])],
+		'close': [float(kline['c'])],
+		'high': [float(kline['h'])],
+		'low': [float(kline['l'])],
+		'number': [float(kline['n'])],
+		'volume': [float(kline['v'])]})
+	return df.set_index('time')	
 
 
 def display_kline_set(klines: Data) -> None:
@@ -294,9 +278,7 @@ class TradeProcess:
 				
 				
 				#TODO perhaps make function call async so we can download klines in the meantime
-			
-   
-	
+		
 
 if __name__ == "__main__":
 	
@@ -313,7 +295,7 @@ if __name__ == "__main__":
 	
 	trade_info = TradeInfo(
 		run_type=run_type,
-		kline_limit=4,
+		kline_limit=30,
 		trade_quote_quantity=10,
 		min_profit=0.6,
 		risk_multiplier=1.5,
@@ -340,8 +322,7 @@ if __name__ == "__main__":
 	#	  print("Sleeping for 2.")
 	#	  time.sleep(2)
 	
-trade_process = TradeProcess(symbols, intervals, trade_info)
-trade_process.begin()
+	trade_process = TradeProcess(symbols, intervals, trade_info)
+	trade_process.begin()
 
-				
-		
+
