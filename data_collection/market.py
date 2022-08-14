@@ -9,12 +9,13 @@
 # modules imported
 import pandas as pd
 
-from constants.parameters import *
-from helper_functions.api import *
+from constants.parameters import API_KEY, API_SECRET
+from api.binance import *
 
-#----------------------------------functions-----------------------------------
+# ----------------------------------functions-----------------------------------
 
-def daily_ticker_24hr(symbol: str=None, payment_symbol: str=None) -> pd.DataFrame:
+
+def daily_ticker_24hr(symbol: str = None, payment_symbol: str = None) -> pd.DataFrame:
     """
     Description:
         Returns DataFrame of symbol(s) of 24h price data.
@@ -24,7 +25,8 @@ def daily_ticker_24hr(symbol: str=None, payment_symbol: str=None) -> pd.DataFram
         pd.DataFrame: DataFrame of symbol(s) of all 24h price data. 
     """
     if symbol:
-        tickers = send_public_request('/api/v3/ticker/24hr', payload={'symbol': symbol})
+        tickers = send_public_request(
+            '/api/v3/ticker/24hr', payload={'symbol': symbol})
         df = pd.DataFrame(tickers, index=[0])
     else:
         tickers = send_public_request('/api/v3/ticker/24hr')
@@ -36,7 +38,8 @@ def daily_ticker_24hr(symbol: str=None, payment_symbol: str=None) -> pd.DataFram
     df = df.set_index('symbol')
     return df
 
-def top_price_gainers(min_percent: float=0, max_percent: float=0, limit: int=None, payment_symbol: str=None) -> pd.DataFrame:
+
+def top_price_gainers(min_percent: float = 0, max_percent: float = 0, limit: int = None, payment_symbol: str = None) -> pd.DataFrame:
     """
     Description:
         Returns a list of the top gainer currencies in the last 24 hours.
@@ -52,7 +55,7 @@ def top_price_gainers(min_percent: float=0, max_percent: float=0, limit: int=Non
     df = daily_ticker_24hr(payment_symbol=payment_symbol)
     df = df['priceChangePercent'].astype(float)
     df = df.sort_values()
-    
+
     if min_percent:
         df = df[df > min_percent]
     if max_percent:
@@ -60,7 +63,7 @@ def top_price_gainers(min_percent: float=0, max_percent: float=0, limit: int=Non
     return df.iloc[-limit:] if (limit and len(df) > limit) else df
 
 
-def top_volume_gainers(min_volume: float=0, limit: int=None, payment_symbol: str=None) -> pd.DataFrame:
+def top_volume_gainers(min_volume: float = 0, limit: int = None, payment_symbol: str = None) -> pd.DataFrame:
     """
     Description:
         Returns a list of the top volume gainer currencies in the last 24 
@@ -73,8 +76,7 @@ def top_volume_gainers(min_volume: float=0, limit: int=None, payment_symbol: str
     df = daily_ticker_24hr(payment_symbol=payment_symbol)
     df = df['volume'].astype(float)
     df = df.sort_values()
-    
+
     if min_volume:
         df = df[df > min_volume]
     return df.iloc[-limit:] if (limit and len(df) > limit) else df
-
