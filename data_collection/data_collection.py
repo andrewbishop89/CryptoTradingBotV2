@@ -14,15 +14,13 @@ import requests
 import logging
 from random import randint
 
-from constants.parameters import *
-from helper_functions.setup import *
+from constants.parameters import API_KEY, API_SECRET
+from setup.setup import *
 
-logger = logging.getLogger("main")
+# ----------------------------------functions-----------------------------------
 
-#----------------------------------functions-----------------------------------
 
-def historical_klines(symbol: str, interval: str, limit: int, 
-    start_time: int = -1) -> pd.DataFrame:
+def historical_klines(symbol: str, interval: str, limit: int, start_time: int = None) -> pd.DataFrame:
     """
     Description:
         Downloads historical klines (candles) for specified arguments.
@@ -31,7 +29,7 @@ def historical_klines(symbol: str, interval: str, limit: int,
         interval (str): interval of klines to return
         limit (int): number of klines to download
         start_time (int, optional): start time in form of unix timestamp 
-        (defaults to -1)
+        (defaults to None)
     Raises:
         ValueError: incase no candles were downloaded
     Returns:
@@ -41,7 +39,7 @@ def historical_klines(symbol: str, interval: str, limit: int,
     try:
         interval = decode_interval(interval)
         client = Client(API_KEY, API_SECRET)
-        if start_time == -1:
+        if start_time:
             start_time = kline_start_time(interval, limit)
         if limit > 1000:
             remainder = limit % 1000
@@ -79,8 +77,8 @@ def historical_klines(symbol: str, interval: str, limit: int,
         return format_binance_klines(klines)
 
 
-def candle_data_file_path(symbol: str, interval: str, 
-        historical: bool=False) -> str:
+def candle_data_file_path(symbol: str, interval: str,
+                          historical: bool = False) -> str:
     """
     Description:
         Returns the file path for the corresponding input parameters.
@@ -93,11 +91,11 @@ def candle_data_file_path(symbol: str, interval: str,
         str: file path for input data
     """
     if historical:
-        return os.path.join('data', 'historical_data', str(interval), 
-            f"{symbol}_{interval}.csv")
+        return os.path.join('data', 'historical_data', str(interval),
+                            f"{symbol}_{interval}.csv")
     else:
-        return os.path.join('data', 'live_data', str(interval), 
-            f"{symbol}_{interval}.csv")
+        return os.path.join('data', 'live_data', str(interval),
+                            f"{symbol}_{interval}.csv")
 
 
 def download_for_backtest(symbol: str, interval: str, limit: int = 1000):
@@ -106,8 +104,8 @@ def download_for_backtest(symbol: str, interval: str, limit: int = 1000):
     return klines
 
 
-def download_to_csv(symbol: str, interval: str, 
-    limit: int = 500) -> pd.DataFrame:
+def download_to_csv(symbol: str, interval: str,
+                    limit: int = 500) -> pd.DataFrame:
     """
     Description:
         Downloads specified candles and saves them to a csv file.
@@ -123,8 +121,8 @@ def download_to_csv(symbol: str, interval: str,
     return klines
 
 
-def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str, 
-        historical: bool=False):
+def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str,
+                  historical: bool = False):
     """
     Description:
         Saves the candles passed as argument to a csv file.
@@ -139,9 +137,10 @@ def klines_to_csv(klines: pd.DataFrame, symbol: str, interval: str,
         klines = klines_dict_to_df(klines)
     init_coin(symbol, interval)
     klines.to_csv(candle_data_file_path(symbol, interval, historical))
-    
-def get_saved_klines(symbol: str, interval: str, limit: int=None, 
-        historical: bool=False) -> pd.DataFrame:
+
+
+def get_saved_klines(symbol: str, interval: str, limit: int = None,
+                     historical: bool = False) -> pd.DataFrame:
     """
     Description:
         Returns locally saved klines for specified parameters.
@@ -160,8 +159,9 @@ def get_saved_klines(symbol: str, interval: str, limit: int=None,
     else:
         return klines.iloc[:limit]
 
-def download_recent_klines(symbol: str, interval:str, 
-    limit: int = 500) -> pd.DataFrame:
+
+def download_recent_klines(symbol: str, interval: str,
+                           limit: int = 500) -> pd.DataFrame:
     """
     Description:
         Returns the last X most recent candles where X is the limit 
@@ -175,24 +175,28 @@ def download_recent_klines(symbol: str, interval:str,
     """
     while True:
         try:
-            if (limit > 1000): #this func cant do over 1000 func but other func can
+            if (limit > 1000):  # this func cant do over 1000 func but other func can
                 return historical_klines(symbol, interval, limit)
             client = Client(API_KEY, API_SECRET)
-            klines = client.get_klines(symbol=symbol, interval=interval, limit=limit)
+            klines = client.get_klines(
+                symbol=symbol, interval=interval, limit=limit)
         except binance.exceptions.BinanceAPIException:
-            wait_time = randint(30,90) # use random to stagger incase multiple api errors are raised simultaneously
-            logger.warning(f"Binance API Error. Retrying in {wait_time}s.", exc_info=True)
+            # use random to stagger incase multiple api errors are raised simultaneously
+            wait_time = randint(30, 90)
+            logger.warning(
+                f"Binance API Error. Retrying in {wait_time}s.", exc_info=True)
             time.sleep(wait_time)
         except requests.exceptions.ConnectionError:
-            logger.warning(f"Connection Error. Retrying in 20s.", exc_info=True)
+            logger.warning(
+                f"Connection Error. Retrying in 20s.", exc_info=True)
             time.sleep(20)
         else:
             break
     return format_binance_klines(klines)
 
 
-def get_klines(symbol: str, limit: int, interval: str = '1m', 
-    offset: int = -1) -> pd.DataFrame:
+def get_klines(symbol: str, limit: int, interval: str = '1m',
+               offset: int = -1) -> pd.DataFrame:
     """
     Description:
         Returns candles specified by parameters.
@@ -213,11 +217,11 @@ def get_klines(symbol: str, limit: int, interval: str = '1m',
     while True:
         try:
             klines = pd.read_csv(os.path.join(
-                "data", 
+                "data",
                 "live_data",
-                f"{interval}", 
+                f"{interval}",
                 f"{symbol.upper()}_{interval}.csv"))
-            
+
             if len(klines):
                 break
             else:
@@ -232,6 +236,7 @@ def get_klines(symbol: str, limit: int, interval: str = '1m',
     elif offset != -1:
         return klines.iloc[-int(limit)-int(offset):-int(offset)]
     raise ValueError
+
 
 def delete_old_data():
     """
