@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# analysis.py: contains all the functions involving technical analysis or any 
+# analysis.py: contains all the functions involving technical analysis or any
 # other mathematical operations and transformations.
 #
 # Andrew Bishop
@@ -13,14 +13,12 @@ import numpy as np
 from ta.trend import ema_indicator
 from ta.trend import sma_indicator
 
-from constants.parameters import *
 
-
-#----------------------------------functions-----------------------------------
+# ----------------------------------functions-----------------------------------
 
 def fibonacci_retracement_levels(
-    start_price: float, 
-    end_price: float) -> list:
+        start_price: float,
+        end_price: float) -> list:
     """
     Description:
         Calculates the fibonacci price levels for parameters specified.
@@ -30,13 +28,13 @@ def fibonacci_retracement_levels(
     Returns:
         list: list of all floats of all fibonacci price levels
     """
-    
-    level_percentages = np.array([0, 0.382, 0.5, 0.618, 0.764, 0.88, 1, -0.25, 
-        -0.618, -1.618])
+
+    level_percentages = np.array([0, 0.382, 0.5, 0.618, 0.764, 0.88, 1, -0.25,
+                                  -0.618, -1.618])
     price_difference = end_price-start_price
-    return [(end_price - (price_difference*percentage)) for percentage in \
-        level_percentages]
-    
+    return [(end_price - (price_difference*percentage)) for percentage in
+            level_percentages]
+
 
 def list_to_series(data: list) -> pd.Series:
     """
@@ -50,7 +48,7 @@ def list_to_series(data: list) -> pd.Series:
     return pd.Series(np.array(data))
 
 
-def EMA(data, window: int=50, offset: int=0) -> pd.Series:
+def EMA(data, window: int = 50, offset: int = 0) -> pd.Series:
     """
     Description:
         Calculates Exponential Moving Average (EMA) of data passed as 
@@ -63,7 +61,8 @@ def EMA(data, window: int=50, offset: int=0) -> pd.Series:
     """
     return pd.Series(ema_indicator(data, window=window).values)
 
-def SMA(data, window: int=10) -> pd.Series:
+
+def SMA(data, window: int = 10) -> pd.Series:
     """
     Description:
         Calculates Simple Moving Average (SMA) of data passed as parameter.
@@ -101,7 +100,7 @@ def SMMA(klines: pd.DataFrame, window: int) -> list:
     return smma_values
 
 
-#-------------------------------chart-patterns---------------------------------
+# -------------------------------chart-patterns---------------------------------
 
 def bull_flag(klines: pd.DataFrame) -> bool:
     """
@@ -112,14 +111,14 @@ def bull_flag(klines: pd.DataFrame) -> bool:
     Returns:
         bool: true if bull flag was just formed, false otherwise
     """
-    
+
     lows = klines[:, 'l']
     highs = klines[:, 'h']
     close_4 = klines[4, 'c']
-    
+
     criteria_1 = (lows[0] < lows[1]) and (lows[0] < lows[2]) \
         and (lows[0] < lows[3])
     criteria_2 = (highs[1] > highs[2]) and (highs[2] > highs[3])
     criteria_3 = (close_4 > highs[3])
-    
+
     return (criteria_1 and criteria_2 and criteria_3)
