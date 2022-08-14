@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# trade.py: contains all the functions involving the process of making trades 
+# trade.py: contains all the functions involving the process of making trades
 # and verifying they are valid.
 #
 # Andrew Bishop
@@ -16,13 +16,12 @@ import logging
 from random import randint
 
 from constants.parameters import *
-from helper_functions.api import *
-from helper_functions.setup import *
-from helper_functions.data_collection import *
+from api.binance import *
+from setup.setup import *
+from data_collection.data_collection import *
 
-logger = logging.getLogger("main")
 
-#----------------------------------functions-----------------------------------
+# ----------------------------------functions-----------------------------------
 
 # PARAM
 # RETURN
@@ -30,19 +29,22 @@ def request_order(payload={}):
     order_request = send_signed_request('POST', '/api/v3/order', payload)
     try:
         now = convert_time(time.time())
-        logger.info(f"Creating {payload['symbol'].upper()} {payload['type'].replace('_', ' ')} {payload['side'].upper()} order at {now} ({normalize_time(now)}).")
+        logger.info(
+            f"Creating {payload['symbol'].upper()} {payload['type'].replace('_', ' ')} {payload['side'].upper()} order at {now} ({normalize_time(now)}).")
     except KeyError:
         logger.info("Creating Purchase Order")
     return order_request
 
-#PARAM symbol(str): symbol of coin to buy
-#PARAM quote_quantity(float): quote quantity to buy
-#PARAM quantity(float): quantity to buy
-#RETURN (int): order id of buy trade
-#RETURN (float): profit quantity
-def buy_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
+# PARAM symbol(str): symbol of coin to buy
+# PARAM quote_quantity(float): quote quantity to buy
+# PARAM quantity(float): quantity to buy
+# RETURN (int): order id of buy trade
+# RETURN (float): profit quantity
+
+
+def buy_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
     desired_quantity = get_desired_quantity(
-        symbol=symbol, 
+        symbol=symbol,
         set_price=quote_quantity) if (not quantity) else quantity
     buy_payload = {
         'symbol':       symbol,
@@ -58,7 +60,8 @@ def buy_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
             ======== $\nProposed:\n{pformat(buy_payload)}\nActual:\n \
             {pformat(trade_receipt)}\n\n")
     if 'code' in list(trade_receipt.keys()):
-        logger.warning(f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(buy_payload)}\n{pformat(trade_receipt)}", exc_info=True)
+        logger.warning(
+            f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(buy_payload)}\n{pformat(trade_receipt)}", exc_info=True)
     profit_quantity = get_profit_quantity(symbol, desired_quantity)
     try:
         order_id = trade_receipt['orderId']
@@ -67,13 +70,15 @@ def buy_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
         return None, profit_quantity
     else:
         return order_id, profit_quantity
-    
-#PARAM symbol(str): symbol of coin to sell
-#PARAM quote_quantity(float): quote quantity to sell
-#PARAM quantity(float): quantity to sell
-#RETURN (int): order id of sell trade
-#RETURN (float): profit quantty
-def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
+
+# PARAM symbol(str): symbol of coin to sell
+# PARAM quote_quantity(float): quote quantity to sell
+# PARAM quantity(float): quantity to sell
+# RETURN (int): order id of sell trade
+# RETURN (float): profit quantty
+
+
+def sell_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
     desired_quantity = quantity if (not quote_quantity) else \
         get_desired_quantity(symbol=symbol, set_price=quote_quantity)
     sell_payload = {
@@ -90,7 +95,8 @@ def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
             ORDER ======== $\nProposed:\n{pformat(sell_payload)}\nActual: \
             \n{pformat(trade_receipt)}\n\n")
     if 'code' in list(trade_receipt.keys()):
-        logger.critical(f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(sell_payload)}\n{pformat(trade_receipt)}", exc_info=True)
+        logger.critical(
+            f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(sell_payload)}\n{pformat(trade_receipt)}", exc_info=True)
     profit_quantity = get_profit_quantity(symbol, desired_quantity)
     try:
         order_id = trade_receipt['orderId']
@@ -101,20 +107,21 @@ def sell_trade(symbol: str, quote_quantity: float=0, quantity: float=0):
         return order_id, profit_quantity
 
 
-#PARAM symbol(str): symbol of quantity to trade
-#PARAM percentage_cut(float): percentage of bank account to trade
-#PARAM set_price(float): exact price to trade
+# PARAM symbol(str): symbol of quantity to trade
+# PARAM percentage_cut(float): percentage of bank account to trade
+# PARAM set_price(float): exact price to trade
 def get_desired_quantity(
-    symbol: str, 
-    percentage_cut: float=0.04, 
-    set_price: float=-1):
-    
+        symbol: str,
+        percentage_cut: float = 0.04,
+        set_price: float = -1):
+
     if set_price == -1:
-        
+
         price = float(get_current_price(symbol))
         minimum_cut = get_minimum_cut(symbol)
         if percentage_cut < minimum_cut:
-            logger.error(f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
+            logger.error(
+                f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
             raise ValueError
         payment_symbol = get_payment_symbol(symbol)
         payment = float(account_info([payment_symbol])[payment_symbol])
@@ -150,6 +157,7 @@ def trade_min_max_quantity(symbol):
         if 'stepSize' in item.keys():
             return float(item['minQty']), float(item['maxQty'])
 
+
 def exchange_information(symbol=-1):
     response = send_public_request('/api/v3/exchangeInfo')
     if symbol == -1:
@@ -165,7 +173,8 @@ def get_hardcoded_quantity(symbol, trade_quote_qty):
     payment_symbol = get_payment_symbol(symbol)
     payment = float(account_info([payment_symbol])[payment_symbol])
     if trade_quote_qty > payment:
-        logger.error(f"ERROR {symbol} Desired quote quantity (${trade_quote_qty}) is greater than current balance (${round(payment, 2)}).")
+        logger.error(
+            f"ERROR {symbol} Desired quote quantity (${trade_quote_qty}) is greater than current balance (${round(payment, 2)}).")
         return -1
     else:
         return float(validate_quantity(symbol, float(trade_quote_qty/price)))
@@ -176,11 +185,13 @@ def get_current_price(symbol):
     try:
         current_price = float(response["price"])
     except KeyError:
-        logger.warning(f"Key Error: Could not retrieve current price. Retrying in 60s.\n{pformat(response)}")
+        logger.warning(
+            f"Key Error: Could not retrieve current price. Retrying in 60s.\n{pformat(response)}")
         time.sleep(randint(30, 90))
         return get_current_price(symbol)
     else:
         return current_price
+
 
 def get_payment_symbol(symbol):
     if symbol.endswith("USDT"):
@@ -190,6 +201,7 @@ def get_payment_symbol(symbol):
     else:
         logger.error(f"{symbol} is invalid. Need 'USDT' or 'BNB' as payment.")
         raise ValueError
+
 
 def validate_quantity(symbol, quantity):
     minQty, maxQty = trade_min_max_quantity(symbol)
@@ -210,7 +222,8 @@ def validate_quantity(symbol, quantity):
         return -1
     payment_symbol = get_payment_symbol(symbol)
     if notional > float(account_balance(payment_symbol)):
-        logger.error(f"ERROR Account has insufficient balance.\n\tHave: {float(account_balance(payment_symbol))}\n\tNeed: {notional}")
+        logger.error(
+            f"ERROR Account has insufficient balance.\n\tHave: {float(account_balance(payment_symbol))}\n\tNeed: {notional}")
         return -1
 
     return round(quantity, precision-1)
@@ -275,7 +288,7 @@ def my_trades(symbol: str) -> list:
     Returns:
         list: list of trades for that symbol.
     """
-    payload = { 'symbol': symbol }
+    payload = {'symbol': symbol}
     return send_signed_request('GET', '/api/v3/myTrades', payload)
 
 
@@ -305,21 +318,21 @@ def normalize_time(ts):
     return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
 
-#PARAM thread(threading.Thread): thread object for trade loop
-#PARAM symbol(str): string of symbol to be traded
+# PARAM thread(threading.Thread): thread object for trade loop
+# PARAM symbol(str): string of symbol to be traded
 #RETURN (none)
 def start_trade(thread: threading.Thread, symbol: str):
-    #get all active thread names
+    # get all active thread names
     thread_names = [t.name for t in threading.enumerate()]
     count = 1
-    for name in thread_names: #find avaible thread name
+    for name in thread_names:  # find avaible thread name
         if symbol in name:
             count += 1
     thread_name = f"Thread-{symbol}-{count}"
-    if thread_name in thread_names: #raise error if error in name
+    if thread_name in thread_names:  # raise error if error in name
         logger.error(f"Two threads have same name.")
         raise ValueError
-    thread.name = thread_name #assign name to thread
-    thread.start() #start trade loop thread
-    
+    thread.name = thread_name  # assign name to thread
+    thread.start()  # start trade loop thread
+
     return
