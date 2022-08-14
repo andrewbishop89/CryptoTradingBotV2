@@ -1,0 +1,14 @@
+{
+    "binance_real": {
+        "key": null,
+        "secret": null
+    },
+    "binance_paper": {
+        "key": null,
+        "secret": null
+    },
+    "kraken_real": {
+        "key": null,
+        "secret": null
+    }
+}

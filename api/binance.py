@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
-# api.py: contains all the functions involving the use of the API directly. 
-# (note functinos like buy_trade and sell_trade are found in trade.py)
+# binance.py: contains all the functions involving the direct use of the 
+# Binance API directly.
 #
 # Andrew Bishop
 # 2021/11/13
