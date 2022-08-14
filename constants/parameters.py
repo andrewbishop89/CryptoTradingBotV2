@@ -12,6 +12,8 @@ import logging
 
 #------------------------------global-variables--------------------------------
 
+# TODO these should get moved to a shell script that is run on execution
+
 BLUE    = '\u001b[1;38;5;$39m'
 YELLOW  = '\u001b[38;5;$220m'
 GREEN   = '\u001b[38;5;$46m'
@@ -23,6 +25,8 @@ PRIMARY_COLOR   = BLUE
 SECONDARY_COLOR = GREY
 
 #-------------------------------API-variables----------------------------------
+
+# TODO remove this and replace with keys.sh environment variables
 
 global API_KEY, API_SECRET, BASE_URL #global so they are accessible everywhere
 
