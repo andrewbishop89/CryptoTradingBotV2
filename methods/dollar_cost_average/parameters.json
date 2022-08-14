@@ -1,0 +1,13 @@
+{
+    "symbols": [
+        "SOL",
+        "ETH",
+        "ADA",
+        "BTC"
+    ],
+    "payment_symbols": [
+        "USDT",
+        "BNB"
+    ],
+    "investment_amount": "15"
+}

@@ -2,12 +2,22 @@
 
 #text files
 *.txt
+!requirements.txt
 
 #jupyter notebooks
 *.ipynb
 
+#shell scripts
+keys.sh
+
+#json files
+keys.json
+
 #python files
 testing.py
+
+#log files
+*.log
 
 #pyc files
 *.pyc
@@ -16,17 +26,14 @@ testing.py
 *.xlsx
 
 #directories
-data
 __pycache__
-pictures
-logs
+.vscode
 venv
-
-#json files
-*.json
+.idea
 
 #csv files
 *.csv
 
 #other files
 .DS_Store
+
