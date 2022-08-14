@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# binance.py: contains all the functions involving the direct use of the 
+# binance.py: contains all the functions involving the direct use of the
 # Binance API directly.
 #
 # Andrew Bishop
@@ -13,16 +13,13 @@ import hashlib
 import hmac
 from urllib.parse import urlencode
 
-from constants.parameters import *
-from helper_functions.setup import *
+from constants.parameters import API_KEY, API_SECRET, BASE_URL
+from setup.setup import *
 
 
-#----------------------------------functions-----------------------------------
+# ----------------------------------functions-----------------------------------
 
-def send_signed_request(
-    http_method: str, 
-    url_path: str, 
-    payload: dict=None) -> dict:
+def send_signed_request(http_method: str, url_path: str, payload: dict = None) -> dict:
     """
     Description:
         Creates a signed API request for specified parameters.
@@ -57,7 +54,7 @@ def send_signed_request(
     return response.json()
 
 
-def send_public_request(url_path: str, payload: dict=None) -> dict:
+def send_public_request(url_path: str, payload: dict = None) -> dict:
     """
     Description:
         Creates a public API request for specified parameters.
@@ -74,7 +71,7 @@ def send_public_request(url_path: str, payload: dict=None) -> dict:
         payload = {}
     query_string = urlencode(payload, True)
     url = BASE_URL + url_path
-    
+
     if query_string:
         url = url + '?' + query_string
     try:
@@ -95,7 +92,7 @@ def hashing(query_string: str) -> str:
         str: hashed string for api requests
     """
     return hmac.new(
-        API_SECRET.encode('utf-8'), 
+        API_SECRET.encode('utf-8'),
         query_string.encode('utf-8'),
         hashlib.sha256).hexdigest()
 
