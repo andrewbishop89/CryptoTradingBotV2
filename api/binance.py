@@ -29,11 +29,11 @@ def send_signed_request(http_method: str, url_path: str, payload: dict = None) -
         payload (dict, optional): dictionary of all request attributes 
         (defaults to None)
     Raises:
-        ConnectionError: incase of a network connection error
+        ConnectionError: in case of a network connection error
     Returns:
         dict: api request response
     """
-    if (payload == None):
+    if payload:
         payload = {}
     query_string = urlencode(payload)
     # replace single quote to double quote
@@ -63,11 +63,11 @@ def send_public_request(url_path: str, payload: dict = None) -> dict:
         payload (dict, optional): dictionary of all request attributes 
         (defaults to None)
     Raises:
-        ConnectionError: incase of a network connection error
+        ConnectionError: in case of a network connection error
     Returns:
         dict: api request response
     """
-    if (payload == None):
+    if payload:
         payload = {}
     query_string = urlencode(payload, True)
     url = BASE_URL + url_path
