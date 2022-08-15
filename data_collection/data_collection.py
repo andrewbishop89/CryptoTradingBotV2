@@ -8,7 +8,7 @@
 
 # modules imported
 from binance.client import Client
-import binance
+from binance.exceptions import BinanceAPIException
 import os
 import requests
 import logging
@@ -180,7 +180,7 @@ def download_recent_klines(symbol: str, interval: str,
             client = Client(API_KEY, API_SECRET)
             klines = client.get_klines(
                 symbol=symbol, interval=interval, limit=limit)
-        except binance.exceptions.BinanceAPIException:
+        except BinanceAPIException:
             # use random to stagger incase multiple api errors are raised simultaneously
             wait_time = randint(30, 90)
             logger.warning(
