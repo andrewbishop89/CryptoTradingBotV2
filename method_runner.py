@@ -287,7 +287,7 @@ if __name__ == "__main__":
 	run_type = RunType.paper
 	symbols = [ "BTCUSDT", "ETHUSDT" ]
 	intervals = [ "1m", "5m" ]
-	
+
 	# ---------------
 	
 	method_file_path = ".".join(["methods", f"method_{method_index}"])

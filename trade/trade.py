@@ -144,6 +144,11 @@ def trade_precision(symbol):
     return exchange_information(symbol=symbol)['baseAssetPrecision']
 
 
+def get_available_assets():
+    information = exchange_information()['symbols']
+    return list(map(lambda x: x['symbol'], information))
+
+
 def trade_step_size(symbol):
     filters = exchange_information(symbol=symbol)['filters']
     for item in filters:
