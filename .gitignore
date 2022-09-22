@@ -30,6 +30,7 @@ __pycache__
 .vscode
 venv
 .idea
+notebooks
 
 #csv files
 *.csv
