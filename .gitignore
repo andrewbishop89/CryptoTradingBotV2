@@ -1,8 +1,10 @@
 #gitignore
 
+#environment variables
+.env
+
 #text files
 *.txt
-!requirements.txt
 
 #jupyter notebooks
 *.ipynb
