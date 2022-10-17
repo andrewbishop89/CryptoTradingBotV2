@@ -1,8 +1,8 @@
 ---
 name: New Feature
-about: 'Describe a new feature to implement.'
+about: Describe a new feature to implement.
 title: ''
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
