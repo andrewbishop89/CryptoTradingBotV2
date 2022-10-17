@@ -14,6 +14,7 @@ keys.sh
 
 #json files
 keys.json
+config.json
 
 #python files
 testing.py
