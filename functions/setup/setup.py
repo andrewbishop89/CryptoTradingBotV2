@@ -15,6 +15,8 @@ import pandas as pd
 from pprint import pprint, pformat
 import csv
 import threading
+from typing import Tuple, Dict, List
+from enum import Enum
 
 from constants.parameters import *
 
@@ -175,3 +177,18 @@ def lost_connection_sleep(
     print(print_string.ljust(terminal_width), end='\r')
 
     return
+
+
+class TradeType(Enum):
+    REAL = 0
+    PAPER = 1
+    BACKTEST = 2
+
+
+def retrieve_keys(trade_type: TradeType) -> Tuple[str, str]:
+    if trade_type == TradeType.REAL:
+        keys = (os.environ["BINANCE_REAL_K"], os.environ["BINANCE_REAL_S"])
+    else:
+        keys = (os.environ["BINANCE_PAPER_K"], os.environ["BINANCE_PAPER_S"])
+    return keys  
+
