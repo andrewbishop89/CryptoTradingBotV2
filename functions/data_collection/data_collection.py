@@ -6,8 +6,7 @@
 # 2021/11/13
 #
 
-# modules imported
-from binance.client import Client
+from binance.client import Client as ExternalClient 
 import binance
 import os
 import requests
@@ -38,7 +37,7 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
     """
     try:
         interval = decode_interval(interval)
-        client = Client(API_KEY, API_SECRET)
+        client = ExternalClient(API_KEY, API_SECRET)
         if start_time:
             start_time = kline_start_time(interval, limit)
         if limit > 1000:
@@ -177,7 +176,7 @@ def download_recent_klines(symbol: str, interval: str,
         try:
             if (limit > 1000):  # this func cant do over 1000 func but other func can
                 return historical_klines(symbol, interval, limit)
-            client = Client(API_KEY, API_SECRET)
+            client = ExternalClient(API_KEY, API_SECRET)
             klines = client.get_klines(
                 symbol=symbol, interval=interval, limit=limit)
         except binance.exceptions.BinanceAPIException:

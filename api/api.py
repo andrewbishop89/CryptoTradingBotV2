@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# binance.py: contains all the functions involving the direct use of the
+# api.py: contains all the functions involving the direct use of the
 # Binance API directly.
 #
 # Andrew Bishop
@@ -14,7 +14,7 @@ import hmac
 from urllib.parse import urlencode
 
 from constants.parameters import API_KEY, API_SECRET, BASE_URL
-from setup.setup import *
+from setup.setup import retrieve_keys
 
 
 # ----------------------------------functions-----------------------------------
