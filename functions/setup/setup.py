@@ -6,7 +6,6 @@
 # 2021/11/13
 #
 
-# modules imported
 from datetime import datetime
 import time
 import sys
@@ -18,10 +17,8 @@ import threading
 from typing import Tuple, Dict, List
 from enum import Enum
 
-from constants.parameters import *
+from classes.config import TradeType
 
-
-#----------------------------------functions-----------------------------------
             
 #PARAM interval(int): interval in int form to be converted to str form
 #RETURN (int): str value of interval
@@ -179,13 +176,13 @@ def lost_connection_sleep(
     return
 
 
-class TradeType(Enum):
-    REAL = 0
-    PAPER = 1
-    BACKTEST = 2
-
-
 def retrieve_keys(trade_type: TradeType) -> Tuple[str, str]:
+    """
+    Retrieves specified API keys from environment.
+
+    :param trade_type TradeType: specifies which API keys to return
+    :return Tuple[str, str]: a tuple of the public and secret api keys
+    """
     if trade_type == TradeType.REAL:
         keys = (os.environ["BINANCE_REAL_K"], os.environ["BINANCE_REAL_S"])
     else:
