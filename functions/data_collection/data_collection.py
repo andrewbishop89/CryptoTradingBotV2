@@ -13,8 +13,7 @@ import requests
 import logging
 from random import randint
 
-from constants.parameters import API_KEY, API_SECRET
-from setup.setup import *
+from functions.setup.setup import *
 
 # ----------------------------------functions-----------------------------------
 

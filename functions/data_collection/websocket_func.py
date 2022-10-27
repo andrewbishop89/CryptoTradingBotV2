@@ -17,9 +17,8 @@ import asyncio
 import logging
 import threading
 
-from constants.parameters import API_KEY, API_SECRET
-from setup.setup import *
-from data_collection.data_collection import *
+from functions.setup.setup import *
+from functions.data_collection.data_collection import *
 
 
 # ----------------------------------functions-----------------------------------

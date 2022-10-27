@@ -9,7 +9,6 @@
 # modules imported
 import pandas as pd
 
-from constants.parameters import API_KEY, API_SECRET
 from api.binance import *
 
 # ----------------------------------functions-----------------------------------

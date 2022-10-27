@@ -15,10 +15,9 @@ import threading
 import logging
 from random import randint
 
-from constants.parameters import *
 from api.binance import *
-from setup.setup import *
-from data_collection.data_collection import *
+from functions.setup.setup import *
+from functions.data_collection.data_collection import *
 
 
 # ----------------------------------functions-----------------------------------
@@ -40,8 +39,6 @@ def request_order(payload={}):
 # PARAM quantity(float): quantity to buy
 # RETURN (int): order id of buy trade
 # RETURN (float): profit quantity
-
-
 def buy_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
     desired_quantity = get_desired_quantity(
         symbol=symbol,
