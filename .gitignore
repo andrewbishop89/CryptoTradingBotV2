@@ -17,7 +17,7 @@ keys.json
 config.json
 
 #python files
-testing.py
+rough_work.py
 
 #log files
 *.log
@@ -31,7 +31,6 @@ testing.py
 #directories
 __pycache__
 .vscode
-venv
 .idea
 notebooks
 
