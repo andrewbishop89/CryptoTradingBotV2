@@ -18,7 +18,7 @@ class TradeAPI:
     trade_type: TradeType
 
 
-    def __post_init__():
+    def __post_init__(self):
         base_url = "https://api.binance.com"
         api_key, api_secret = retrieve_keys(self.trade_type)
 
@@ -39,7 +39,7 @@ class TradeAPI:
         return order_request
 
         
-    def buy_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
+    def buy_trade(self, symbol: str, quote_quantity: float = 0, quantity: float = 0):
         """
 
         """
@@ -50,7 +50,8 @@ class TradeAPI:
             'type':         'MARKET',
             'quantity':     desired_quantity,
         }
-        trade_receipt = _request_order(buy_payload)
+        # trade_receipt = _request_order(buy_payload)
+        return self._request_order(buy_payload)
         # TODO lower this sleep if possible
         time.sleep(5) 
 
@@ -72,7 +73,7 @@ class TradeAPI:
             return order_id, profit_quantity
 
 
-    def sell_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
+    def sell_trade(self, symbol: str, quote_quantity: float = 0, quantity: float = 0):
         """
 
         """
@@ -83,7 +84,8 @@ class TradeAPI:
             'type':         'MARKET',
             'quantity':     desired_quantity,
         }
-        trade_receipt = _request_order(sell_payload)
+        # trade_receipt = _request_order(sell_payload)
+        return self._request_order(sell_payload) 
         # TODO lower this sleep if possible
         time.sleep(5)
 
