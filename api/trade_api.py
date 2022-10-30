@@ -13,78 +13,70 @@ from functions.trade.trade import get_profit_quantity, get_desired_quantity, nor
 
 
 @dataclass
-class TradeAPI:
+class BinanceAPI:
     """
 
     """
-    trade_type: TradeType
-
+    method_cfg = MethodConfig
 
     def __post_init__(self):
+        self.method_type = method_cfg.method_type 
+        self.symbol = method_cfg.symbol
+        self.quote_quantity = method_cfg.quote_quantity
+
         base_url = "https://api.binance.com"
-        api_key, api_secret = retrieve_keys(self.trade_type)
+        api_key, api_secret = retrieve_keys(self.method_type)
 
         self._api = API(api_key, api_secret, base_url)
 
 
-    def _request_order(self, payload={}):
+    # ----------------------------------------------------------
+    #                     Trade Functions
+    # ----------------------------------------------------------
+
+    def _trade(self, trade_type: TradeType, trade_side: TradeSide) -> Dict[str, str]:
         """
 
         """
-        order_request = self._api.send_signed_request('POST', '/api/v3/order', payload)
-        try:
-            now = convert_time(time.time())
-            logger.info(
-                f"Creating {payload['symbol'].upper()} {payload['type'].replace('_', ' ')} {payload['side'].upper()} order at {now} ({normalize_time(now)}).")
-        except KeyError:
-            logger.info("Creating Purchase Order")
-        return order_request
-
-        
-    def buy_trade(self, symbol: str, quote_quantity: float = 0, quantity: float = 0):
-        """
-
-        """
-        desired_quantity = get_desired_quantity(symbol=symbol, set_price=quote_quantity) if (not quantity) else quantity
-        buy_payload = {
-            'symbol':       symbol,
-            'side':         'BUY',
-            'type':         'MARKET',
-            'quantity':     desired_quantity,
+        desired_quantity = self.get_desired_quantity(self.symbol, self.quote_quantity)
+        trdae_payload = {
+            'symbol':       self.symbol,
+            'side':         trade_side.value,
+            'type':         trade_type.value.upper(),
+            'quantity':     desired_quantity
         }
-        # trade_receipt = _request_order(buy_payload)
-        return self._request_order(buy_payload)
-        # TODO lower this sleep if possible
-        time.sleep(5) 
+        order = self._api.send_signed_request('POST', '/api/v3/order', trade_payload)
 
-        # TODO move order logs to csv file
-        with open('logs/orders.txt', 'a') as f: 
-            f.write(f"TIME: {convert_time(time.time())} - \
-                {normalize_time(convert_time(time.time()))}\n$ ======== BUY ORDER \
-                ======== $\nProposed:\n{pformat(buy_payload)}\nActual:\n \
-                {pformat(trade_receipt)}\n\n")
-        if 'code' in list(trade_receipt.keys()):
-            logger.warning(f"\n{trade_receipt['code']} {trade_receipt['msg']}\n{pformat(buy_payload)}\n{pformat(trade_receipt)}", exc_info=True)
-        profit_quantity = get_profit_quantity(symbol, desired_quantity)
-        try:
-            order_id = trade_receipt['orderId']
-        except KeyError:
-            logger.error(f"ERROR Could not find buy order ID.", exc_info=True)
-            return None, profit_quantity
-        else:
-            return order_id, profit_quantity
+        assert "orderId" not in order.keys(), f"Could not find order id in {trade_side.value} order request response.\n{order}"
+
+        return order
 
 
-    def sell_trade(self, symbol: str, quote_quantity: float = 0, quantity: float = 0):
+    def buy_market(self):
         """
 
         """
-        desired_quantity = quantity if (not quote_quantity) else get_desired_quantity(symbol=symbol, set_price=quote_quantity)
-        sell_payload = {
-            'symbol':       symbol,
-            'side':         'SELL',
-            'type':         'MARKET',
-            'quantity':     desired_quantity,
+        return self._trade(TradeType.MARKET, TradeSide.BUY)
+
+
+    def sell_market(self):
+        """
+
+        """
+        return self._trade(TradeType.MARKET, TradeSide.SELL) 
+
+
+    # ----------------------------------------------------------
+    #                     Main API Functions
+    # ----------------------------------------------------------
+
+    def get_order(self, symbol: str, orderId: str) -> Dict[str, str]:
+        """
+
+        """
+        payload = {
+            'symbol': symbol,
+            'orderId': orderId,
         }
         # trade_receipt = _request_order(sell_payload)
         return self._request_order(sell_payload) 
