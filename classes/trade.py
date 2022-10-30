@@ -6,16 +6,25 @@ from enum import Enum
 from dataclasses import dataclass
 
 
+
 # ----------------------------------------------------------
 #                      Enum Classes 
 # ----------------------------------------------------------
 
-class MethodType(Enum):
+class TradeSide(Enum):
     """
-    An enum for the method type
+
     """
-    REAL = 0
-    PAPER = 1
+    BUY = "buy"
+    SELL = "sell"
+
+
+class TradeType(Enum):
+    """
+
+    """
+    MARKET = "market"
+    LIMIT = "limit"
 
 
 # ----------------------------------------------------------
@@ -23,22 +32,21 @@ class MethodType(Enum):
 # ----------------------------------------------------------
 
 @dataclass
-class MethodConfig:
+class OpenTrade:
     """
 
     """
-    type = MethodType 
-    symbol = str
-    quote_quantity = float
-
-
-@dataclass
-class MethodInfo:
-    """
-
-    """
-    profit_percent = float
-    stop_percent = float
+    buy_price = float  
+    profit_price = float
+    stop_price = float
+    sell_quantity = float
     
 
-# TODO add different class for backtesting
+@dataclass
+class TradeInfo:
+    """
+
+    """
+    trade_side: TradeSide 
+    trade_type: TradeType
+
