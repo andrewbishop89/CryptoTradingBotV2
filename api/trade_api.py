@@ -3,8 +3,10 @@
 """
 
 from dataclasses import dataclass
-from classes.config import TradeType
+from typing import Dict
 
+from classes.config import MethodType, MethodInfo
+from classes.trade import TradeType, TradeSide, TradeInfo 
 from api.api import API
 from functions.setup.setup import convert_time, retrieve_keys
 from functions.trade.trade import get_profit_quantity, get_desired_quantity, normalize_time
