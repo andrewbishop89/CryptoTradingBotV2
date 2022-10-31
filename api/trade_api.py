@@ -5,27 +5,31 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from classes.config import MethodType, MethodInfo
+from classes.config import MethodType, MethodConfig 
 from classes.trade import TradeType, TradeSide, TradeInfo 
-from api.api import API
+from api.general_api import API
 from functions.setup.setup import convert_time, retrieve_keys
-from functions.trade.trade import get_profit_quantity, get_desired_quantity, normalize_time
-
+from functions.trade.trade import get_profit_quantity, normalize_time
 
 @dataclass
-class BinanceAPI:
+class MethodAPI:
     """
 
     """
     method_cfg = MethodConfig
 
-    def __post_init__(self):
-        self.method_type = method_cfg.method_type 
-        self.symbol = method_cfg.symbol
-        self.quote_quantity = method_cfg.quote_quantity
+    
+
+
+class TradeAPI:
+    """
+
+    """
+    def __init__(self, method_type):
+        self._method_type = method_type
 
         base_url = "https://api.binance.com"
-        api_key, api_secret = retrieve_keys(self.method_type)
+        api_key, api_secret = retrieve_keys(self._method_type)
 
         self._api = API(api_key, api_secret, base_url)
 
@@ -34,13 +38,10 @@ class BinanceAPI:
     #                     Trade Functions
     # ----------------------------------------------------------
 
-    def _trade(self, trade_type: TradeType, trade_side: TradeSide) -> Dict[str, str]:
-        """
-
-        """
-        desired_quantity = self.get_desired_quantity(self.symbol, self.quote_quantity)
-        trdae_payload = {
-            'symbol':       self.symbol,
+    def _trade(self, symbol, quote_quantity, trade_type: TradeType, trade_side: TradeSide) -> Dict[str, str]:
+        desired_quantity = self.get_desired_quantity(symbol, quote_quantity)
+        trade_payload = {
+            'symbol':       symbol,
             'side':         trade_side.value,
             'type':         trade_type.value.upper(),
             'quantity':     desired_quantity
@@ -52,18 +53,12 @@ class BinanceAPI:
         return order
 
 
-    def buy_market(self):
-        """
-
-        """
-        return self._trade(TradeType.MARKET, TradeSide.BUY)
+    def market_buy(self, symbol: str, quote_quantity: float):
+        return self._trade(symbol, quote_quantity, TradeType.MARKET, TradeSide.BUY)
 
 
-    def sell_market(self):
-        """
-
-        """
-        return self._trade(TradeType.MARKET, TradeSide.SELL) 
+    def market_sell(self, symbol: str, quote_quantity: float):
+        return self._trade(symbol, quote_quantity, TradeType.MARKET, TradeSide.SELL) 
 
 
     # ----------------------------------------------------------
