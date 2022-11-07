@@ -17,7 +17,7 @@ import threading
 from typing import Tuple, Dict, List
 from enum import Enum
 
-from classes.config import TradeType
+from classes.config import MethodType 
 
             
 #PARAM interval(int): interval in int form to be converted to str form
@@ -176,14 +176,14 @@ def lost_connection_sleep(
     return
 
 
-def retrieve_keys(trade_type: TradeType) -> Tuple[str, str]:
+def retrieve_keys(method_type: MethodType) -> Tuple[str, str]:
     """
     Retrieves specified API keys from environment.
 
-    :param trade_type TradeType: specifies which API keys to return
+    :param method_type MethodType: specifies which API keys to return
     :return Tuple[str, str]: a tuple of the public and secret api keys
     """
-    if trade_type == TradeType.REAL:
+    if method_type == MethodType.REAL:
         keys = (os.environ["BINANCE_REAL_K"], os.environ["BINANCE_REAL_S"])
     else:
         keys = (os.environ["BINANCE_PAPER_K"], os.environ["BINANCE_PAPER_S"])

@@ -75,8 +75,7 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
         return format_binance_klines(klines)
 
 
-def candle_data_file_path(symbol: str, interval: str,
-                          historical: bool = False) -> str:
+def candle_data_file_path(symbol: str, interval: str, historical: bool = False) -> str:
     """
     Description:
         Returns the file path for the corresponding input parameters.

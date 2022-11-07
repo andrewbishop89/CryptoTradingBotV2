@@ -9,7 +9,6 @@
 # modules imported
 import pandas as pd
 
-from api.binance import *
 
 # ----------------------------------functions-----------------------------------
 

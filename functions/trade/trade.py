@@ -15,10 +15,6 @@ import threading
 import logging
 from random import randint
 
-from api.binance import *
-from functions.setup.setup import *
-from functions.data_collection.data_collection import *
-
 
 # ----------------------------------functions-----------------------------------
 
@@ -224,23 +220,6 @@ def last_order_quantity(symbol, orderId):
             return quantity
         except KeyError:
             logger.error(f"Could not find last order quantity.", exc_info=True)
-
-
-def account_info(specific_data=None):
-    # returns dictionary of all the crypto the account holds
-    if (specific_data == None):
-        specific_data = []
-    data = {}
-    account = send_signed_request('GET', '/api/v3/account')
-    balances = account['balances']
-    for balance in balances:
-        if float(balance['free']) != 0.0:
-            if specific_data:
-                if balance['asset'] in specific_data:
-                    data[balance['asset']] = balance['free']
-            else:
-                data[balance['asset']] = balance['free']
-    return data
 
 
 def my_trades(symbol: str) -> list:
