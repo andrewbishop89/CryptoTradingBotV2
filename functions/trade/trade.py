@@ -7,18 +7,13 @@
 # 2021/11/13
 #
 
-# modules imported
+
 from pprint import pprint, pformat
 import datetime
 import os
 import threading
 import logging
 from random import randint
-
-from constants.parameters import *
-from api.binance import *
-from setup.setup import *
-from data_collection.data_collection import *
 
 
 # ----------------------------------functions-----------------------------------
@@ -40,8 +35,6 @@ def request_order(payload={}):
 # PARAM quantity(float): quantity to buy
 # RETURN (int): order id of buy trade
 # RETURN (float): profit quantity
-
-
 def buy_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
     desired_quantity = get_desired_quantity(
         symbol=symbol,
@@ -105,31 +98,6 @@ def sell_trade(symbol: str, quote_quantity: float = 0, quantity: float = 0):
         return None, profit_quantity
     else:
         return order_id, profit_quantity
-
-
-# PARAM symbol(str): symbol of quantity to trade
-# PARAM percentage_cut(float): percentage of bank account to trade
-# PARAM set_price(float): exact price to trade
-def get_desired_quantity(
-        symbol: str,
-        percentage_cut: float = 0.04,
-        set_price: float = -1):
-
-    if set_price == -1:
-
-        price = float(get_current_price(symbol))
-        minimum_cut = get_minimum_cut(symbol)
-        if percentage_cut < minimum_cut:
-            logger.error(
-                f"ERROR {symbol} Percentage cut ({percentage_cut*100}%) is less than minimum ({round(minimum_cut*100, 2)}%). Cannot afford right now.")
-            raise ValueError
-        payment_symbol = get_payment_symbol(symbol)
-        payment = float(account_info([payment_symbol])[payment_symbol])
-        quantity = round(percentage_cut*payment/price, trade_precision(symbol))
-        validated_quantity = validate_quantity(symbol, quantity)
-        return float(validated_quantity)
-    else:
-        return float(get_hardcoded_quantity(symbol, set_price))
 
 
 def get_profit_quantity(symbol, buy_quantity):
@@ -252,31 +220,6 @@ def last_order_quantity(symbol, orderId):
             return quantity
         except KeyError:
             logger.error(f"Could not find last order quantity.", exc_info=True)
-
-
-def account_info(specific_data=None):
-    # returns dictionary of all the crypto the account holds
-    if (specific_data == None):
-        specific_data = []
-    data = {}
-    account = send_signed_request('GET', '/api/v3/account')
-    balances = account['balances']
-    for balance in balances:
-        if float(balance['free']) != 0.0:
-            if specific_data:
-                if balance['asset'] in specific_data:
-                    data[balance['asset']] = balance['free']
-            else:
-                data[balance['asset']] = balance['free']
-    return data
-
-
-def get_order(symbol, orderId):
-    payload = {
-        'symbol': symbol,
-        'orderId': orderId,
-    }
-    return send_signed_request('GET', '/api/v3/order', payload)
 
 
 def my_trades(symbol: str) -> list:

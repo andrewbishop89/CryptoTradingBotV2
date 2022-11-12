@@ -6,16 +6,14 @@
 # 2021/11/13
 #
 
-# modules imported
-from binance.client import Client
+from binance.client import Client as ExternalClient 
 import binance
 import os
 import requests
 import logging
 from random import randint
 
-from constants.parameters import API_KEY, API_SECRET
-from setup.setup import *
+from functions.setup.setup import *
 
 # ----------------------------------functions-----------------------------------
 
@@ -38,7 +36,7 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
     """
     try:
         interval = decode_interval(interval)
-        client = Client(API_KEY, API_SECRET)
+        client = ExternalClient(*retrieve_keys())
         if start_time:
             start_time = kline_start_time(interval, limit)
         if limit > 1000:
@@ -72,13 +70,11 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
         return format_binance_klines(klines)
     except:
         if not len(klines):
-            print(f"{RED}ERROR{WHITE} No klines were downloaded.")
             raise ValueError
         return format_binance_klines(klines)
 
 
-def candle_data_file_path(symbol: str, interval: str,
-                          historical: bool = False) -> str:
+def candle_data_file_path(symbol: str, interval: str, historical: bool = False) -> str:
     """
     Description:
         Returns the file path for the corresponding input parameters.
@@ -177,18 +173,14 @@ def download_recent_klines(symbol: str, interval: str,
         try:
             if (limit > 1000):  # this func cant do over 1000 func but other func can
                 return historical_klines(symbol, interval, limit)
-            client = Client(API_KEY, API_SECRET)
+            client = ExternalClient(*retrieve_keys())
             klines = client.get_klines(
                 symbol=symbol, interval=interval, limit=limit)
         except binance.exceptions.BinanceAPIException:
             # use random to stagger incase multiple api errors are raised simultaneously
             wait_time = randint(30, 90)
-            logger.warning(
-                f"Binance API Error. Retrying in {wait_time}s.", exc_info=True)
             time.sleep(wait_time)
         except requests.exceptions.ConnectionError:
-            logger.warning(
-                f"Connection Error. Retrying in 20s.", exc_info=True)
             time.sleep(20)
         else:
             break
@@ -251,5 +243,4 @@ def delete_old_data():
             data_files = os.listdir(dir_fp)
             for data_file in data_files:
                 os.remove(os.path.join(dir_fp, data_file))
-    logger.debug("Deleted old live data.")
     return
