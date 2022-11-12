@@ -20,13 +20,15 @@ import threading
 from functions.setup.setup import *
 from functions.data_collection.data_collection import *
 
+from dataclasses import dataclass
+
 
 # ----------------------------------functions-----------------------------------
 
 # TODO add check so that websocket disconnects and reconnects after 24h
 
 
-def format_kline(kline: dict) -> pd.DataFrame:
+def _format_kline(kline: dict) -> pd.DataFrame:
     """
     Description:
         Converts kline from dict to dataframe.
@@ -46,26 +48,7 @@ def format_kline(kline: dict) -> pd.DataFrame:
     }).set_index("t")
 
 
-def init_websocket_klines(symbol: str, interval: str, file_lock: threading.Lock, limit: int = 500) -> None:
-    """
-    Description:
-        Initiates all the kline data necessary before connecting to the socket stream. Specifically downloads the last 500 candles
-    Args:
-        symbol (str): symbol of klines
-        interval (str): interval of klines
-        file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
-        limit (int): Defaults to 500. number of klines to download in file
-    """
-    init_coin(symbol, interval)
-    data_path = os.path.join(
-        "data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
-    file_lock.acquire()
-    download_recent_klines(symbol, interval, limit).to_csv(data_path)
-    file_lock.release()
-    asyncio.run(connect_async_websocket(symbol, interval, file_lock))
-
-
-async def connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
+async def _connect_async_websocket(symbol: str, interval: str, file_lock: threading.Lock):
     """
     Description:
         Connects asynchronous main loop for data collection.
@@ -81,7 +64,7 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
     async with websockets.connect(ws_path) as ws:
         while True:
             try:
-                current_kline = format_kline(json.loads(await ws.recv())['k'])
+                current_kline = _format_kline(json.loads(await ws.recv())['k'])
 
                 file_lock.acquire()
                 klines = pd.read_csv(data_path).set_index(
@@ -103,59 +86,96 @@ async def connect_async_websocket(symbol: str, interval: str, file_lock: threadi
                 time_now = datetime.utcfromtimestamp(
                     time.time()-7*3600).strftime('%H:%M')
                 if time_now == "11:29":
-                    logger.info(
-                        f"Daily Ending of {threading.current_thread().name}: {symbol}.{interval}")
                     return  # end function loop if it is time for daily reset
             except (requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError):
-                logger.warning(
-                    "Could not connect to network. Waiting for 30s.", exc_info=True)
                 time.sleep(30)
             except socket.gaierror as e:
-                logger.warning(
-                    "Websocket error has been raised. Waiting for 20s.", exc_info=True)
                 time.sleep(20)
 
 
-def connect_websocket(symbol: str, interval: str, file_lock: threading.Lock, limit: int = 500) -> threading.Thread:
+def _init_websocket_klines(symbol: str, interval: str, file_lock: threading.Lock, limit: int = 500) -> None:
     """
     Description:
-        Creates a new thread for the websocket and creates connection.
+        Initiates all the kline data necessary before connecting to the socket stream. Specifically downloads the last 500 candles
     Args:
         symbol (str): symbol of klines
         interval (str): interval of klines
         file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
         limit (int): Defaults to 500. number of klines to download in file
-    Return:
-        (threading.Thread): thread that is used for websocket connection
     """
-    websocket_thread = threading.Thread(target=init_websocket_klines, args=[
-                                        symbol, interval, file_lock, limit], daemon=True)
-    websocket_thread.start()
-    websocket_thread.name = f"{symbol}/{interval}_Websocket_Thread"
-    return websocket_thread
-
-
-def update_klines(symbol: str, interval: str, file_lock: threading.Lock) -> pd.DataFrame:
-    """
-    Description:
-        Reads csv file for klines in thread safe manner.
-    Args:
-        symbol (str): symbol of kline data
-        interval (str): interval of kline data
-        file_lock (threading.Lock): thread safe lock of data file
-    Returns:
-        pd.DataFrame: dataframe with most recent updated klines
-    """
-    data_path = os.path.join(
-        "data", "live_data", interval, f"{symbol.upper()}_{interval}.csv")
+    init_coin(symbol, interval)
+    data_path = os.path.join("data", "live_data", f"{interval}", f"{symbol.upper()}_{interval}.csv")
     file_lock.acquire()
-    while True:
-        try:
-            klines = pd.read_csv(data_path)
-            break
-        except OSError:
-            logger.debug(
-                f"{symbol} {interval} - Retrying in 20s.", exc_info=True)
-            time.sleep(20)
+    download_recent_klines(symbol, interval, limit).to_csv(data_path)
     file_lock.release()
-    return klines
+    asyncio.run(_connect_async_websocket(symbol, interval, file_lock))
+
+
+@dataclass
+class LiveKlines:
+    """
+    Class for connecting websocket thread and updating klines in one object.
+    """
+    # symbol = str
+    # interval = str
+    # limit = int
+    
+    def __init__(self, symbol, interval, limit):
+        print("Init LiveKlines")
+        self.symbol = symbol
+        self.interval = interval
+        self.limit = limit 
+        # initiate file lock
+        self.file_lock = threading.Lock()
+        # initiate websocket
+        print("Init connect websocket")
+        self.socket_thread = self.connect_websocket()
+
+    def connect_websocket(self) -> threading.Thread:
+        """
+        Description:
+            Creates a new thread for the websocket and creates connection.
+        Args:
+            symbol (str): symbol of klines
+            interval (str): interval of klines
+            file_lock (threading.Lock): threading lock to avoid thread collisions when data from file is accessed
+            limit (int): Defaults to 500. number of klines to download in file
+        Return:
+            (threading.Thread): thread that is used for websocket connection
+        """
+        print("connecting webscoket")
+        websocket_thread = threading.Thread(target=_init_websocket_klines, 
+            args=[
+                self.symbol, 
+                self.interval, 
+                self.file_lock, 
+                self.limit], 
+            daemon=True)
+        websocket_thread.start()
+        time.sleep(3)
+        while self.file_lock.locked():
+            time.sleep(0.25)
+        websocket_thread.name = f"{self.symbol}_{self.interval}_Websocket_Thread"
+        return websocket_thread
+
+    def update_klines(self) -> pd.DataFrame:
+        """
+        Description:
+            Reads csv file for klines in thread safe manner.
+        Args:
+            symbol (str): symbol of kline data
+            interval (str): interval of kline data
+            file_lock (threading.Lock): thread safe lock of data file
+        Returns:
+            pd.DataFrame: dataframe with most recent updated klines
+        """
+        data_path = os.path.join("data", "live_data", self.interval, f"{self.symbol.upper()}_{self.interval}.csv")
+        self.file_lock.acquire()
+        while True:
+            try:
+                klines = pd.read_csv(data_path)
+                break
+            except OSError:
+                time.sleep(20)
+        self.file_lock.release()
+        return klines
