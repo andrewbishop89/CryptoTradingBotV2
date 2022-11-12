@@ -70,7 +70,6 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
         return format_binance_klines(klines)
     except:
         if not len(klines):
-            print(f"{RED}ERROR{WHITE} No klines were downloaded.")
             raise ValueError
         return format_binance_klines(klines)
 
@@ -180,12 +179,8 @@ def download_recent_klines(symbol: str, interval: str,
         except binance.exceptions.BinanceAPIException:
             # use random to stagger incase multiple api errors are raised simultaneously
             wait_time = randint(30, 90)
-            logger.warning(
-                f"Binance API Error. Retrying in {wait_time}s.", exc_info=True)
             time.sleep(wait_time)
         except requests.exceptions.ConnectionError:
-            logger.warning(
-                f"Connection Error. Retrying in 20s.", exc_info=True)
             time.sleep(20)
         else:
             break
@@ -248,5 +243,4 @@ def delete_old_data():
             data_files = os.listdir(dir_fp)
             for data_file in data_files:
                 os.remove(os.path.join(dir_fp, data_file))
-    logger.debug("Deleted old live data.")
     return
