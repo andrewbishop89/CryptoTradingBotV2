@@ -14,8 +14,8 @@ class MethodType(Enum):
     """
     An enum for the method type
     """
-    REAL = 0
-    PAPER = 1
+    REAL = "REAL"
+    PAPER = "PAPER"
 
 
 # ----------------------------------------------------------
