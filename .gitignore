@@ -33,6 +33,7 @@ __pycache__
 .vscode
 .idea
 notebooks
+images
 
 #csv files
 *.csv
