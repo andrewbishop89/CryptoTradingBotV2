@@ -176,14 +176,24 @@ def lost_connection_sleep(
     return
 
 
-def retrieve_keys(method_type: MethodType) -> Tuple[str, str]:
+def set_method_type(method_type: MethodType):
+    print(method_type.value)
+    os.environ["MethodType"] = method_type.value
+
+
+def retrieve_method_type():
+    return os.environ["MethodType"] 
+
+
+def retrieve_keys() -> Tuple[str, str]:
     """
     Retrieves specified API keys from environment.
 
     :param method_type MethodType: specifies which API keys to return
     :return Tuple[str, str]: a tuple of the public and secret api keys
     """
-    if method_type == MethodType.REAL:
+    method_type = retrieve_method_type()
+    if method_type == "REAL":
         keys = (os.environ["BINANCE_REAL_K"], os.environ["BINANCE_REAL_S"])
     else:
         keys = (os.environ["BINANCE_PAPER_K"], os.environ["BINANCE_PAPER_S"])

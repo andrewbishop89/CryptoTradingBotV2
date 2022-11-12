@@ -29,7 +29,7 @@ class TradeAPI:
         self._method_type = method_type
 
         base_url = "https://api.binance.com"
-        api_key, api_secret = retrieve_keys(self._method_type)
+        api_key, api_secret = retrieve_keys()
 
         self._api = API(api_key, api_secret, base_url)
 

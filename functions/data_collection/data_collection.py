@@ -36,7 +36,7 @@ def historical_klines(symbol: str, interval: str, limit: int, start_time: int = 
     """
     try:
         interval = decode_interval(interval)
-        client = ExternalClient(API_KEY, API_SECRET)
+        client = ExternalClient(*retrieve_keys())
         if start_time:
             start_time = kline_start_time(interval, limit)
         if limit > 1000:
@@ -174,7 +174,7 @@ def download_recent_klines(symbol: str, interval: str,
         try:
             if (limit > 1000):  # this func cant do over 1000 func but other func can
                 return historical_klines(symbol, interval, limit)
-            client = ExternalClient(API_KEY, API_SECRET)
+            client = ExternalClient(*retrieve_keys())
             klines = client.get_klines(
                 symbol=symbol, interval=interval, limit=limit)
         except binance.exceptions.BinanceAPIException:
