@@ -67,8 +67,7 @@ async def _connect_async_websocket(symbol: str, interval: str, file_lock: thread
                 current_kline = _format_kline(json.loads(await ws.recv())['k'])
 
                 file_lock.acquire()
-                klines = pd.read_csv(data_path).set_index(
-                    "t")  # load existing klines
+                klines = pd.read_csv(data_path).set_index("t")  # load existing klines
                 file_lock.release()
 
                 if klines.index[-1] != current_kline.index[-1]:  # if new candle has opened
@@ -179,3 +178,4 @@ class LiveKlines:
                 time.sleep(20)
         self.file_lock.release()
         return klines
+
