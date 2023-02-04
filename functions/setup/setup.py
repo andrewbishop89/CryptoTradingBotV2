@@ -177,12 +177,13 @@ def lost_connection_sleep(
 
 
 def set_method_type(method_type: MethodType):
-    print(method_type.value)
     os.environ["MethodType"] = method_type.value
 
 
 def retrieve_method_type():
-    return os.environ["MethodType"] 
+    if "MethodType" not in os.environ.keys():
+        os.environ["MethodType"] = MethodType.PAPER.value
+    return os.environ["MethodType"]
 
 
 def retrieve_keys() -> Tuple[str, str]:
