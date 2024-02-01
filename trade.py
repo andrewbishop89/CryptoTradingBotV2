@@ -9,6 +9,7 @@
 import os
 import time
 
+import pandas as pd
 
 from backtest import backtest
 
